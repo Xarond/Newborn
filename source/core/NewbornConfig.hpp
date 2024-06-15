@@ -20,6 +20,30 @@ using std::dynamic_pointer_cast;
 using std::const_pointer_cast;
 using std::enable_shared_from_this;
 
+using std::pair;
+using std::make_pair;
+
+using std::tuple;
+using std::make_tuple;
+using std::tuple_element;
+using std::get;
+using std::tie;
+using std::ignore;
+
+using std::initializer_list;
+
+using std::min;
+using std::max;
+
+using std::bind;
+using std::function;
+using std::forward;
+using std::mem_fn;
+using std::ref;
+using std::cref;
+using namespace std::placeholders;
+using namespace std::string_literals;
+
 #define STAR_CLASS(ClassName)                                     \
   class ClassName;                                                \
   using ClassName##Ptr = std::shared_ptr<ClassName>;              \
