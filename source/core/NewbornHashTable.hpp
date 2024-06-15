@@ -37,6 +37,90 @@ private:
       };
       size_t hash;
     };
+
+    typedef std::vector<Bucket, typename std::allocator_traits<Allocator>::template rebind_alloc<Bucket>> Buckets;
+
+public:
+  struct const_iterator {
+    bool operator==(const_iterator const& rhs) const;
+    bool operator!=(const_iterator const& rhs) const;
+
+    const_iterator& operator++();
+    const_iterator operator++(int);
+
+    Value const& operator*() const;
+    Value const* operator->() const;
+
+    Bucket const* current;
+  };
+
+  struct iterator {
+    bool operator==(iterator const& rhs) const;
+    bool operator!=(iterator const& rhs) const;
+
+    iterator& operator++();
+    iterator operator++(int);
+
+    Value& operator*();
+    Value* operator->();
+
+    operator const_iterator() const;
+
+    Bucket* current;
+  };
+
+  FlatHashTable(size_t bucketCount, GetKey getKey, Hash const& hash, Equals const& equals, Allocator const& alloc());
+
+  iterator begin();
+  iterator end();
+
+  const_iterator begin() const;
+  const_iterator end() const;
+
+  size_t empty() const;
+  size_t size() const;
+  void clear();
+
+  std::pair<iterator, bool> insert(Value value);
+
+  iterator erase(const_iterator pos);
+  iterator erase(const_iterator first, const_iterator last);
+
+  const_iterator find(Key const& key) const;
+  iterator find(Key const& key);
+
+  void reserve(size_t capacity);
+  Allocator getAllocator() const;
+
+  bool operator==(FlatHashTable const& rhs) const;
+  bool operator!=(FlatHashTable const& rhs) const;
+
+private:
+  static constexpr size_t MinCapacity = 8
+  static constexpr double MaxFillLevel = 0.7
+
+  static Bucket* scan(Bucket* p);
+  static Bucket const* scan(Bucket const* p);
+
+  size_t hashBucket(size_t hash) const;
+  size_t bucketError(size_t current, size_t target) const;
+  void checkCapacity(size_t additionalCapacity);
+
+  Buckets m_Buckets;
+  size_t m_filledCount;
+
+  GetKey m_getKey;
+  Hash m_hash;
+  Equals m_equals;
+};
+
+template <typename Value, typename Key, typename GetKey, typename Hash, typename Equals, typename Allocator>
+FlatHashTable<Value, Key, GetKey, Hash, Equals, Allocator>::Bucket::Bucket() {
+    this->hash = EmptyHashValue;
+}
+
+
+
 }
 
 }
