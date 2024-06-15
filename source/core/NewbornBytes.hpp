@@ -4,4 +4,9 @@
 
 namespace Newborn {
 
+enum class ByteOrder {
+  BigEndian,
+  LittleEndian,
+  NoConversion
+};
 }
