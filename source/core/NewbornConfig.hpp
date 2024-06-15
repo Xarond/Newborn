@@ -44,7 +44,28 @@ using std::cref;
 using namespace std::placeholders;
 using namespace std::string_literals;
 
-#define STAR_CLASS(ClassName)                                     \
+using std::prev;
+//using std::next;
+
+using std::atomic;
+using std::atomic_flag;
+using std::atomic_load;
+using std::atomic_store;
+
+#ifndef NDEBUG
+#define NEWBORN_DEBUG 1
+constexpr bool DebugEnabled = true;
+#else
+constexpr bool DebugEnabled = false;
+#endif
+
+size_t const NPos = (size_t)(-1);
+
+typedef int64_t StreamOffset;
+
+#define _unused(x) ((void)x)
+
+#define NEWBORN_CLASS(ClassName)                                     \
   class ClassName;                                                \
   using ClassName##Ptr = std::shared_ptr<ClassName>;              \
   using ClassName##ConstPtr = std::shared_ptr<const ClassName>;   \
@@ -53,7 +74,7 @@ using namespace std::string_literals;
   using ClassName##UPtr = std::unique_ptr<ClassName>;             \
   using ClassName##ConstUPtr = std::unique_ptr<const ClassName>
 
-#define STAR_STRUCT(StructName)                                     \
+#define NEWBORN_STRUCT(StructName)                                     \
   struct StructName;                                                \
   using StructName##Ptr = std::shared_ptr<StructName>;              \
   using StructName##ConstPtr = std::shared_ptr<const StructName>;   \
