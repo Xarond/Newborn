@@ -14,14 +14,28 @@ private:
     static size_t const FilledHashBit = (size_t)1 << (sizeof(size_t) * 8 - 1);
 
     struct Bucket {
-        Bucket();
-        ~Bucket();
+      Bucket();
+      ~Bucket();
     
-        Bucket(Bucket const& rhs);
-        Bucket(Bucket&& rhs);
+      Bucket(Bucket const& rhs);
+      Bucket(Bucket&& rhs);
 
-        Bucket& operator=(Bucket const& rhs);
-        Bucket& operator=(Bucket&& rhs);
+      Bucket& operator=(Bucket const& rhs);
+      Bucket& operator=(Bucket&& rhs);
+
+      void setFilled(size_t hash, Value value);
+      void setEmpty();
+      void setEnd();
+
+      Value const* valuePtr() const;
+      Value* valuePtr();
+      bool isEmpty() const;
+      bool isEnd() const;
+
+      union {
+        Value value;
+      };
+      size_t hash;
     };
 }
 
