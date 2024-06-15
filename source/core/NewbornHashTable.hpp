@@ -18,7 +18,10 @@ private:
         ~Bucket();
     
         Bucket(Bucket const& rhs);
+        Bucket(Bucket&& rhs);
+
         Bucket& operator=(Bucket const& rhs);
+        Bucket& operator=(Bucket&& rhs);
     };
 }
 
