@@ -1,5 +1,5 @@
 #pragma once
-//will create this shit later :<
+
 #include "NewbornPch.hpp"
 
 namespace Newborn {
