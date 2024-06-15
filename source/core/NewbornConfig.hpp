@@ -14,10 +14,10 @@ using std::unique_ptr;
 
 #define NEWBORN_CLASS(ClassName)
     class Classname;
-    using ClassNameUPtr = std::unique_ptr<ClassName>;
+    using ClassName##ConstUPtr = std::unique_ptr<const ClassName>
 
 
 #define NEWBORN_STRUCT(StructName)
     struct StructName;
-    using StructNameUPtr = std::unique_ptr<StructName>;
+    using StructName##ConstUPtr = std::unique_ptr<const StructName>
 }
