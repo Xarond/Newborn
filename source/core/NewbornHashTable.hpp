@@ -118,7 +118,11 @@ template <typename Value, typename Key, typename GetKey, typename Hash, typename
 FlatHashTable<Value, Key, GetKey, Hash, Equals, Allocator>::Bucket::Bucket() {
     this->hash = EmptyHashValue;
 }
-
+template <typename Value, typename Key, typename GetKey, typename Hash, typename Equals, typename Allocator>
+FlatHashTable<Value, Key, GetKey, Hash, Equals, Allocator>::Bucket::~Bucket() {
+  if (auto s = valuePtr())
+    s->~Value();
+}
 
 
 }
