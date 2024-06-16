@@ -24,4 +24,19 @@ template <typename... T>
 void format(std::ostream& out, fmt::format_string<T...> fmt, T&&... args) {
     out << strf(fmt, args...);
 }
+template <typename... Args>
+void coutf(char const* fmt, Args const&... args) {
+    format(std::cout, fmt, args...);
+    std::cout.flush();
+}
+template <typename... Args>
+void cerrf(char const* fmt, Args const&... args) {
+  format(std::cerr, fmt, args...);
+  std::cerr.flush();
+}
+
+template <class Type>
+inline std::string toString(Type const& t) {
+  return fmt::to_string(t);
+}
 }
