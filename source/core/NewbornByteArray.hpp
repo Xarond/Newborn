@@ -85,5 +85,47 @@ public:
   
   const_iterator begin() const;
   const_iterator end() const;
+
+  void insert(size_t pos, char byte);
+  iterator insert(const_iterator pos, char byte);
+  void push_back(char byte);
+
+  char& operator[](size_t i);
+  char operator[](size_t i) const;
+  char at(size_t i) const;
+
+  bool operator<(ByteArray const& b) const;
+  bool operator==(ByteArray const& b) const;
+  bool operator!=(ByteArray const& b) const;
+
+private:
+  char* m_data;
+  size_t m_capacity;
+  size_t m_size;
 };
+
+template <>
+struct hash<ByteArray> {
+  size_t operator()(ByteArray const& b) const;
+};
+
+std::ostream& operator<<(std::ostream& os, ByteArray const& b);
+
+inline void ByteArray::clear() {
+    resize(0);
+}
+
+inline void ByteArray::resize(size_t size) {
+    reserve(size);
+    m_size = size;
+}
+
+inline void ByteArray::append(ByteArray const& b) {
+    append(b.ptr(), b.size());
+}
+
+inline void ByteArray::append(const char* data, size_t len) {
+  resize(m_size + len);
+  std::memcpy(m_data + m_size - len, data, len);
+}
 }
