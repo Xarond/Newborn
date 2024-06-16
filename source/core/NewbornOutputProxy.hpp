@@ -1,0 +1,64 @@
+#pragma once
+
+#include "NewbornMemory.hpp"
+
+#include "fmt/format.h"
+#include "fmt/ostream.h"
+
+namespace Newborn {
+
+namespace OutputAnyDetail {
+  template<typename T, typename CharT, typename Traits>
+  std::basic_string<CharT, Traits> string(T const& t) {
+    return fmt::format("<type {} at address: {}>", typeid(T).name(), (void*)&t);
+  }
+
+  template<typename T, typename CharT, typename Traits>
+  std::basic_ostream<CharT, Traits>& output(std::basic_ostream<CharT, Traits>& os, T const& t) {
+    return os << string<T, CharT, Traits>(t);
+  }
+
+  namespace Operator {
+    template<typename T, typename CharT, typename Traits>
+    std::basic_ostream<CharT, Traits>& operator<<(std::basic_ostream<CharT, Traits>& os, T const& t) {
+      return output(os, t);
+    }
+  }
+
+  template <typename T>
+  struct Wrapper {
+    T const& wrapped;
+  };
+
+  template <typename T>
+  std::ostream& operator<<(std::ostream& os, Wrapper<T> const& wrapper) {
+    using namespace Operator;
+    return os << wrapper.wrapped;
+  }
+}
+
+
+template <typename T>
+OutputAnyDetail::Wrapper<T> outputAny(T const& t) {
+  return OutputAnyDetail::Wrapper<T>{t};
+}
+
+struct OutputProxy {
+  typedef function<void(std::ostream&)> PrintFunction;
+
+  OutputProxy(PrintFunction p)
+    : print(std::move(p)) {}
+
+  PrintFunction print;
+};
+
+inline std::ostream& operator<<(std::ostream& os, OutputProxy const& p) {
+  p.print(os);
+  return os;
+}
+
+}
+
+template <typename T>
+struct fmt::formatter<Newborn::OutputAnyDetail::Wrapper<T>> : ostream_formatter {};
+template <> struct fmt::formatter<Newborn::OutputProxy> : ostream_formatter {};
