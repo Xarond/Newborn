@@ -38,7 +38,7 @@ public:
   StaticVector& operator=(StaticVector&& other);
   StaticVector& operator=(std::initializer_list<Element> list);
 
-  size_t size() const;
+ size_t size() const;
   bool empty() const;
   void resize(size_t size, Element const& e = Element());
 
@@ -51,11 +51,14 @@ public:
   const_iterator begin() const;
   const_iterator end() const;
 
+  iterator begin();
+  iterator end();
+
   const_reverse_iterator rbegin() const;
   const_reverse_iterator rend() const;
 
-  reverse_iterator begin();
-  reverse_iterator end();
+  reverse_iterator rbegin();
+  reverse_iterator rend();
 
   Element const* ptr() const;
   Element* ptr();
