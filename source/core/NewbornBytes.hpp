@@ -97,4 +97,4 @@ inline void fromByteOrder(ByteOrder order, void* dest, void const* src, size_t l
     memcpy(dest, src, len);
 }
 
-}  // namespace Newborn
+}
