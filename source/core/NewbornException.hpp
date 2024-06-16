@@ -51,11 +51,11 @@ void fatalException(std::exception const& e, bool showStackTrace);
 #ifdef NEWBORN_DEBUG
 #define debugPrintStack() \
   { Newborn::printStack("Debug: file " NEWBORN_STR(__FILE__) " line " NEWBORN_STR(__LINE__)); }
-#define newbornAssert(COND)                                                                                      \
-  {                                                                                                              \
-    if (COND)                                                                                                    \
-      ;                                                                                                          \
-    else                                                                                                         \
+#define newbornAssert(COND)                                                                                \
+  {                                                                                                     \
+    if (COND)                                                                                           \
+      ;                                                                                                 \
+    else                                                                                                \
       Newborn::fatalError("assert failure in file " NEWBORN_STR(__FILE__) " line " NEWBORN_STR(__LINE__), true); \
   }
 #else
