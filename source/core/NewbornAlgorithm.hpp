@@ -127,9 +127,10 @@ bool mapsEqual(MapType1 const& m1, MapType2 const& m2) {
     return false;
 
   for (auto const& m1pair : m1) {
-    auto m2it = m2.find(m1pair.first);
+    auto m2it = m2.find(m1pair.first); 
     if (m2it == m2.end() || !(m2it->second == m1pair.second))
       return false;
+      
   }
 
   return true;
@@ -137,5 +138,5 @@ bool mapsEqual(MapType1 const& m1, MapType2 const& m2) {
 
 
 //TODO: FINISH ALGORITHM
-// MAKE LIST HEADER
+//MAKE LIST HEADER
 }
