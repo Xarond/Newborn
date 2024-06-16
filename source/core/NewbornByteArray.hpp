@@ -25,5 +25,38 @@ public:
   ByteArray();
   ByteArray(size_t dataSize, char c);
   ByteArray(char const& data, size_t dataSize);
+  ByteArray(ByteArray const& b);
+  ByteArray(ByteArray&& b) noexcept;
+  ~ByteArray();
+
+  ByteArray& operator=(ByteArray const& b);
+  ByteArray& operator=(ByteArray&& b) noexcept;
+
+  char const* ptr() const;
+  char* ptr();
+
+  size_t size() const;
+  //Max size before rellocation
+  size_t capacity() const;
+  //Is zero size
+  bool empty() const;
+  // Set size to 0
+  void clear();
+  // Set size to 0 and deallocate buffer
+  void reset();
+
+  void reserve(size_t capacity);
+  void resize(size_t size);
+  void resize(size_t size, char f);
+
+  void fill(char c);
+  void fill(size_t size, char c);
+
+  void append(ByteArray const& b);
+  void append(char const* data, size_t len);
+  void appendByte(char b);
+
+  void copyTo(char* data, size_t len) const;
+  void copyTo(char* data) const;
 };
 }
