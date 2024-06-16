@@ -19,4 +19,9 @@ std::string strf(fmt::format_string<T...> fmt, T&&... args) {
     throw FormatException(strf("Exception thrown during string format: {}", e.what()));
   }
 }
+
+template <typename... T>
+void format(std::ostream& out, fmt::format_string<T...> fmt, T&&&... args) {
+    out << strf(fmt, args...);
+}
 }
