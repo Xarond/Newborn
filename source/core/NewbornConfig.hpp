@@ -82,4 +82,8 @@ typedef int64_t StreamOffset;
   using StructName##ConstWeakPtr = std::weak_ptr<const StructName>; \
   using StructName##UPtr = std::unique_ptr<StructName>;             \
   using StructName##ConstUPtr = std::unique_ptr<const StructName>
+
+  #define NEWBORN_QUOTE(name) #name
+  #define NEWBORN_STR(macro) NEWBORN_QUOTE(macro)
 }
+
