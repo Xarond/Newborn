@@ -21,7 +21,7 @@ std::string strf(fmt::format_string<T...> fmt, T&&... args) {
 }
 
 template <typename... T>
-void format(std::ostream& out, fmt::format_string<T...> fmt, T&&&... args) {
+void format(std::ostream& out, fmt::format_string<T...> fmt, T&&... args) {
     out << strf(fmt, args...);
 }
 }
