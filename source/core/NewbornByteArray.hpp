@@ -58,5 +58,32 @@ public:
 
   void copyTo(char* data, size_t len) const;
   void copyTo(char* data) const;
+
+  void copyTo(char* data, size_t pos, size_t len) const;
+
+  void writeFrom(char const* data, size_t pos, size_t len);
+
+  ByteArray sub(size_t b, size_t s) const;
+  ByteArray left(size_t s) const;
+  ByteArray right(size_t s) const;
+
+  void trimLeft(size_t s);
+  void trimRight(size_t s);
+
+  size_t diffChar(ByteArray const& b) const;
+  int compare(ByteArray const& b) const;
+
+  template <typename Combiner>
+  ByteArray combineWith(Combiner&& combine, ByteArray const& rhs, bool extend = false);
+
+  ByteArray andWith(ByteArray const& rhs, bool extend = false);
+  ByteArray orWith(ByteArray const& rhs, bool extend = false);
+  ByteArray xorWith(ByteArray const& rhs, bool extend = false);
+
+  iterator begin();
+  iterator end();
+  
+  const_iterator begin() const;
+  const_iterator end() const;
 };
 }
