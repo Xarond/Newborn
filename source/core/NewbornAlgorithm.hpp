@@ -136,6 +136,75 @@ bool mapsEqual(MapType1 const& m1, MapType2 const& m2) {
   return true;
 }
 
+template <typename OutContainer, typename InContainer, typename Filter>
+OutContainer filtered(InContainer const& input, Filter&& filter) {
+    OutContainer out;
+    auto p = std::begin(input);
+    while (p != std::end(input)) {
+        if (filter(*p))
+            out.insert(out.end(), *p);
+        ++p;
+    }
+    return out;
+}
 
-//TODO: FINISH
+template <typename Container, typename Cond>
+void eraseWhere(Container& container, Cond&& cond) {
+    auto p = std::begin(container);
+    while (p != std::end(container)) {
+        if(cond(*p))
+            p = container.erase(p);
+        else
+            ++p;
+    }
+}
+
+template <typename Container, typename Compare>
+void sort(Container& c, Compare comp) {
+    std::sort(c.begin(), c.end(), comp);
+}
+
+template <typename Container, typename Compare>
+void stableSort(Container& c, Compare comp) {
+    std::stable_sort(c.begin(), c.end(), comp);
+}
+
+template <typename Container>
+void sort(Container& c) {
+    std::sort(c.begin(), c.end(), std::less<typename Container::value_type>());
+}
+
+template <typename Container>
+void stableSort(Container& c) {
+  std::stable_sort(c.begin(), c.end(), std::less<typename Container::value_type>());
+}
+
+template <typename Container, typename Compare>
+Container sorted(Container const& c, Compare comp) {
+  auto c2 = c;
+  sort(c2, comp);
+  return c2;
+}
+
+template <typename Container, typename Compare>
+Container stableSorted(Container const& c, Compare comp) {
+  auto c2 = c;
+  sort(c2, comp);
+  return c2;
+}
+
+template <typename Container>
+Container sorted(Container const& c) {
+  auto c2 = c;
+  sort(c2);
+  return c2;
+}
+
+template <typename Container>
+Container stableSorted(Container const& c) {
+  auto c2 = c;
+  sort(c2);
+  return c2;
+}
+
 }
