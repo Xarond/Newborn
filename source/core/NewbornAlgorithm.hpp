@@ -137,6 +137,5 @@ bool mapsEqual(MapType1 const& m1, MapType2 const& m2) {
 }
 
 
-//TODO: FINISH ALGORITHM
-//MAKE LIST HEADER
+//TODO: FINISH
 }
