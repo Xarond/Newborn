@@ -287,4 +287,306 @@ namespace RangeHelper {
     return diff < 0;
   }
 }
+
+NEWBORN_EXCEPTION(RangeException, NewbornException);
+
+template<typename Value, typename Diff = int>
+class RangeIterator {
+    using iterator_category = std::random_access_iterator_tag;
+    using value_type = Value;
+    using difference_type = Diff;
+    using pointer = Value*;
+    using reference = Value&;
+
+public:
+    RangeIterator() : m_start(), m_end(), m_diff(1), m_current(), m_stop(true) {}
+
+    RangeIterator(Value min, Value max, Diff diff)
+        : m_start(min), m_end(max), m_diff(diff), m_current(min), m_stop(false) {
+        sanity();
+    }
+
+    RangeIterator(Value min, Value max) : m_start(min), m_end(max), m_diff(1), m_current(min), m_stop(false) {
+        sanity();
+    }
+
+    RangeIterator(Value max) : m_start(), m_end(max), m_diff(1), m_current(), m_stop(false) {
+        sanity();
+    }
+
+    RangeIterator(RangeIterator const& rhs) {
+        copy(rhs);
+    }
+
+    RangeIterator& operator=(RangeIterator const& rhs) {
+        copy(rhs);
+        return *this;
+    }
+
+  RangeIterator& operator+=(Diff steps) {
+    if ((applySteps(m_current, m_diff * steps) >= m_end) != (RangeHelper::checkIfDiffLessThanZero<Diff>(m_diff))) {
+      if (!m_stop) {
+        Diff stepsLeft = stepsBetween(m_current, m_end);
+        m_current = applySteps(m_current, stepsLeft * m_diff);
+        m_stop = true;
+      }
+    } else {
+      m_current = applySteps(m_current, steps * m_diff);
+    }
+    return *this;
+  }
+
+  RangeIterator operator-=(Diff steps) {
+    m_stop = false;
+    sanity();
+
+    if (applySteps(m_current, -(m_diff * steps)) < m_start)
+        m_current = m_start;
+    else
+        m_current = applySteps(m_current, -(m_diff * steps));
+    return *this;
+  }
+
+  Value operator*() const {
+    return m_current;
+  }
+
+  Value const* operator->() const {
+    return &m_current;
+  }
+
+  Value operator[](unsigned rhs) const {
+    rhs = std::min(rhs, stepsBetween(m_start, m_end) + 1);
+    return m_start + rhs * m_diff;
+  }
+
+  RangeIterator& operator++() {
+    return operator+=(1);
+  }
+
+  RangeIterator& operator--() {
+    return operator-=(1);
+  }
+
+  RangeIterator operator++(int) {
+    RangeIterator tmp(*this);
+    ++this;
+    return tmp;
+  }
+
+  RangeIterator operator--(int) {
+    RangeIterator tmp(*this);
+    --this;
+    return tmp;
+  }
+
+  RangeIterator operator+(Diff steps) const {
+    RangeIterator copy(*this);
+    copy += steps;
+    return copy;
+  }
+
+  RangeIterator operator-(Diff steps) const {
+    RangeIterator copy(*this);
+    copy -= steps;
+    return copy;
+  }
+
+  int operator-(RangeIterator const& rhs) const {
+    if (!sameClass(rhs))
+      throw RangeException("Attempted to subtract incompatible ranges.");
+
+    return stepsBetween(rhs.m_current, m_current);
+  }
+
+  friend RangeIterator operator+(Diff lhs, RangeIterator const& rhs) {
+    return rhs + lhs;
+  }
+
+  friend RangeIterator operator-(Diff lhs, RangeIterator const& rhs) {
+    return rhs - lhs;
+  }
+
+  bool operator==(RangeIterator const& rhs) const {
+    return (sameClass(rhs) && m_current == rhs.m_current && m_stop == rhs.m_stop);
+  }
+
+  bool operator!=(RangeIterator const& rhs) const {
+    return !(*this == rhs);
+  }
+
+  bool operator<(RangeIterator const& rhs) const {
+    return std::tie(m_start, m_end, m_diff, m_current) < std::tie(rhs.m_start, rhs.m_end, rhs.m_diff, rhs.m_current);
+  }
+
+  bool operator<=(RangeIterator const& rhs) const {
+    return (*this == rhs) || (*this < rhs);
+  }
+
+  bool operator>=(RangeIterator const& rhs) const {
+    return !(*this < rhs);
+  }
+
+  bool operator>(RangeIterator const& rhs) const {
+    return !(*this <= rhs);
+  }
+
+  RangeIterator begin() const {
+    return RangeIterator(m_start, m_end, m_diff);
+  }
+
+  RangeIterator end() const {
+    Diff steps = stepsBetween(m_start, m_end);
+    RangeIterator res(m_start, m_end, m_diff);
+    res += steps;
+    return res;
+  }
+
+private:
+  void copy(RangeIterator const& copy) {
+    m_start = copy.m_start;
+    m_end = copy.m_end;
+    m_diff = copy.m_diff;
+    m_current = copy.m_current;
+    m_stop = copy.m_stop;
+    sanity();
+  }
+
+  void sanity() {
+    if (m_diff == 0)
+      throw RangeException("Invalid difference in range function.");
+
+    if ((m_end < m_start) != (RangeHelper::checkIfDiffLessThanZero<Diff>(m_diff))) {
+      if (RangeHelper::checkIfDiffLessThanZero<Diff>(m_diff))
+        throw RangeException("Start cannot be less than end if diff is negative.");
+      throw RangeException("Max cannot be less than min.");
+    }
+
+    if (m_end == m_start)
+      m_stop = true;
+  }
+
+  bool sameClass(RangeIterator const& rhs) const {
+    return m_start == rhs.m_start && m_end == rhs.m_end && m_diff == rhs.m_diff;
+  }
+
+  Diff stepsBetween(Value start, Value end) const {
+    return ((Diff)end - (Diff)start) / m_diff;
+  }
+
+  Value applySteps(Value start, Diff travel) const {
+    return (Value)((Diff)start + travel);
+  }
+
+  Value m_start;
+  Value m_end;
+  Diff m_diff;
+
+  Value m_current;
+
+  bool m_stop;
+};
+
+template <typename Numeric, typename Diff>
+RangeIterator<Numeric, Diff> range(Numeric min, Numeric max, Diff diff) {
+  return RangeIterator<Numeric, Diff>(min, max, diff);
+}
+
+template <typename Numeric, typename Diff = int>
+RangeIterator<Numeric, Diff> range(Numeric max) {
+  return RangeIterator<Numeric, Diff>(max);
+}
+
+template <typename Numeric, typename Diff = int>
+RangeIterator<Numeric, Diff> range(Numeric min, Numeric max) {
+  return RangeIterator<Numeric, Diff>(min, max);
+}
+
+template <typename Numeric, typename Diff>
+RangeIterator<Numeric, Diff> rangeInclusive(Numeric min, Numeric max, Diff diff) {
+  return RangeIterator<Numeric, Diff>(min, (Numeric)((Diff)max + 1), diff);
+}
+
+template <typename Numeric, typename Diff = int>
+RangeIterator<Numeric, Diff> rangeInclusive(Numeric max) {
+  return RangeIterator<Numeric, Diff>((Numeric)((Diff)max + 1));
+}
+
+template <typename Numeric, typename Diff = int>
+RangeIterator<Numeric, Diff> rangeInclusive(Numeric min, Numeric max) {
+  return RangeIterator<Numeric, Diff>(min, (Numeric)((Diff)max + 1));
+}
+
+// END RANGE
+
+// Wraps a forward-iterator to produce {value, index} pairs, similar to
+// python's enumerate()
+template <typename Iterator>
+struct EnumerateIterator {
+private:
+  Iterator current;
+  Iterator last;
+  size_t index;
+  bool atEnd;
+
+public:
+  typedef decltype(*std::declval<Iterator>()) IteratorValue;
+  typedef pair<IteratorValue&, size_t> value_type;
+
+  EnumerateIterator() : index(0), atEnd(true) {}
+
+  EnumerateIterator(Iterator begin, Iterator end) : current(begin), last(end), index(0) {
+    atEnd = current == last;
+  }
+
+  EnumerateIterator begin() const {
+    return *this;
+  }
+
+  EnumerateIterator end() const {
+    return EnumerateIterator();
+  }
+
+  EnumerateIterator operator++() {
+    if (!atEnd) {
+      ++current;
+      ++index;
+
+      atEnd = current == last;
+    }
+
+    return *this;
+  }
+
+  value_type operator*() const {
+    return {*current, index};
+  }
+
+  bool operator==(EnumerateIterator const& rhs) const {
+    return (atEnd && rhs.atEnd) || (!atEnd && !rhs.atEnd && current == rhs.current && last == rhs.last);
+  }
+
+  bool operator!=(EnumerateIterator const& rhs) const {
+    return !(*this == rhs);
+  }
+
+  explicit operator bool() const {
+    return !atEnd;
+  }
+};
+
+template <typename Iterable>
+EnumerateIterator<decltype(std::declval<Iterable>().begin())> enumerateIterator(Iterable& list) {
+  return EnumerateIterator<decltype(std::declval<Iterable>().begin())>(list.begin(), list.end());
+}
+
+template <typename ResultContainer, typename Iterable>
+ResultContainer enumerateConstruct(Iterable&& list) {
+  ResultContainer res;
+  for (auto el : enumerateIterator(list))
+    res.push_back(std::move(el));
+
+  return res;
+}
+
 }

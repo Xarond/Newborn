@@ -7,7 +7,6 @@
 namespace Newborn {
 
 NEWBORN_CLASS(ByteArray);
-// Sluchaj kurwa zydzie jebany
 // Class to hold an array of bytes.  Contains an internal buffer that may be
 // larger than what is reported by size(), to avoid repeated allocations when a
 // ByteArray grows.
