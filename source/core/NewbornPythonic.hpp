@@ -57,4 +57,129 @@ bool all(Iterable const& iter) {
   std::function<bool(IteratorValue)> compare = [](IteratorValue const& i) { return (bool)i; };
   return all(std::begin(iter), std::end(iter), compare);
 }
+
+struct SliceIndex {
+    SliceIndex() : index(0), given(false) {}
+    SliceIndex(int i) : index(i), given(true) {}
+
+    int index;
+    int given;
+};
+
+SliceIndex const SliceNil = SliceIndex();
+
+template <typename Res, typename In>
+Res slice(In const& r, SliceIndex a, SliceIndex b = SliceIndex(), int j = 1) {
+  int size = (int)r.size();
+  int start, end;
+
+  // Throw exception on j == 0?
+  if (j == 0 || size == 0)
+    return Res();
+
+  if (!a.given) {
+    if (j > 0)
+      start = 0;
+    else
+      start = size - 1;
+  } else if (a.index < 0) {
+    if (-a.index > size - 1)
+      start = 0;
+    else
+      start = size - -a.index;
+  } else {
+    if (a.index > size)
+      start = size;
+    else
+      start = a.index;
+  }
+
+  if (!b.given) {
+    if (j > 0)
+      end = size;
+    else
+      end = -1;
+  } else if (b.index < 0) {
+    if (-b.index > size - 1) {
+      end = -1;
+    } else {
+      end = size - -b.index;
+    }
+  } else {
+    if (b.index > size - 1) {
+      end = size;
+    } else {
+      end = b.index;
+    }
+  }
+
+  if (start < end && j < 0)
+    return Res();
+  if (start > end && j > 0)
+    return Res();
+
+  Res returnSlice;
+  int i;
+  for (i = start; i < end; i += j)
+    returnSlice.push_back(r[i]);
+
+  return returnSlice;
+}
+
+template <typename T>
+T slice(T const& r, SliceIndex a, SliceIndex b = SliceIndex(), int j = 1)  {
+    return slice<T, T>(r, a, b, j);
+}
+
+template <typename IteratorT>
+class ZipWrapperIterator {
+private:
+    IteratorT current;
+    IteratorT last;
+    bool atEnd;
+
+public:
+    typedef IteratorT Iterator;
+    typedef decltype(*std::declval<Iterator>()) IteratorValue;
+    typedef tuple<IteratorValue> value_type;
+
+    ZipWrapperIterator() : atEnd(true) {}
+
+    ZipWrapperIterator(Iterator current, Iterator last) : current(current), last(last) {
+        atEnd = current == last;
+    }
+
+    ZipWrapperIterator operator++() {
+        if (!atEnd) {
+            ++current;
+            atEnd = current == last;
+        }
+
+        return *this;
+    }
+
+    value_type operator*() const {
+        return std::tuple<IteratorValue>(*current);
+    }
+
+    bool operator==(ZipWrapperIterator const& rhs) const {
+        return (atEnd && rhs.atEnd) || (!atEnd && !rhs.atEnd && current == rhs.current && last == rhs.last);
+    }
+
+    bool operator!=(ZipWrapperIterator const& rhs) const {
+        return !(*this == rhs);
+  }
+
+    explicit operator bool() const {
+        return !atEnd;
+  }
+
+    ZipWrapperIterator begin() const {
+        return *this;
+  }
+
+    ZipWrapperIterator end() const {
+        return ZipWrapperIterator();
+  }
+};
 }
