@@ -181,5 +181,33 @@ public:
     ZipWrapperIterator end() const {
         return ZipWrapperIterator();
   }
+
 };
+template <typename IteratorT>
+ZipWrapperIterator<IteratorT> makeZipWrapperIterator(IteratorT current, IteratorT end) {
+  return ZipWrapperIterator<IteratorT>(current, end);
+}
+template <typename TailIteratorT, typename HeadIteratorT>
+class ZipTupleIterator {
+private:
+    TailIteratorT tailIterator;
+    HeadIteratorT headIterator;
+    bool atEnd;
+
+public:
+    typedef TailIteratorT TailIterator;
+    typedef HeadIteratorT HeadIterator;
+
+    typedef decltype(*TailIterator()) TailType;
+    typedef decltype(*HeadIterator()) HeadType;
+
+    typedef decltype(std::tuple_cat(std::declval<TailType>(), std::declval<HeadType>())) value_type;
+
+    ZipTupleIterator() : atEnd(true) {}
+
+    ZipTupleIterator(TailIterator tailIterator, HeadIterator headIterator)
+        : tailIterator(tailIterator), headIterator(headIterator) {
+        atEnd = tailIterator = TailIterator() || headIterator == HeadIterator();
+    }
+}
 }
