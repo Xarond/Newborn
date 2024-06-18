@@ -207,7 +207,7 @@ public:
 
     ZipTupleIterator(TailIterator tailIterator, HeadIterator headIterator)
         : tailIterator(tailIterator), headIterator(headIterator) {
-        atEnd = tailIterator = TailIterator() || headIterator == HeadIterator();
+        atEnd = tailIterator == TailIterator() || headIterator == HeadIterator();
     }
 }
 }
