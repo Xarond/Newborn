@@ -270,4 +270,21 @@ template <typename Container, typename... Rest>
 typename zipIteratorReturn<Container, Rest...>::type zipIterator(Container& container, Rest&... rest) {
   return makeZipTupleIterator(makeZipWrapperIterator(container.begin(), container.end()), zipIterator(rest...));
 }
+
+// END ZIP
+
+// RANGE
+
+namespace RangeHelper {
+
+  template <typename Diff>
+  typename std::enable_if<std::is_unsigned<Diff>::value, bool>::type checkIfDiffLessThanZero(Diff) {
+    return false;
+  }
+
+  template <typename Diff>
+  typename std::enable_if<!std::is_unsigned<Diff>::value, bool>::type checkIfDiffLessThanZero(Diff diff) {
+    return diff < 0;
+  }
+}
 }
