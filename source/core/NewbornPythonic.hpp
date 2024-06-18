@@ -209,5 +209,65 @@ public:
         : tailIterator(tailIterator), headIterator(headIterator) {
         atEnd = tailIterator == TailIterator() || headIterator == HeadIterator();
     }
+
+    ZipTupleIterator operator++() {
+        if (!atEnd) {
+            ++tailIterator;
+            ++headIterator;
+            atEnd = tailIterator == TailIterator() || headIterator == HeadIterator();
+        }
+
+        return *this;
+    }
+
+    value_type operator*() const {
+        return std::tuple_cat(*tailIterator, *headIterator);
+    }
+
+    bool operator==(ZipTupleIterator const& rhs) const {
+        return (atEnd && rhs.atEnd)
+            || (!atEnd && !rhs.atEnd && tailIterator == rhs.tailIterator && headIterator == rhs.headIterator);
+    }
+
+    bool operator!=(ZipTupleIterator const& rhs) const {
+        return !(*this == rhs);
+    }
+
+    explicit operator bool() const {
+        return !atEnd;
+    }
+
+    ZipTupleIterator begin() const {
+        return *this;
+    }
+
+    ZipTupleIterator end() const {
+        return ZipTupleIterator();
+    }
+};
+
+template <typename HeadIteratorT, typename TailIteratorT>
+ZipTupleIterator<HeadIteratorT, TailIteratorT> makeZipTupleIterator(HeadIteratorT head, TailIteratorT tail) {
+    return ZipTupleIterator<HeadIteratorT, TailIteratorT>(head, tail);
+}
+
+template <typename Container, typename... Rest>
+struct zipIteratorReturn {
+    typedef ZipTupleIterator<typename zipIteratorReturn<Container>::type, typename zipIteratorReturn<Rest...>::type> type;
+};
+
+template <typename Container>
+struct zipIteratorReturn<Container> {
+    typedef ZipWrapperIterator<decltype(std::declval<Container>().begin())> type;
+};
+
+template <typename Container>
+typename zipIteratorReturn<Container>::type zipIterator(Container& container) {
+  return makeZipWrapperIterator(container.begin(), container.end());
+}
+
+template <typename Container, typename... Rest>
+typename zipIteratorReturn<Container, Rest...>::type zipIterator(Container& container, Rest&... rest) {
+  return makeZipTupleIterator(makeZipWrapperIterator(container.begin(), container.end()), zipIterator(rest...));
 }
 }
