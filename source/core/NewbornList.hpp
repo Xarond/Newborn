@@ -10,3 +10,7 @@
 #include "NewbornPythonic.hpp"
 #include "NewbornMaybe.hpp"
 #include "NewbornFormat.hpp"
+
+namespace Newborn {
+    
+}
