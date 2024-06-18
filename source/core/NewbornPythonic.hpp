@@ -12,4 +12,10 @@ bool any(Iterator iterBegin, Iterator iterEnd, Functor const& f) {
         return false;
 }
 
+template <typename Iterator>
+bool any(Iterator const& iterBegin, Iterator const& iterEnd) {
+    typedef typename std::iterator_traits<Iterator>::value_type IteratorValue;
+    std::function<bool(IteratorValue)> compare = [](IteratorValue const& i) { return (bool)i; };
+    return any(iterBegin, iterEnd, compare);
+}
 }
