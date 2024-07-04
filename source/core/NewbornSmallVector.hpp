@@ -206,7 +206,7 @@ void SmallVector<Element, MaxStackSize>::reserve(size_t newCapacity) {
   size_t oldCapacity = m_capacity - m_begin;
   if (newCapacity > oldCapacity) {
     newCapacity = max(oldCapacity * 2, newCapacity);
-    auto newMem = (Element*)Star::malloc(newCapacity * sizeof(Element));
+    auto newMem = (Element*)Newborn::malloc(newCapacity * sizeof(Element));
     if (!newMem)
       throw MemoryException::format("Could not set new SmallVector capacity {}\n", newCapacity);
 
@@ -225,7 +225,7 @@ void SmallVector<Element, MaxStackSize>::reserve(size_t newCapacity) {
 
     auto freeOldMem = finally([=]() {
       if (oldHeapAllocated)
-          Star::free(oldMem, oldCapacity * sizeof(Element));
+          Newborn::free(oldMem, oldCapacity * sizeof(Element));
     });
 
     for (size_t i = 0; i < size; ++i) {
