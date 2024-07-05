@@ -1,3 +1,6 @@
+//*************************
+// Jakub Joszko 2024
+//*************************
 #include "NewbornString_windows.hpp"
 
 namespace Newborn {

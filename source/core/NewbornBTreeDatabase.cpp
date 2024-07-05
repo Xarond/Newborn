@@ -1,3 +1,6 @@
+//*************************
+// Jakub Joszko 2024
+//*************************
 #include "NewbornBTreeDatabase.hpp"
 #include "NewbornSha256.hpp"
 #include "NewbornVlqEncoding.hpp"

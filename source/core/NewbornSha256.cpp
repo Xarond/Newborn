@@ -1,3 +1,6 @@
+//*************************
+// Jakub Joszko 2024
+//*************************
 #include "NewbornSha256.hpp"
 #include "NewbornFormat.hpp"
 #include "NewbornEncode.hpp"

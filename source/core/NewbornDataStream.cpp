@@ -1,3 +1,6 @@
+//*************************
+// Jakub Joszko 2024
+//*************************
 #include "NewbornDataStream.hpp"
 #include "NewbornBytes.hpp"
 #include "NewbornVlqEncoding.hpp"

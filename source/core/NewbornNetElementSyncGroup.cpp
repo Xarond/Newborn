@@ -1,3 +1,6 @@
+//*************************
+// Jakub Joszko 2024
+//*************************
 #include "NewbornNetElementSyncGroup.hpp"
 
 namespace Newborn {

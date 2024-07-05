@@ -1,3 +1,6 @@
+//*************************
+// Jakub Joszko 2024
+//*************************
 // Fixes unused variable warning
 #define OV_EXCLUDE_STATIC_CALLBACKS
 

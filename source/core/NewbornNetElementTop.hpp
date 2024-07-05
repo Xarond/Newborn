@@ -1,3 +1,6 @@
+//*************************
+// Jakub Joszko 2024
+//*************************
 #ifndef NEWBORN_NET_ELEMENT_TOP_HPP
 #define NEWBORN_NET_ELEMENT_TOP_HPP
 

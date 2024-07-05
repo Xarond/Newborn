@@ -1,3 +1,6 @@
+//*************************
+// Jakub Joszko 2024
+//*************************
 #include "NewbornJsonPatch.hpp"
 #include "NewbornJsonPath.hpp"
 #include "NewbornLexicalCast.hpp"

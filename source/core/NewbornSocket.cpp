@@ -1,3 +1,6 @@
+//*************************
+// Jakub Joszko 2024
+//*************************
 #include "NewbornSocket.hpp"
 #include "NewbornLogging.hpp"
 #include "NewbornNetImpl.hpp"

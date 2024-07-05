@@ -1,3 +1,6 @@
+//*************************
+// Jakub Joszko 2024
+//*************************
 #include "NewbornLua.hpp"
 #include "NewbornArray.hpp"
 #include "NewbornTime.hpp"

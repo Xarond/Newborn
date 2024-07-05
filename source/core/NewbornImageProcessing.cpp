@@ -1,3 +1,6 @@
+//*************************
+// Jakub Joszko 2024
+//*************************
 #include "NewbornImageProcessing.hpp"
 #include "NewbornMatrix3.hpp"
 #include "NewbornInterpolation.hpp"

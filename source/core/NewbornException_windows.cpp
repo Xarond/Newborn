@@ -1,3 +1,6 @@
+//*************************
+// Jakub Joszko 2024
+//*************************
 #include "NewbornException.hpp"
 #include "NewbornOutputProxy.hpp"
 #include "NewbornLogging.hpp"

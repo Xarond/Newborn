@@ -1,3 +1,6 @@
+//*************************
+// Jakub Joszko 2024
+//*************************
 #include "NewbornString.hpp"
 #include "NewbornStringView.hpp"
 #include "NewbornBytes.hpp"

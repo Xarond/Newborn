@@ -1,3 +1,6 @@
+//*************************
+// Jakub Joszko 2024
+//*************************
 #include "NewbornTickRateMonitor.hpp"
 #include "NewbornTime.hpp"
 

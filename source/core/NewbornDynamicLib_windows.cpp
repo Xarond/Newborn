@@ -1,3 +1,6 @@
+//*************************
+// Jakub Joszko 2024
+//*************************
 #include "NewbornDynamicLib.hpp"
 #include "NewbornFormat.hpp"
 #include "NewbornString_windows.hpp"

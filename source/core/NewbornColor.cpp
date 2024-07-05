@@ -1,3 +1,6 @@
+//*************************
+// Jakub Joszko 2024
+//*************************
 #include "NewbornColor.hpp"
 #include "NewbornMap.hpp"
 #include "NewbornEncode.hpp"

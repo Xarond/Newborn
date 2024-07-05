@@ -1,3 +1,6 @@
+//*************************
+// Jakub Joszko 2024
+//*************************
 #include "NewbornHostAddress.hpp"
 #include "NewbornLexicalCast.hpp"
 #include "NewbornNetImpl.hpp"

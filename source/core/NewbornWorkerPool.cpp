@@ -1,3 +1,6 @@
+//*************************
+// Jakub Joszko 2024
+//*************************
 #include "NewbornWorkerPool.hpp"
 #include "NewbornIterator.hpp"
 #include "NewbornMathCommon.hpp"

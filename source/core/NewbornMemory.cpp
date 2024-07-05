@@ -1,3 +1,6 @@
+//*************************
+// Jakub Joszko 2024
+//*************************
 #include "NewbornMemory.hpp"
 
 #ifdef NEWBORN_USE_JEMALLOC

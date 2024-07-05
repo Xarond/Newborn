@@ -1,3 +1,6 @@
+//*************************
+// Jakub Joszko 2024
+//*************************
 #include "NewbornJsonExtra.hpp"
 #include "NewbornLogging.hpp"
 #include "NewbornRandom.hpp"

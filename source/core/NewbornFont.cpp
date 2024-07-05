@@ -1,3 +1,6 @@
+//*************************
+// Jakub Joszko 2024
+//*************************
 #include "NewbornFont.hpp"
 #include "NewbornFile.hpp"
 #include "NewbornFormat.hpp"

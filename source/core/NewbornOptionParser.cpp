@@ -1,3 +1,6 @@
+//*************************
+// Jakub Joszko 2024
+//*************************
 #include "NewbornOptionParser.hpp"
 #include "NewbornIterator.hpp"
 
