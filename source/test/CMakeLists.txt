@@ -11,6 +11,7 @@ SET (newborn_core_tests_SOURCES
 
       core_tests_main.cpp
 
+      byte_array_test.cpp
       algorithm_test.cpp
       hash_test.cpp
 
