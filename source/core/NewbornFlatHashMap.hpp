@@ -6,6 +6,7 @@
 #include "NewbornHash.hpp"
 
 namespace Newborn {
+
 template <typename Key, typename Mapped, typename Hash = hash<Key>, typename Equals = std::equal_to<Key>, typename Allocator = std::allocator<Key>>
 class FlatHashMap {
 public:

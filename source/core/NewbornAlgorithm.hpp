@@ -8,61 +8,64 @@ namespace Newborn {
 template <typename... T>
 void nothing(T&&...) {}
 
+// Functional constructor call / casting.
 template <typename ToType>
 struct construct {
-    template <typename... FromTypes>
-    ToType operator()(FromTypes&&... fromTypes) const {
-        return ToType(std::forward<FromTypes>(fromTypes)...);
-    }
+  template <typename... FromTypes>
+  ToType operator()(FromTypes&&... fromTypes) const {
+    return ToType(std::forward<FromTypes>(fromTypes)...);
+  }
 };
 
 struct identity {
-    template <typename U>
-    constexpr decltype(auto) operator()(U&& v) const {
-        return std::forward<U>(v);
-    }
+  template <typename U>
+  constexpr decltype(auto) operator()(U&& v) const {
+    return std::forward<U>(v);
+  }
 };
 
 template <typename Func>
 struct SwallowReturn {
-    template <typename... T>
-    void operator()(T&&... args) {
-        func(std::forward<T>(args)...);
-    }
+  template <typename... T>
+  void operator()(T&&... args) {
+    func(std::forward<T>(args)...);
+  }
 
-    Func func;
+  Func func;
 };
 
 template <typename Func>
 SwallowReturn<Func> swallow(Func f) {
-    return SwallowReturn<Func>{std::move(f)};
+  return SwallowReturn<Func>{std::move(f)};
 }
 
 struct Empty {
-    bool operator==(Empty const) const {
-        return true;
-    }
+  bool operator==(Empty const) const {
+    return true;
+  }
 
-    bool operator<(Empty const) const {
-        return false;
-    }
+  bool operator<(Empty const) const {
+    return false;
+  }
 };
 
+// Compose arbitrary functions
 template <typename FirstFunction, typename SecondFunction>
 struct FunctionComposer {
-    FirstFunction f1;
-    SecondFunction f2;
+  FirstFunction f1;
+  SecondFunction f2;
 
-    template <typename... T>
-    decltype(auto) operator()(T&&... args) {
-        return f1(f2(std::forward))
-    }
+  template <typename... T>
+  decltype(auto) operator()(T&&... args) {
+    return f1(f2(std::forward<T>(args)...));
+  }
 };
 
 template <typename FirstFunction, typename SecondFunction>
 decltype(auto) compose(FirstFunction&& firstFunction, SecondFunction&& secondFunction) {
-    return FunctionComposer<FirstFunction, SecondFunction>{std::move(std::forward<FirstFunction>(firstFunction)), std::move(std::forward<SecondFunction>(secondFunction))}
+  return FunctionComposer<FirstFunction, SecondFunction>{std::move(std::forward<FirstFunction>(firstFunction)), std::move(std::forward<SecondFunction>(secondFunction))};
 }
+
 template <typename FirstFunction, typename SecondFunction, typename ThirdFunction, typename... RestFunctions>
 decltype(auto) compose(FirstFunction firstFunction, SecondFunction secondFunction, ThirdFunction thirdFunction, RestFunctions... restFunctions) {
   return compose(std::forward<FirstFunction>(firstFunction), compose(std::forward<SecondFunction>(secondFunction), compose(std::forward<ThirdFunction>(thirdFunction), std::forward<RestFunctions>(restFunctions)...)));
@@ -70,38 +73,40 @@ decltype(auto) compose(FirstFunction firstFunction, SecondFunction secondFunctio
 
 template <typename Container, typename Value, typename Function>
 Value fold(Container const& l, Value v, Function f) {
-    auto i = l.begin();
-    auto e = l.end();
-    while (i != e) {
-        v = f(v, *i);
-        ++i;
-    }
-    return v;
+  auto i = l.begin();
+  auto e = l.end();
+  while (i != e) {
+    v = f(v, *i);
+    ++i;
+  }
+  return v;
 }
 
+// Like fold, but returns default value when container is empty.
 template <typename Container, typename Function>
 typename Container::value_type fold1(Container const& l, Function f) {
-    typename Container::value_type res = {};
-    typename Container::const_iterator i = l.begin();
-    typename Container::const_iterator e = l.end();
+  typename Container::value_type res = {};
+  typename Container::const_iterator i = l.begin();
+  typename Container::const_iterator e = l.end();
 
-    if(i == e)
-        return res;
-
-    res = *i;
-    ++i;
-    while (i != e) {
-        res =f(res, *i);
-        ++i;
-    }
+  if (i == e)
     return res;
+
+  res = *i;
+  ++i;
+  while (i != e) {
+    res = f(res, *i);
+    ++i;
+  }
+  return res;
 }
 
+// Return intersection of sorted containers.
 template <typename Container>
 Container intersect(Container const& a, Container const& b) {
-    Container r;
-    std::set_intersection(a.begin(), a.end(), b.begin(), b.end(), std::inserter(r, r.end()));
-    return r;
+  Container r;
+  std::set_intersection(a.begin(), a.end(), b.begin(), b.end(), std::inserter(r, r.end()));
+  return r;
 }
 
 template <typename MapType1, typename MapType2>
@@ -127,51 +132,61 @@ bool mapsEqual(MapType1 const& m1, MapType2 const& m2) {
     return false;
 
   for (auto const& m1pair : m1) {
-    auto m2it = m2.find(m1pair.first); 
+    auto m2it = m2.find(m1pair.first);
     if (m2it == m2.end() || !(m2it->second == m1pair.second))
       return false;
-      
   }
 
   return true;
 }
 
+template <typename Container, typename Filter>
+void filter(Container& container, Filter&& filter) {
+  auto p = std::begin(container);
+  while (p != std::end(container)) {
+    if (!filter(*p))
+      p = container.erase(p);
+    else
+      ++p;
+  }
+}
+
 template <typename OutContainer, typename InContainer, typename Filter>
 OutContainer filtered(InContainer const& input, Filter&& filter) {
-    OutContainer out;
-    auto p = std::begin(input);
-    while (p != std::end(input)) {
-        if (filter(*p))
-            out.insert(out.end(), *p);
-        ++p;
-    }
-    return out;
+  OutContainer out;
+  auto p = std::begin(input);
+  while (p != std::end(input)) {
+    if (filter(*p))
+      out.insert(out.end(), *p);
+    ++p;
+  }
+  return out;
 }
 
 template <typename Container, typename Cond>
 void eraseWhere(Container& container, Cond&& cond) {
-    auto p = std::begin(container);
-    while (p != std::end(container)) {
-        if(cond(*p))
-            p = container.erase(p);
-        else
-            ++p;
-    }
+  auto p = std::begin(container);
+  while (p != std::end(container)) {
+    if (cond(*p))
+      p = container.erase(p);
+    else
+      ++p;
+  }
 }
 
 template <typename Container, typename Compare>
 void sort(Container& c, Compare comp) {
-    std::sort(c.begin(), c.end(), comp);
+  std::sort(c.begin(), c.end(), comp);
 }
 
 template <typename Container, typename Compare>
 void stableSort(Container& c, Compare comp) {
-    std::stable_sort(c.begin(), c.end(), comp);
+  std::stable_sort(c.begin(), c.end(), comp);
 }
 
 template <typename Container>
 void sort(Container& c) {
-    std::sort(c.begin(), c.end(), std::less<typename Container::value_type>());
+  std::sort(c.begin(), c.end(), std::less<typename Container::value_type>());
 }
 
 template <typename Container>
@@ -207,6 +222,11 @@ Container stableSorted(Container const& c) {
   return c2;
 }
 
+// Sort a container by the output of a computed value. The computed value is
+// only computed *once* per item in the container, which is useful both for
+// when the computed value is costly, and to avoid sorting instability with
+// floating point values.  Container must have size() and operator[], and also
+// must be constructable with Container(size_t).
 template <typename Container, typename Getter>
 void sortByComputedValue(Container& container, Getter&& valueGetter, bool stable = false) {
   typedef typename Container::value_type ContainerValue;
@@ -558,6 +578,7 @@ Container unpackVariadic(T&&... t) {
   return c;
 }
 
+// Call a function on each entry in a variadic parameter set
 
 template <typename Function>
 void callFunctionVariadic(Function&&) {}
@@ -580,12 +601,14 @@ struct VariadicTypedef<FirstT, RestT...> {
   typedef VariadicTypedef<RestT...> Rest;
 };
 
+// For generic types, directly use the result of the signature of its
+// 'operator()'
 template <typename T>
 struct FunctionTraits : public FunctionTraits<decltype(&T::operator())> {};
 
 template <typename ReturnType, typename... ArgsTypes>
 struct FunctionTraits<ReturnType(ArgsTypes...)> {
-  // arity is the number.
+  // arity is the number of arguments.
   static constexpr size_t Arity = sizeof...(ArgsTypes);
 
   typedef ReturnType Return;
@@ -595,7 +618,8 @@ struct FunctionTraits<ReturnType(ArgsTypes...)> {
 
   template <size_t i>
   struct Arg {
-
+    // the i-th argument is equivalent to the i-th tuple element of a tuple
+    // composed of those arguments.
     typedef typename tuple_element<i, ArgTuple>::type type;
   };
 };

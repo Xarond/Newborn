@@ -289,6 +289,7 @@ HashSetMixin<BaseMap> HashSetMixin<BaseMap>::from(Container const& c) {
 
 template <typename BaseMap>
 HashSetMixin<BaseMap> HashSetMixin<BaseMap>::intersection(HashSetMixin const& s) const {
+  // Can't use std::set_intersection, since not sorted, naive version is fine.
   HashSetMixin ret;
   for (auto const& e : s) {
     if (contains(e))
@@ -299,6 +300,7 @@ HashSetMixin<BaseMap> HashSetMixin<BaseMap>::intersection(HashSetMixin const& s)
 
 template <typename BaseMap>
 HashSetMixin<BaseMap> HashSetMixin<BaseMap>::difference(HashSetMixin const& s) const {
+  // Can't use std::set_difference, since not sorted, naive version is fine.
   HashSetMixin ret;
   for (auto const& e : *this) {
     if (!s.contains(e))

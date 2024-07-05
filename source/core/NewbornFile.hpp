@@ -7,13 +7,16 @@ namespace Newborn {
 
 NEWBORN_CLASS(File);
 
-
+// All file methods are thread safe.
 class File : public IODevice {
 public:
-
+  // Converts the passed in path to use the platform specific directory
+  // separators only (Windows supports '/' just fine, this is mostly for
+  // uniform appearance).  Does *nothing else* (no validity checks, etc).
   static String convertDirSeparators(String const& path);
 
-
+  // All static file operations here throw IOException on error.
+  // get the current working directory
   static String currentDirectory();
   // set the current working directory.
   static void changeDirectory(String const& dirName);
@@ -30,10 +33,11 @@ public:
   // the directory separator
   static String dirName(String const& fileName);
 
-
+  // Resolve a path relative to another path.  If the given path is absolute,
+  // then the given path is returned unmodified.
   static String relativeTo(String const& relativeTo, String const& path);
 
-
+  // Resolve the given possibly relative path into an absolute path.
   static String fullPath(String const& path);
 
   static String temporaryFileName();
@@ -46,7 +50,7 @@ public:
   // has no filename and will be removed on close.
   static FilePtr ephemeralFile();
 
-  // Creates a new temporary directory and returns the path.  Will not be
+  // Creates a new temporary directory and reutrns the path.  Will not be
   // removed automatically.
   static String temporaryDirectory();
 

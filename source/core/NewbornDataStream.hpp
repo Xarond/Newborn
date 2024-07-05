@@ -6,6 +6,7 @@ namespace Newborn {
 
 NEWBORN_EXCEPTION(DataStreamException, IOException);
 
+// Writes complex types to bytes in a portable big-endian fashion.
 class DataStream {
 public:
   DataStream();
@@ -13,20 +14,25 @@ public:
 
   static unsigned const CurrentStreamVersion = 1;
 
+  // DataStream defaults to big-endian order for all primitive types
   ByteOrder byteOrder() const;
   void setByteOrder(ByteOrder byteOrder);
 
-
+  // DataStream can optionally write strings as null terminated rather than
+  // length prefixed
   bool nullTerminatedStrings() const;
   void setNullTerminatedStrings(bool nullTerminatedStrings);
 
-
+  // streamCompatibilityVersion defaults to CurrentStreamVersion, but can be
+  // changed for compatibility with older versions of DataStream serialization.
   unsigned streamCompatibilityVersion() const;
   void setStreamCompatibilityVersion(unsigned streamCompatibilityVersion);
 
+  // Do direct reads and writes
   virtual void readData(char* data, size_t len) = 0;
   virtual void writeData(char const* data, size_t len) = 0;
 
+  // These do not read / write sizes, they simply read / write directly.
   ByteArray readBytes(size_t len);
   void writeBytes(ByteArray const& ba);
 
@@ -56,7 +62,10 @@ public:
   DataStream& operator>>(float& d);
   DataStream& operator>>(double& d);
 
-
+  // Writes and reads a VLQ encoded integer.  Can write / read anywhere from 1
+  // to 10 bytes of data, with integers of smaller (absolute) value taking up
+  // fewer bytes.  size_t version can be used to portably write a size_t type,
+  // and portably and efficiently handles the case of NPos.
 
   size_t writeVlqU(uint64_t i);
   size_t writeVlqI(int64_t i);
@@ -70,7 +79,10 @@ public:
   int64_t readVlqI();
   size_t readVlqS();
 
-
+  // The following functions write / read data with length and then content
+  // following, but note that the length is encoded as an unsigned VLQ integer.
+  // String objects are encoded in utf8, and can optionally be written as null
+  // terminated rather than length then content.
 
   DataStream& operator<<(const char* s);
   DataStream& operator<<(std::string const& d);
@@ -81,6 +93,7 @@ public:
   DataStream& operator>>(ByteArray& d);
   DataStream& operator>>(String& s);
 
+  // All enum types are automatically serializable
 
   template <typename EnumType, typename = typename std::enable_if<std::is_enum<EnumType>::value>::type>
   DataStream& operator<<(EnumType const& e);
@@ -88,9 +101,11 @@ public:
   template <typename EnumType, typename = typename std::enable_if<std::is_enum<EnumType>::value>::type>
   DataStream& operator>>(EnumType& e);
 
+  // Convenience method to avoid temporary.
   template <typename T>
   T read();
 
+  // Convenient argument style reading / writing
 
   template <typename Data>
   void read(Data& data);
@@ -98,6 +113,7 @@ public:
   template <typename Data>
   void write(Data const& data);
 
+  // Argument style reading / writing with casting.
 
   template <typename ReadType, typename Data>
   void cread(Data& data);
@@ -105,6 +121,8 @@ public:
   template <typename WriteType, typename Data>
   void cwrite(Data const& data);
 
+  // Argument style reading / writing of variable length integers.  Arguments
+  // are explicitly casted, so things like enums are allowed.
 
   template <typename IntegralType>
   void vuread(IntegralType& data);

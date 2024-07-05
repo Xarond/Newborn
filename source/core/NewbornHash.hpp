@@ -4,17 +4,18 @@
 
 namespace Newborn {
 
-
-
-
-
+// To avoid having to specialize std::hash in the std namespace, which is
+// slightly annoying, Star type wrappers use Newborn::hash, which just defaults to
+// std::hash.  Newborn::hash also enables template specialization with a dummy
+// Enable parameter.
 template <typename T, typename Enable = void>
 struct hash : public std::hash<T> {};
 
 inline void hashCombine(size_t& hash, size_t comb) {
-    hash ^= comb * 2654435761 + 0x9e3779b9 + (hash << 6) + (hash >> 2);
+  hash ^= comb * 2654435761 + 0x9e3779b9 + (hash << 6) + (hash >> 2);
 }
 
+// Paul Larson hashing algorithm, very very *cheap* hashing function.
 class PLHasher {
 public:
   PLHasher(size_t initial = 0)
@@ -81,10 +82,16 @@ public:
   }
 };
 
+template <typename T>
+size_t hashOf(T const& t) {
+  return Newborn::hash<T>()(t);
+}
+
 template <typename T1, typename T2, typename... TL>
 size_t hashOf(T1 const& t1, T2 const& t2, TL const&... rest) {
-    size_t hash = hashOf(t1);
-    hashCombine(hash, hashOf(t2, rest...));
-    return hash;
+  size_t hash = hashOf(t1);
+  hashCombine(hash, hashOf(t2, rest...));
+  return hash;
+};
+
 }
-} // namespace Newborn

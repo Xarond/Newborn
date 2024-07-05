@@ -23,8 +23,10 @@ public:
   explicit NewbornException(std::exception const& cause) noexcept;
   NewbornException(std::string message, std::exception const& cause) noexcept;
 
-  virtual const char* what() const noexcept override;
-  
+  virtual char const* what() const noexcept override;
+
+  // If the given exception is really NewbornException, then this will call
+  // NewbornException::printException, otherwise just prints std::exception::what.
   friend void printException(std::ostream& os, std::exception const& e, bool fullStacktrace);
   friend std::string printException(std::exception const& e, bool fullStacktrace);
   friend OutputProxy outputException(std::exception const& e, bool fullStacktrace);
@@ -34,17 +36,24 @@ protected:
   NewbornException(char const* type, std::string message, std::exception const& cause) noexcept;
 
 private:
+  // Takes the ostream to print to, whether to print the full stacktrace.  Must
+  // not bind 'this', may outlive the exception in the case of chained
+  // exception causes.
   function<void(std::ostream&, bool)> m_printException;
 
+  // m_printException will be called without the stack-trace to print
+  // m_whatBuffer, if the what() method is invoked.
   mutable std::string m_whatBuffer;
-};  // namespace Newborn
+};
 
 void printException(std::ostream& os, std::exception const& e, bool fullStacktrace);
 std::string printException(std::exception const& e, bool fullStacktrace);
-OutputProxy outputException(std::exception const& e,bool fullStacktrace);
+OutputProxy outputException(std::exception const& e, bool fullStacktrace);
 
 void printStack(char const* message);
 
+// Log error and stack-trace and possibly show a dialog box if available, then
+// abort.
 void fatalError(char const* message, bool showStackTrace);
 void fatalException(std::exception const& e, bool showStackTrace);
 
@@ -65,7 +74,7 @@ void fatalException(std::exception const& e, bool showStackTrace);
   {}
 #endif
 
-#define NEWBORN_EXCEPTION(ClassName, BaseName)                                                                                    \
+#define NEWBORN_EXCEPTION(ClassName, BaseName)                                                                                       \
   class ClassName : public BaseName {                                                                                             \
   public:                                                                                                                         \
     template <typename... Args>                                                                                                   \
@@ -91,4 +100,5 @@ template <typename... Args>
 NewbornException NewbornException::format(fmt::format_string<Args...> fmt, Args const&... args) {
   return NewbornException(strf(fmt, args...));
 }
+
 }

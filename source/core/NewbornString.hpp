@@ -16,11 +16,22 @@ NEWBORN_CLASS(StringView);
 
 NEWBORN_EXCEPTION(StringException, NewbornException);
 
+// A Unicode string class, which is a basic UTF-8 aware wrapper around
+// std::string.  Provides methods for accessing UTF-32 "Char" type, which
+// provides access to each individual code point.  Printing, hashing, copying,
+// and in-order access should be basically as fast as std::string, but the more
+// complex string processing methods may be much worse.
+//
+// All case sensitive / insensitive functionality is based on ASCII tolower and
+// toupper, and will have no effect on characters outside ASCII.  Therefore,
+// case insensitivity is really only appropriate for code / script processing,
+// not for general strings.
 class String {
 public:
   typedef Utf32Type Char;
 
-
+  // std::basic_string equivalent that guarantees const access time for
+  // operator[], etc
   typedef std::basic_string<Char> WideString;
 
   typedef U8ToU32Iterator<std::string::const_iterator> const_iterator;
@@ -208,7 +219,10 @@ public:
   template <typename Lookup>
   String lookupTagsView(Lookup&& lookup) const;
 
-
+  // Replace angle bracket tags in the string with values given by the tags
+  // map.  If replaceWithDefault is true, then values that are not found in the
+  // tags map are replace with the default string.  If replaceWithDefault is
+  // false, tags that are not found are not replaced at all.
   template <typename MapType>
   String replaceTags(MapType const& tags, bool replaceWithDefault = false, String defaultValue = "") const;
 
@@ -369,7 +383,8 @@ String String::joinWith(
 
 template <typename Lookup>
 String String::lookupTags(Lookup&& lookup) const {
-
+  // Operates directly on the utf8 representation of the strings, rather than
+  // using unicode find / replace methods
 
   auto substrInto = [](std::string const& ref, size_t position, size_t n, std::string& result) {
     auto len = ref.size();

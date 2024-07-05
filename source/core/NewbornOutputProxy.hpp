@@ -37,7 +37,8 @@ namespace OutputAnyDetail {
   }
 }
 
-
+// Wraps a type so that is printable no matter what..  If no operator<< is
+// defined for a type, then will print <type [typeid] at address: [address]>
 template <typename T>
 OutputAnyDetail::Wrapper<T> outputAny(T const& t) {
   return OutputAnyDetail::Wrapper<T>{t};

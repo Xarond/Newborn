@@ -250,13 +250,13 @@ auto SmallVector<Element, MaxStackSize>::at(size_t i) const -> const_reference {
 
 template <typename Element, size_t MaxStackSize>
 auto SmallVector<Element, MaxStackSize>::operator[](size_t i) -> reference {
-  starAssert(i < size());
+  newbornAssert(i < size());
   return m_begin[i];
 }
 
 template <typename Element, size_t MaxStackSize>
 auto SmallVector<Element, MaxStackSize>::operator[](size_t i) const -> const_reference {
-  starAssert(i < size());
+  newbornAssert(i < size());
   return m_begin[i];
 }
 

@@ -8,19 +8,21 @@ namespace Newborn {
 
 #ifdef NEWBORN_USE_JEMALLOC
 #ifdef NEWBORN_JEMALLOC_IS_PREFIXED
-    void* malloc(size_t size) {
-        return je_malloc(size);
-    }
-    void realloc(void* ptr, size_t size) {
-        return je_realloc(ptr, size);
-    }
+  void* malloc(size_t size) {
+    return je_malloc(size);
+  }
 
-    void free(void* ptr) {
-        je_free(ptr);
-    }
-    void free(void* ptr, size_t size) {
-      if (ptr)
-        je_sdallocx(ptr, size, 0);
+  void* realloc(void* ptr, size_t size) {
+    return je_realloc(ptr, size);
+  }
+
+  void free(void* ptr) {
+    je_free(ptr);
+  }
+
+  void free(void* ptr, size_t size) {
+    if (ptr)
+      je_sdallocx(ptr, size, 0);
   }
 #else
   void* malloc(size_t size) {

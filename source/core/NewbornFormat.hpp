@@ -22,13 +22,17 @@ std::string strf(fmt::format_string<T...> fmt, T&&... args) {
 
 template <typename... T>
 void format(std::ostream& out, fmt::format_string<T...> fmt, T&&... args) {
-    out << strf(fmt, args...);
+  out << strf(fmt, args...);
 }
+
+// Automatically flushes, use format to avoid flushing.
 template <typename... Args>
 void coutf(char const* fmt, Args const&... args) {
-    format(std::cout, fmt, args...);
-    std::cout.flush();
+  format(std::cout, fmt, args...);
+  std::cout.flush();
 }
+
+// Automatically flushes, use format to avoid flushing.
 template <typename... Args>
 void cerrf(char const* fmt, Args const&... args) {
   format(std::cerr, fmt, args...);
@@ -39,4 +43,5 @@ template <class Type>
 inline std::string toString(Type const& t) {
   return fmt::to_string(t);
 }
+
 }

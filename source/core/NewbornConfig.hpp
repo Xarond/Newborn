@@ -4,7 +4,8 @@
 
 namespace Newborn {
 
-// Some common std namespaces includes
+// Some really common std namespace includes
+
 using std::size_t;
 
 using std::swap;
@@ -45,7 +46,7 @@ using namespace std::placeholders;
 using namespace std::string_literals;
 
 using std::prev;
-//using std::next;
+// using std::next;
 
 using std::atomic;
 using std::atomic_flag;
@@ -59,13 +60,19 @@ constexpr bool DebugEnabled = true;
 constexpr bool DebugEnabled = false;
 #endif
 
+// A version of string::npos that's used in general to mean "not a position"
+// and is the largest value for size_t.
 size_t const NPos = (size_t)(-1);
 
 typedef int64_t StreamOffset;
 
+// Convenient way to purposefully mark a variable as unused to avoid warning
 #define _unused(x) ((void)x)
 
-#define NEWBORN_CLASS(ClassName)                                  \
+// Forward declare a class or struct, and define a lot of typedefs for
+// different pointer types all at once.
+
+#define NEWBORN_CLASS(ClassName)                                     \
   class ClassName;                                                \
   using ClassName##Ptr = std::shared_ptr<ClassName>;              \
   using ClassName##ConstPtr = std::shared_ptr<const ClassName>;   \
@@ -74,7 +81,7 @@ typedef int64_t StreamOffset;
   using ClassName##UPtr = std::unique_ptr<ClassName>;             \
   using ClassName##ConstUPtr = std::unique_ptr<const ClassName>
 
-#define NEWBORN_STRUCT(StructName)                                  \
+#define NEWBORN_STRUCT(StructName)                                     \
   struct StructName;                                                \
   using StructName##Ptr = std::shared_ptr<StructName>;              \
   using StructName##ConstPtr = std::shared_ptr<const StructName>;   \
@@ -83,7 +90,7 @@ typedef int64_t StreamOffset;
   using StructName##UPtr = std::unique_ptr<StructName>;             \
   using StructName##ConstUPtr = std::unique_ptr<const StructName>
 
-  #define NEWBORN_QUOTE(name) #name
-  #define NEWBORN_STR(macro) NEWBORN_QUOTE(macro)
-}
+#define NEWBORN_QUOTE(name) #name
+#define NEWBORN_STR(macro) NEWBORN_QUOTE(macro)
 
+}

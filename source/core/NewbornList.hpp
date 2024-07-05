@@ -12,7 +12,7 @@
 #include "NewbornFormat.hpp"
 
 namespace Newborn {
-    
+
 template <typename BaseList>
 class ListMixin : public BaseList {
 public:
@@ -680,13 +680,13 @@ auto RandomAccessListMixin<BaseList>::at(size_t n) -> reference {
 
 template <typename BaseList>
 auto RandomAccessListMixin<BaseList>::operator[](size_t n) const -> const_reference {
-  starAssert(n < Base::size());
+  newbornAssert(n < Base::size());
   return Base::operator[](n);
 }
 
 template <typename BaseList>
 auto RandomAccessListMixin<BaseList>::operator[](size_t n) -> reference {
-  starAssert(n < Base::size());
+  newbornAssert(n < Base::size());
   return Base::operator[](n);
 }
 
@@ -730,26 +730,26 @@ auto RandomAccessListMixin<BaseList>::wrap(size_t n, value_type def) const -> va
 
 template <typename BaseList>
 void RandomAccessListMixin<BaseList>::eraseAt(size_t i) {
-  starAssert(i < Base::size());
+  newbornAssert(i < Base::size());
   Base::erase(Base::begin() + i);
 }
 
 template <typename BaseList>
 void RandomAccessListMixin<BaseList>::eraseAt(size_t b, size_t e) {
-  starAssert(b < Base::size() && e <= Base::size());
+  newbornAssert(b < Base::size() && e <= Base::size());
   Base::erase(Base::begin() + b, Base::begin() + e);
 }
 
 template <typename BaseList>
 void RandomAccessListMixin<BaseList>::insertAt(size_t pos, value_type e) {
-  starAssert(pos <= Base::size());
+  newbornAssert(pos <= Base::size());
   Base::insert(Base::begin() + pos, std::move(e));
 }
 
 template <typename BaseList>
 template <typename Container>
 void RandomAccessListMixin<BaseList>::insertAllAt(size_t pos, Container const& l) {
-  starAssert(pos <= Base::size());
+  newbornAssert(pos <= Base::size());
   Base::insert(Base::begin() + pos, l.begin(), l.end());
 }
 

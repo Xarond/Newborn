@@ -4,7 +4,10 @@
 
 namespace Newborn {
 
-
+// Bi-directional map of unique sets of elements with quick map access from
+// either the left or right element to the other side.  Every left side value
+// must be unique from every other left side value and the same for the right
+// side.
 template <typename LeftT,
     typename RightT,
     typename LeftMapT = Map<LeftT, RightT const*>,

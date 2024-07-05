@@ -1,0 +1,138 @@
+{
+  "version": 5,
+  "cmakeMinimumRequired": {
+    "major": 3,
+    "minor": 23,
+    "patch": 0
+  },
+  "configurePresets": [
+    {
+      "name": "base",
+      "hidden": true,
+      "architecture": { "value": "x64", "strategy": "external" },
+      "generator": "Ninja",
+      "toolchainFile": "$env{VCPKG_ROOT}/scripts/buildsystems/vcpkg.cmake",
+      "cacheVariables": {
+        "CMAKE_INSTALL_PREFIX": "${sourceParentDir}/install",
+        "VCPKG_OVERLAY_TRIPLETS": "${sourceParentDir}/triplets",
+        "CMAKE_VERBOSE_MAKEFILE": true,
+        "BUILD_TESTING": true,
+        "NEWBORN_ENABLE_STEAM_INTEGRATION": true,
+        "NEWBORN_ENABLE_DISCORD_INTEGRATION": true
+      }
+    },
+    {
+      "inherits": "base",
+      "name": "windows-release",
+      "displayName": "Windows x64",
+      "binaryDir": "${sourceParentDir}/build/windows-release",
+      "cacheVariables": {
+        "CMAKE_BUILD_TYPE": "RelWithDebInfo",
+        "VCPKG_TARGET_TRIPLET": "x64-windows-mixed-md",
+        "CMAKE_MSVC_RUNTIME_LIBRARY": "MultiThreaded$<$<CONFIG:Debug>:Debug>DLL",
+        "CMAKE_INCLUDE_PATH": "${sourceParentDir}/lib/windows/include",
+        "CMAKE_LIBRARY_PATH": "${sourceParentDir}/lib/windows"
+      },
+      "vendor": {
+        "microsoft.com/VisualStudioSettings/CMake/1.0": {
+          "hostOS": [ "Windows" ]
+        }
+      }
+    },
+    {
+      "inherits": "base",
+      "name": "linux-release",
+      "displayName": "Linux x64",
+      "binaryDir": "${sourceParentDir}/build/linux-release",
+      "cacheVariables": {
+        "CMAKE_BUILD_TYPE": "Release",
+        "VCPKG_TARGET_TRIPLET": "x64-linux-mixed",
+        "CMAKE_INCLUDE_PATH": "${sourceParentDir}/lib/linux/include",
+        "CMAKE_LIBRARY_PATH": "${sourceParentDir}/lib/linux",
+        "NEWBORN_ENABLE_STATIC_LIBGCC_LIBSTDCXX": true,
+        "NEWBORN_USE_JEMALLOC": true
+      },
+      "vendor": {
+        "microsoft.com/VisualStudioSettings/CMake/1.0": {
+          "hostOS": [ "Linux" ]
+        }
+      }
+    },
+    {
+      "inherits": "base",
+      "name": "macos-release",
+      "displayName": "macOS x64",
+      "binaryDir": "${sourceParentDir}/build/macos-release",
+      "cacheVariables": {
+        "CMAKE_BUILD_TYPE": "Release",
+        "VCPKG_TARGET_TRIPLET": "x64-osx-mixed",
+        "CMAKE_INCLUDE_PATH": "${sourceParentDir}/lib/osx/include",
+        "CMAKE_LIBRARY_PATH": "${sourceParentDir}/lib/osx/x64;${sourceParentDir}/lib/osx",
+        "NEWBORN_ENABLE_STATIC_LIBGCC_LIBSTDCXX": true,
+        "NEWBORN_USE_JEMALLOC": false
+      },
+      "vendor": {
+        "microsoft.com/VisualStudioSettings/CMake/1.0": {
+          "hostOS": [ "macOS" ]
+        }
+      }
+    },
+    {
+      "inherits": "macos-release",
+      "name": "macos-arm-release",
+      "displayName": "macOS ARM",
+      "binaryDir": "${sourceParentDir}/build/macos-arm-release",
+      "architecture": { "value": "arm64", "strategy": "external" },
+      "cacheVariables": {
+        "VCPKG_TARGET_TRIPLET": "arm64-osx-mixed",
+        "CMAKE_LIBRARY_PATH": "${sourceParentDir}/lib/osx/arm64;${sourceParentDir}/lib/osx"
+      }
+    }
+  ],
+  "buildPresets": [
+    {
+      "name": "windows-release",
+      "configurePreset": "windows-release"
+    },
+    {
+      "name": "linux-release",
+      "configurePreset": "linux-release"
+    },
+    {
+      "name": "macos-release",
+      "configurePreset": "macos-release"
+    },
+    {
+      "name": "macos-arm-release",
+      "configurePreset": "macos-arm-release"
+    }
+  ],
+  "testPresets": [
+    {
+      "name": "base",
+      "hidden": true,
+      "output": { "outputOnFailure": true },
+      "filter": { "include": { "label": "NoAssets" } }
+    },
+    {
+      "inherits": "base",
+      "name": "windows-release",
+      "configurePreset": "windows-release"
+    },
+    {
+      "inherits": "base",
+      "name": "linux-release",
+      "configurePreset": "linux-release"
+    },
+    {
+      "inherits": "base",
+      "name": "macos-release",
+      "configurePreset": "macos-release"
+    },
+    {
+      "inherits": "base",
+      "name": "macos-arm-release",
+      "configurePreset": "macos-arm-release"
+    }
+  ]
+}

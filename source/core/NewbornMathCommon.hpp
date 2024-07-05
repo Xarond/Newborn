@@ -17,6 +17,8 @@ namespace Constants {
   double const log2e = 1.44269504088896340736;
 }
 
+// Really common std namespace includes, and replacements for std libraries
+// that don't provide them
 
 using std::abs;
 using std::fabs;
@@ -156,7 +158,7 @@ T clampDynamic(T const val, T const a, T const b) {
 
 template <typename IntType, typename PowType>
 IntType intPow(IntType i, PowType p) {
-  starAssert(p >= 0);
+  newbornAssert(p >= 0);
 
   if (p == 0)
     return 1;

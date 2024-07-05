@@ -7,6 +7,10 @@ namespace Newborn {
 
 NEWBORN_EXCEPTION(StaticVectorSizeException, NewbornException);
 
+// Stack allocated vector of elements with a dynamic size which must be less
+// than a given maximum.  Acts like a vector with a built-in allocator of a
+// maximum size, throws bad_alloc on attempting to resize beyond the maximum
+// size.
 template <typename Element, size_t MaxSize>
 class StaticVector {
 public:
@@ -38,7 +42,7 @@ public:
   StaticVector& operator=(StaticVector&& other);
   StaticVector& operator=(std::initializer_list<Element> list);
 
- size_t size() const;
+  size_t size() const;
   bool empty() const;
   void resize(size_t size, Element const& e = Element());
 
@@ -60,6 +64,7 @@ public:
   reverse_iterator rbegin();
   reverse_iterator rend();
 
+  // Pointer to internal data, always valid even if empty.
   Element const* ptr() const;
   Element* ptr();
 
@@ -99,6 +104,7 @@ template <typename Element, size_t MaxSize>
 StaticVector<Element, MaxSize>::~StaticVector() {
   clear();
 }
+
 template <typename Element, size_t MaxSize>
 StaticVector<Element, MaxSize>::StaticVector(StaticVector const& other)
   : StaticVector() {
@@ -393,4 +399,3 @@ bool StaticVector<Element, MaxSize>::operator<(StaticVector const& other) const 
 }
 
 }
-  // namespace Newborn

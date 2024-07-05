@@ -13,64 +13,84 @@ NEWBORN_EXCEPTION(MapException, NewbornException);
 template <typename BaseMap>
 class MapMixin : public BaseMap {
 public:
-    typedef BaseMap Base;
+  typedef BaseMap Base;
 
-    typedef typename Base::iterator iterator;
-    typedef typename Base::const_iterator const_iterator;
+  typedef typename Base::iterator iterator;
+  typedef typename Base::const_iterator const_iterator;
 
-    typedef typename Base::key_type key_type;
-    typedef typename Base::mapped_type mapped_type;
-    typedef typename Base::valu_type value_type;
+  typedef typename Base::key_type key_type;
+  typedef typename Base::mapped_type mapped_type;
+  typedef typename Base::value_type value_type;
 
-    typedef typename std::decay<mapped_type>::type* mapped_ptr;
-    typedef typename std::decay<mapped_type>::typeconst * mapped_const_ptr;
-    
-    template <typename MapType>
-    static MapMixin from(MapType const& m);
+  typedef typename std::decay<mapped_type>::type* mapped_ptr;
+  typedef typename std::decay<mapped_type>::type const* mapped_const_ptr;
 
-    using Base::Base;
+  template <typename MapType>
+  static MapMixin from(MapType const& m);
 
-    List<key_type> keys() const;
-    List<mapped_type> values() const;
-    List<pair<key_type, mapped_type>> pairs() const;
+  using Base::Base;
 
-    bool contains(key_type const& k) const;
+  List<key_type> keys() const;
+  List<mapped_type> values() const;
+  List<pair<key_type, mapped_type>> pairs() const;
 
-    bool remove(key_type const& k);
+  bool contains(key_type const& k) const;
 
-    bool removeValues(mapped_type const& v);
+  // Removes the item with key k and returns true if contains(k) is true,
+  // false otherwise.
+  bool remove(key_type const& k);
 
-    mapped_type take(key_type const& k);
+  // Removes *all* items that have a value matching the given one.  Returns
+  // true if any elements were removed.
+  bool removeValues(mapped_type const& v);
 
-    Maybe<mapped_type> maybeTake(key_type const& k);
+  // Throws exception if key not found
+  mapped_type take(key_type const& k);
 
-    mapped_type& get(key_type const& k);
-    mapped_type const& get(key_type const& k) const;
+  Maybe<mapped_type> maybeTake(key_type const& k);
 
-    mapped_type value(key_type const& k, mapped_type d = mapped_type()) const;
+  // Throws exception if key not found
+  mapped_type& get(key_type const& k);
+  mapped_type const& get(key_type const& k) const;
 
-    Maybe<mapped_type> maybe(key_type const& k) const;
+  // Return d if key not found
+  mapped_type value(key_type const& k, mapped_type d = mapped_type()) const;
 
-    mapped_const_ptr ptr(key_type const& k) const;
-    mapped_ptr ptr(key_type const& k);
+  Maybe<mapped_type> maybe(key_type const& k) const;
 
-    key_type keyOf(mapped_type const& v) const;
+  mapped_const_ptr ptr(key_type const& k) const;
+  mapped_ptr ptr(key_type const& k);
 
-    List<key_type> keysOf(mapped_type const& v) const;
+  // Finds first value matching the given value and returns its key.
+  key_type keyOf(mapped_type const& v) const;
 
-    bool hasValue(mapped_type const& v) const;
+  // Finds all of the values matching the given value and returns their keys.
+  List<key_type> keysOf(mapped_type const& v) const;
 
-    using Base::insert;
+  bool hasValue(mapped_type const& v) const;
 
-    pair<iterator, bool> insert(key_type k, mapped_type v);
+  using Base::insert;
 
-    mapped_type& add(key_type k, mapped_type v);
-    mapped_type& set(key_type k, mapped_type v);
+  // Same as insert(value_type), returns the iterator to either the newly
+  // inserted value or the existing value, and then a bool that is true if the
+  // new element was inserted.
+  pair<iterator, bool> insert(key_type k, mapped_type v);
 
-    template <typename MapType>
-    bool merge(MapType const& m, bool overwrite = false);
-    bool operator==(MapMixin const& m) const;
+  // Add a key / value pair, throw if the key already exists
+  mapped_type& add(key_type k, mapped_type v);
+
+  // Set a key to a value, always override if it already exists
+  mapped_type& set(key_type k, mapped_type v);
+
+  // Appends all values of given map into this map.  If overwite is false, then
+  // skips values that already exist in this map.  Returns false if any keys
+  // previously existed.
+  template <typename MapType>
+  bool merge(MapType const& m, bool overwrite = false);
+
+  bool operator==(MapMixin const& m) const;
 };
+
 template <typename BaseMap>
 std::ostream& operator<<(std::ostream& os, MapMixin<BaseMap> const& m);
 
@@ -296,4 +316,3 @@ std::ostream& operator<<(std::ostream& os, MapMixin<BaseMap> const& m) {
 
 template <typename BaseMap>
 struct fmt::formatter<Newborn::MapMixin<BaseMap>> : ostream_formatter {};
-

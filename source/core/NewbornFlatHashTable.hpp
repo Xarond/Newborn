@@ -9,36 +9,36 @@ namespace Newborn {
 template <typename Value, typename Key, typename GetKey, typename Hash, typename Equals, typename Allocator>
 struct FlatHashTable {
 private:
-    static size_t const EmptyHashValue = 0;
-    static size_t const EndHashValue = 1;
-    static size_t const FilledHashBit = (size_t)1 << (sizeof(size_t) * 8 - 1);
+  static size_t const EmptyHashValue = 0;
+  static size_t const EndHashValue = 1;
+  static size_t const FilledHashBit = (size_t)1 << (sizeof(size_t) * 8 - 1);
 
-    struct Bucket {
-      Bucket();
-      ~Bucket();
-    
-      Bucket(Bucket const& rhs);
-      Bucket(Bucket&& rhs);
+  struct Bucket {
+    Bucket();
+    ~Bucket();
 
-      Bucket& operator=(Bucket const& rhs);
-      Bucket& operator=(Bucket&& rhs);
+    Bucket(Bucket const& rhs);
+    Bucket(Bucket&& rhs);
 
-      void setFilled(size_t hash, Value value);
-      void setEmpty();
-      void setEnd();
+    Bucket& operator=(Bucket const& rhs);
+    Bucket& operator=(Bucket&& rhs);
 
-      Value const* valuePtr() const;
-      Value* valuePtr();
-      bool isEmpty() const;
-      bool isEnd() const;
+    void setFilled(size_t hash, Value value);
+    void setEmpty();
+    void setEnd();
 
-      union {
-        Value value;
-      };
-      size_t hash;
+    Value const* valuePtr() const;
+    Value* valuePtr();
+    bool isEmpty() const;
+    bool isEnd() const;
+
+    union {
+      Value value;
     };
+    size_t hash;
+  };
 
-    typedef std::vector<Bucket, typename std::allocator_traits<Allocator>::template rebind_alloc<Bucket>> Buckets;
+  typedef std::vector<Bucket, typename std::allocator_traits<Allocator>::template rebind_alloc<Bucket>> Buckets;
 
 public:
   struct const_iterator {
@@ -81,7 +81,7 @@ public:
   size_t size() const;
   void clear();
 
-  std::pair<iterator, bool> insert(Value value);
+  pair<iterator, bool> insert(Value value);
 
   iterator erase(const_iterator pos);
   iterator erase(const_iterator first, const_iterator last);
@@ -99,6 +99,7 @@ private:
   static constexpr size_t MinCapacity = 8;
   static constexpr double MaxFillLevel = 0.7;
 
+  // Scans for the next bucket value that is non-empty
   static Bucket* scan(Bucket* p);
   static Bucket const* scan(Bucket const* p);
 
@@ -106,7 +107,7 @@ private:
   size_t bucketError(size_t current, size_t target) const;
   void checkCapacity(size_t additionalCapacity);
 
-  Buckets m_Buckets;
+  Buckets m_buckets;
   size_t m_filledCount;
 
   GetKey m_getKey;
@@ -116,13 +117,22 @@ private:
 
 template <typename Value, typename Key, typename GetKey, typename Hash, typename Equals, typename Allocator>
 FlatHashTable<Value, Key, GetKey, Hash, Equals, Allocator>::Bucket::Bucket() {
-    this->hash = EmptyHashValue;
+  this->hash = EmptyHashValue;
 }
+
 template <typename Value, typename Key, typename GetKey, typename Hash, typename Equals, typename Allocator>
 FlatHashTable<Value, Key, GetKey, Hash, Equals, Allocator>::Bucket::~Bucket() {
   if (auto s = valuePtr())
     s->~Value();
 }
+
+template <typename Value, typename Key, typename GetKey, typename Hash, typename Equals, typename Allocator>
+FlatHashTable<Value, Key, GetKey, Hash, Equals, Allocator>::Bucket::Bucket(Bucket const& rhs) {
+  this->hash = rhs.hash;
+  if (auto o = rhs.valuePtr())
+    new (&this->value) Value(*o);
+}
+
 template <typename Value, typename Key, typename GetKey, typename Hash, typename Equals, typename Allocator>
 FlatHashTable<Value, Key, GetKey, Hash, Equals, Allocator>::Bucket::Bucket(Bucket&& rhs) {
   this->hash = rhs.hash;
@@ -328,6 +338,7 @@ void FlatHashTable<Value, Key, GetKey, Hash, Equals, Allocator>::clear() {
     m_buckets[i].setEmpty();
   m_filledCount = 0;
 }
+
 template <typename Value, typename Key, typename GetKey, typename Hash, typename Equals, typename Allocator>
 auto FlatHashTable<Value, Key, GetKey, Hash, Equals, Allocator>::insert(Value value) -> pair<iterator, bool> {
   if (m_buckets.empty() || m_filledCount + 1 > (m_buckets.size() - 1) * MaxFillLevel)
@@ -522,8 +533,9 @@ void FlatHashTable<Value, Key, GetKey, Hash, Equals, Allocator>::checkCapacity(s
   Buckets oldBuckets;
   swap(m_buckets, oldBuckets);
 
-  // Extra end entry when allocating buckets, so iterators are
-  // simpler to implement.
+  // Leave an extra end entry when allocating buckets, so that iterators are
+  // simpler and can simply iterate until they find something that is not an
+  // empty entry.
   m_buckets.resize(newSize + 1);
   while (m_buckets.capacity() > newSize * 2 + 1) {
     newSize *= 2;
@@ -538,4 +550,5 @@ void FlatHashTable<Value, Key, GetKey, Hash, Equals, Allocator>::checkCapacity(s
       insert(std::move(*ptr));
   }
 }
+
 }
