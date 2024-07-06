@@ -14,6 +14,8 @@ SET (newborn_core_tests_SOURCES
       byte_array_test.cpp
       algorithm_test.cpp
       hash_test.cpp
+      math_test.cpp
+      flat_hash_test.cpp
 
     )
 ADD_EXECUTABLE (core_tests

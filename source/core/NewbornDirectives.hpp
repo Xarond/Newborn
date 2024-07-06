@@ -15,7 +15,7 @@ NEWBORN_CLASS(Directives);
 NEWBORN_CLASS(DirectivesGroup);
 NEWBORN_EXCEPTION(DirectivesException, NewbornException);
 
-// Kae: My attempt at reducing memory allocation and per-frame string parsing for extremely long directives
+// My attempt at reducing memory allocation and per-frame string parsing for extremely long directives
 class Directives {
 public:
   struct Shared;
