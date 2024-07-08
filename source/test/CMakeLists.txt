@@ -16,6 +16,7 @@ SET (newborn_core_tests_SOURCES
       hash_test.cpp
       math_test.cpp
       flat_hash_test.cpp
+      encode_test.cpp
 
     )
 ADD_EXECUTABLE (core_tests
