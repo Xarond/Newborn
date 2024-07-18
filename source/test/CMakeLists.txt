@@ -17,7 +17,14 @@ SET (newborn_core_tests_SOURCES
       math_test.cpp
       flat_hash_test.cpp
       encode_test.cpp
-
+      file_test.cpp
+      host_address_test.cpp
+      sha_test.cpp
+      small_vector_test.cpp
+      shell_parse.cpp
+      net_states_test.cpp
+      ordered_map_test.cpp
+      ordered_set_test.cpp
     )
 ADD_EXECUTABLE (core_tests
   $<TARGET_OBJECTS:newborn_extern> $<TARGET_OBJECTS:newborn_core>

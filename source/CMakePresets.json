@@ -8,7 +8,7 @@
   "configurePresets": [
     {
       "name": "base",
-      "hidden": true,
+      "hidden": false,
       "architecture": { "value": "x64", "strategy": "external" },
       "generator": "Ninja",
       "toolchainFile": "$env{VCPKG_ROOT}/scripts/buildsystems/vcpkg.cmake",
@@ -51,12 +51,8 @@
         "CMAKE_LIBRARY_PATH": "${sourceParentDir}/lib/linux",
         "NEWBORN_ENABLE_STATIC_LIBGCC_LIBSTDCXX": true,
         "NEWBORN_USE_JEMALLOC": true
-      },
-      "vendor": {
-        "microsoft.com/VisualStudioSettings/CMake/1.0": {
-          "hostOS": [ "Linux" ]
-        }
       }
+
     },
     {
       "inherits": "base",
@@ -70,11 +66,6 @@
         "CMAKE_LIBRARY_PATH": "${sourceParentDir}/lib/osx/x64;${sourceParentDir}/lib/osx",
         "NEWBORN_ENABLE_STATIC_LIBGCC_LIBSTDCXX": true,
         "NEWBORN_USE_JEMALLOC": false
-      },
-      "vendor": {
-        "microsoft.com/VisualStudioSettings/CMake/1.0": {
-          "hostOS": [ "macOS" ]
-        }
       }
     },
     {
