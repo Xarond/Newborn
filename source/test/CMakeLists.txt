@@ -1,9 +1,10 @@
 INCLUDE_DIRECTORIES (
     ${NEWBORN_EXTERN_INCLUDES}
     ${NEWBORN_CORE_INCLUDES}
+    ${NEWBORN_BASE_INCLUDES}
   )
 
-# Add top-level test directory so  gtest-all.cc can find its own include file
+
 INCLUDE_DIRECTORIES (.)
 
 SET (newborn_core_tests_SOURCES
@@ -25,6 +26,7 @@ SET (newborn_core_tests_SOURCES
       net_states_test.cpp
       ordered_map_test.cpp
       ordered_set_test.cpp
+      
     )
 ADD_EXECUTABLE (core_tests
   $<TARGET_OBJECTS:newborn_extern> $<TARGET_OBJECTS:newborn_core>
@@ -35,7 +37,9 @@ ADD_TEST (NAME core_tests WORKING_DIRECTORY ${CMAKE_RUNTIME_OUTPUT_DIRECTORY} CO
 SET (newborn_game_tests_SOURCES
       gtest/gtest-all.cc
 
+      game_tests_main.cpp
 
+      assets_test.cpp
     )
 ADD_EXECUTABLE (game_tests
   $<TARGET_OBJECTS:newborn_extern> $<TARGET_OBJECTS:newborn_core>

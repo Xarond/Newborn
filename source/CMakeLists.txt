@@ -530,7 +530,11 @@ set(NEWBORN_CORE_INCLUDES
 )
 add_subdirectory(core)
 
-
+set(NEWBORN_BASE_INCLUDES
+    ${PROJECT_SOURCE_DIR}/base
+    ${PROJECT_SOURCE_DIR}/base/scripting
+)
+add_subdirectory(base)
 
 
 # Platform APIs that are implemented by the application module
