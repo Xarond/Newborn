@@ -72,6 +72,7 @@ IODevicePtr MemoryAssetSource::open(String const& path) {
         return make_shared<AssetReader>((char*)image->data(), image->width() * image->height() * image->bytesPerPixel(), path);
     }
 }
+
 bool MemoryAssetSource::empty() const {
     return m_files.empty();
 }
