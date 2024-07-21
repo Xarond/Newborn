@@ -18,7 +18,8 @@ SET (newborn_base_SOURCES
     NewbornAssets.cpp
 )
 
-ADD_LIBRARY (newborn_base OBJECT ${newborn_base_SOURCES} ${newborn_base_HEADERS})
+CONFIGURE_FILE (NewbornVersion.cpp.in ${CMAKE_CURRENT_BINARY_DIR}/NewbornVersion.cpp)
+ADD_LIBRARY (newborn_base OBJECT ${newborn_base_SOURCES} ${newborn_base_HEADERS} ${CMAKE_CURRENT_BINARY_DIR}/NewbornVersion.cpp)
 
 IF(NEWBORN_PRECOMPILED_HEADERS)
   TARGET_PRECOMPILE_HEADERS (newborn_base REUSE_FROM newborn_core)

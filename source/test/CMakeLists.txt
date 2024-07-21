@@ -26,7 +26,9 @@ SET (newborn_core_tests_SOURCES
       net_states_test.cpp
       ordered_map_test.cpp
       ordered_set_test.cpp
-      
+      btree_database_test.cpp
+      btree_test.cpp
+      multi_table_test.cpp
     )
 ADD_EXECUTABLE (core_tests
   $<TARGET_OBJECTS:newborn_extern> $<TARGET_OBJECTS:newborn_core>
