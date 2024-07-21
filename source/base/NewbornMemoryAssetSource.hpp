@@ -20,7 +20,7 @@ public:
     IODevicePtr open(String const& path) override;
 
     bool empty() const;
-    bool contains(String const& path);
+    bool contains(String const& path) const;
     bool erase(String const& path);
     void set(String const& path, ByteArray data);
     void set(String const& path, Image const& image);
