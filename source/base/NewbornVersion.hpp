@@ -5,7 +5,7 @@
 namespace Newborn {
 
 extern char const* const NewbornVersionString;
-extern char const* const NewbornSourceIdentifier;
+extern char const* const NewbornSourceIdentifierString;
 extern char const* const NewbornArchitectureString;
 
 }

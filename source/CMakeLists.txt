@@ -563,7 +563,7 @@ endif()
 
 
 # cmdline utilities
-
+add_subdirectory(utility)
 
 if(NEWBORN_BUILD_GUI)
   # Handles creating windows, keyboard / mouse / joystick input, and the 2d

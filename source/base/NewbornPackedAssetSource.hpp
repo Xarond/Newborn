@@ -8,6 +8,7 @@ namespace Newborn {
 NEWBORN_CLASS(PackedAssetSource);
 
 class PackedAssetSource : public AssetSource {
+public:
     typedef function<void(size_t, size_t, String, String)> BuildProgressCallback;
 
     static void build (DirectoryAssetSource& directorySource, String const& targetPackedFile, 
@@ -21,7 +22,7 @@ class PackedAssetSource : public AssetSource {
     IODevicePtr open(String const& path) override;
     ByteArray read(String const& path) override;
 
-    private:
+private:
     FilePtr m_packedFile;
     JsonObject m_metadata;
     OrderedHashMap<String, pair<uint64_t, uint64_t>> m_index;

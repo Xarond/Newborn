@@ -11,11 +11,24 @@ SET (newborn_base_HEADERS
     NewbornMemoryAssetSource.hpp
     NewbornPackedAssetSource.hpp
     NewbornRootBase.hpp
+    NewbornAnimatedPartSet.hpp
+    NewbornVersion.hpp
+    NewbornConfiguration.hpp
+    NewbornVersionOptionParser.hpp
+    scripting/NewbornImageLuaBindings.hpp
+
 
 )
 
 SET (newborn_base_SOURCES
     NewbornAssets.cpp
+    NewbornDirectoryAssetSource.cpp
+    NewbornAnimatedPartSet.cpp
+    NewbornMemoryAssetSource.cpp
+    NewbornPackedAssetSource.cpp
+    NewbornVersionOptionParser.cpp
+    NewbornRootBase.cpp
+    scripting/NewbornImageLuaBindings.cpp
 )
 
 CONFIGURE_FILE (NewbornVersion.cpp.in ${CMAKE_CURRENT_BINARY_DIR}/NewbornVersion.cpp)

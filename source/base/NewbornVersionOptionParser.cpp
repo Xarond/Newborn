@@ -5,7 +5,7 @@ namespace Newborn {
 
 void VersionOptionParser::printVersion(std::ostream& os) {
     format(os, "Newborn Version {} ({})\n", NewbornVersionString, NewbornArchitectureString);
-    format(os, "Source Identifier - {}\n", NewbornSourceIdentifier);
+    format(os, "Source Identifier - {}\n", NewbornSourceIdentifierString);
 }
 
 VersionOptionParser::VersionOptionParser() {
