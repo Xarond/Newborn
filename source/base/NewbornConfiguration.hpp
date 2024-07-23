@@ -19,7 +19,7 @@ public:
     String printConfiguration() const;
 
     Json get(String const& key) const;
-    Json getPatch(String const& path) const;
+    Json getPath(String const& path) const;
     
     Json getDefault(String const& key) const;
     Json getDefaultPath(String const& path) const;
@@ -31,7 +31,7 @@ private:
     mutable Mutex m_mutex;
 
     Json m_defaultConfig;
-    Json M_currentConfig;
+    Json m_currentConfig;
 };
 
 }
