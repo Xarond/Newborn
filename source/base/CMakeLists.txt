@@ -15,6 +15,10 @@ SET (newborn_base_HEADERS
     NewbornVersion.hpp
     NewbornConfiguration.hpp
     NewbornVersionOptionParser.hpp
+    NewbornWorldGeometry.hpp
+    NewbornMixer.hpp
+    NewbornCellularLiquid.hpp
+    NewbornBlockAlongLine.hpp
     scripting/NewbornImageLuaBindings.hpp
 
 
@@ -28,6 +32,8 @@ SET (newborn_base_SOURCES
     NewbornPackedAssetSource.cpp
     NewbornVersionOptionParser.cpp
     NewbornRootBase.cpp
+    NewbornWorldGeometry.cpp
+    NewbornMixer.cpp
     scripting/NewbornImageLuaBindings.cpp
 )
 
