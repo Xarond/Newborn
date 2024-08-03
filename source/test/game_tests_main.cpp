@@ -1,5 +1,6 @@
 #include "NewbornLogging.hpp"
 #include "NewbornFile.hpp"
+#include "NewbornRootLoader.hpp"
 
 #include "gtest/gtest.h"
 
@@ -17,32 +18,28 @@ struct ErrorLogSink : public LogSink {
 
 class TestEnvironment : public testing::Environment {
 public:
-    TestEnvironment() {}
+    unique_ptr<Root> root;
+    Root::Settings settings;
+    TestEnvironment(Root::Settings settings)
+        : settings(std::move(settings)) {}
 
     virtual void SetUp() {
         Logger::addSink(make_shared<ErrorLogSink>());
+        root = make_unique<Root>(settings);
+        //TODO: CLEAR UNIVERSE LATER
 
     }
 
     virtual void TearDown() {
-    // Perform necessary cleanup tasks here
+        root.reset();
     }
 
-    private:
-    void clearUniverseFiles() {
-        // Implement the logic to clear universe files
-    }
-
-    void clearPlayerFiles() {
-        // Implement the logic to clear player files
-    }
-  };
+};
 
 GTEST_API_ int main(int argc, char** argv) {
     testing::InitGoogleTest(&argc, argv);
     
-    // Add the test environment
-    testing::AddGlobalTestEnvironment(new TestEnvironment());
+    testing::AddGlobalTestEnvironment(new TestEnvironment(RootLoader({{}, {}, {}, LogLevel::Error, true, {}}).commandParseOrDie(argc, argv).first));
     
     return RUN_ALL_TESTS();
 }
