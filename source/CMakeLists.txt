@@ -539,7 +539,7 @@ add_subdirectory(base)
 
 # Platform APIs that are implemented by the application module
 set(NEWBORN_PLATFORM_INCLUDES ${PROJECT_SOURCE_DIR}/platform)
-
+add_subdirectory(platform)
 
 # Core game logic used by both server and client.
 set(NEWBORN_GAME_INCLUDES
