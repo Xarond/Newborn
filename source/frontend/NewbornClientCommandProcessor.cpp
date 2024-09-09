@@ -15,9 +15,9 @@
 namespace Newborn {
 
 ClientCommandProcessor::ClientCommandProcessor(UniverseClientPtr universeClient, CinematicPtr cinematicOverlay,
-    MainInterfacePaneManager* paneManager, StringMap<StringList> macroCommands)
-  : m_universeClient(std::move(universeClient)), m_cinematicOverlay(std::move(cinematicOverlay)),
-    m_paneManager(paneManager), m_macroCommands(std::move(macroCommands)) {
+                                               MainInterfacePaneManager* paneManager, StringMap<StringList> macroCommands)
+    : m_universeClient(std::move(universeClient)), m_cinematicOverlay(std::move(cinematicOverlay)),
+      m_paneManager(paneManager), m_macroCommands(std::move(macroCommands)) {
   m_builtinCommands = {
     {"reload", bind(&ClientCommandProcessor::reload, this)},
     {"whoami", bind(&ClientCommandProcessor::whoami, this)},
@@ -51,13 +51,14 @@ ClientCommandProcessor::ClientCommandProcessor(UniverseClientPtr universeClient,
     {"maketechavailable", bind(&ClientCommandProcessor::makeTechAvailable, this, _1)},
     {"enabletech", bind(&ClientCommandProcessor::enableTech, this, _1)},
     {"upgradeship", bind(&ClientCommandProcessor::upgradeShip, this, _1)},
-    {"swap", bind(&ClientCommandProcessor::swap, this, _1)}
+    {"swap", bind(&ClientCommandProcessor::swap, this, _1)},
+    {"respawnInWorld", bind(&ClientCommandProcessor::respawnInWorld, this)}
   };
 }
 
 bool ClientCommandProcessor::adminCommandAllowed() const {
   return Root::singleton().configuration()->get("allowAdminCommandsFromAnyone").toBool() ||
-    m_universeClient->mainPlayer()->isAdmin();
+      m_universeClient->mainPlayer()->isAdmin();
 }
 
 String ClientCommandProcessor::previewQuestPane(StringList const& arguments, function<PanePtr(QuestPtr)> createPane) {
@@ -425,6 +426,28 @@ String ClientCommandProcessor::swap(String const& argumentsString) {
     return "Successfully swapped player";
   else
     return "Failed to swap player";
+}
+
+String ClientCommandProcessor::respawnInWorld() {
+  WorldClientPtr worldClient = m_universeClient->worldClient();
+
+  // Make sure we got the worldClient
+  if (!worldClient) {
+    return "Error: Unable to access world client.";
+  }
+
+  if (worldClient->toggleRespawnInWorld()) {
+    // Convert boolean to string for the response
+    const std::string result = worldClient->respawnInWorld() ? "true" : "false";
+
+    return "Successfully switched respawn in this world to " + result;
+  }
+  else
+    return "Failed to switch respawn in this world!";
+
+  // This should never trigger, but its better to have it than not :3
+  return "Something unforseen happend!";
+
 }
 
 }

@@ -58,6 +58,8 @@ private:
   String enableTech(String const& argumentsString);
   String upgradeShip(String const& argumentsString);
   String swap(String const& argumentsString);
+  String respawnInWorld();
+
 
   UniverseClientPtr m_universeClient;
   CinematicPtr m_cinematicOverlay;
