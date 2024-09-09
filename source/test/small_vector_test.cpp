@@ -1,4 +1,5 @@
 #include "NewbornSmallVector.hpp"
+#include "NewbornFormat.hpp"
 
 #include "gtest/gtest.h"
 

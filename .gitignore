@@ -2,3 +2,9 @@
 .vscode
 build
 dist
+assets
+dev
+logs
+\source\utility\
+utils
+storage

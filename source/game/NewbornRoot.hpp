@@ -55,241 +55,275 @@ NEWBORN_CLASS(Root);
 // should be completed before any code dependent on Root is started in any
 // thread, and all Root dependent code in any thread should be finished before
 // letting Root destruct.
-
 class Root : public RootBase {
 public:
-    struct Settings {
-        Assets::Settings assetsSettings;
+  struct Settings {
+    Assets::Settings assetsSettings;
 
-        StringList assetSources;
+    // Asset sources are scanned for in the given directories, in order.
+    StringList assetDirectories;
 
-        Json defaultConfiguration;
+    // Just raw asset source paths.
+    StringList assetSources;
 
-        String storageDirectory;
+    Json defaultConfiguration;
 
-        Maybe<String> logDirectory;
+    // Top-level storage directory under which all game data is saved
+    String storageDirectory;
 
-        Maybe<String> logFile;
+    // Directory to store logs - if not set, uses storage directory and keeps old logs in seperate folder
+    Maybe<String> logDirectory;
 
-        unsigned logfileBackups;
+    // Name of the log file that should be written, if any, relative to the
+    // log directory
+    Maybe<String> logFile;
 
-        LogLevel logLevel;
+    // Number of rotated log file backups
+    unsigned logFileBackups;
 
-        bool quiet;
+    // The minimum log level to write to any log sink
+    LogLevel logLevel;
 
-        Maybe<String> runtimeConfigFile;
-    };
+    // If true, doesn't write any logging to stdout, only to the log file if
+    // given.
+    bool quiet;
 
-    static Root* singletonPtr();
+    // If given, will write changed configuration to the given file within the
+    // storage directory.
+    Maybe<String> runtimeConfigFile;
+  };
 
-    static Root& singleton();
+  // Get pointer to the singleton root instance, if it exists.  Otherwise,
+  // returns nullptr.
+  static Root* singletonPtr();
 
-    Root(Settings settings);
+  // Gets reference to root singleton, throws RootException if root is not
+  // initialized.
+  static Root& singleton();
 
-    Root(Root const&) = delete;
-    Root& operator=(Root const&) = delete;
+  // Initializes the newborn root object and does the initial load.  All of
+  // the Root members will be just in time loaded as they are accessed, unless
+  // fullyLoad is called beforehand.
+  Root(Settings settings);
 
-    ~Root();
+  Root(Root const&) = delete;
+  Root& operator=(Root const&) = delete;
 
-    void reload();
+  ~Root();
 
-    void reloadWithMods(StringList modDirectories);
+  // Clears existing Root members, allowing them to be loaded fresh from disk.
+  void reload();
 
-    void fullyLoad();
-    
-    void registerReloadListener(ListenerWeakPtr reloadListener);
+  // Reloads with the given mod sources applied on top of the base mod source
+  // specified in the settings.  Mods in the base mod source will override mods
+  // in the given mod sources
+  void reloadWithMods(StringList modDirectories);
 
-    String toStoragePath(String const& path) const;
+  // Ensures all Root members are loaded without waiting for them to be auto
+  // loaded.
+  void fullyLoad();
 
-    AssetsConstPtr assets() override;
-    ConfigurationPtr configuration() override;
+  // Add a listener that will be called on Root reload.  Automatically managed,
+  // if the listener is destroyed then it will automatically be removed from
+  // the internal listener list.
+  void registerReloadListener(ListenerWeakPtr reloadListener);
 
-    ObjectDatabaseConstPtr objectDatabase();
-    PlantDatabaseConstPtr plantDatabase();
-    ProjectileDatabaseConstPtr projectileDatabase();
-    MonsterDatabaseConstPtr monsterDatabase();
-    NpcDatabaseConstPtr npcDatabase();
-    StagehandDatabaseConstPtr stagehandDatabase();
-    VehicleDatabaseConstPtr vehicleDatabase();
-    PlayerFactoryConstPtr playerFactory();
+  // Translates the given path to be relative to the configured storage
+  // location.
+  String toStoragePath(String const& path) const;
 
-    EntityFactoryConstPtr entityFactory();
+  // All of the Root member accessors are safe to call at any time after Root
+  // initialization, if they are not loaded they will load before returning.
 
-    PatternedNameGeneratorConstPtr nameGenerator();
+  AssetsConstPtr assets() override;
+  ConfigurationPtr configuration() override;
 
-    ItemDatabaseConstPtr itemDatabase();
-    MaterialDatabaseConstPtr materialDatabase();
-    TerrainDatabaseConstPtr terrainDatabase();
-    BiomeDatabaseConstPtr biomeDatabase();
-    LiquidsDatabaseConstPtr liquidsDatabase();
-    StatusEffectDatabaseConstPtr statusEffectDatabase();
-    DamageDatabaseConstPtr damageDatabase();
-    ParticleDatabaseConstPtr particleDatabase();
-    EffectSourceDatabaseConstPtr effectSourceDatabase();
-    FunctionDatabaseConstPtr functionDatabase();
-    TreasureDatabaseConstPtr treasureDatabase();
-    DungeonDefinitionsConstPtr dungeonDefinitions();
-    TilesetDatabaseConstPtr tilesetDatabase();
-    StatisticsDatabaseConstPtr statisticsDatabase();
-    EmoteProcessorConstPtr emoteProcessor();
-    SpeciesDatabaseConstPtr speciesDatabase();
-    ImageMetadataDatabaseConstPtr imageMetadataDatabase();
-    VersioningDatabaseConstPtr versioningDatabase();
-    QuestTemplateDatabaseConstPtr questTemplateDatabase();
-    AiDatabaseConstPtr aiDatabase();
-    TechDatabaseConstPtr techDatabase();
-    CodexDatabaseConstPtr codexDatabase();
-    BehaviorDatabaseConstPtr behaviorDatabase();
-    TenantDatabaseConstPtr tenantDatabase();
-    DanceDatabaseConstPtr danceDatabase();
-    SpawnTypeDatabaseConstPtr spawnTypeDatabase();
-    RadioMessageDatabaseConstPtr radioMessageDatabase();
-    CollectionDatabaseConstPtr collectionDatabase();
+  ObjectDatabaseConstPtr objectDatabase();
+  PlantDatabaseConstPtr plantDatabase();
+  ProjectileDatabaseConstPtr projectileDatabase();
+  MonsterDatabaseConstPtr monsterDatabase();
+  NpcDatabaseConstPtr npcDatabase();
+  StagehandDatabaseConstPtr stagehandDatabase();
+  VehicleDatabaseConstPtr vehicleDatabase();
+  PlayerFactoryConstPtr playerFactory();
+
+  EntityFactoryConstPtr entityFactory();
+
+  PatternedNameGeneratorConstPtr nameGenerator();
+
+  ItemDatabaseConstPtr itemDatabase();
+  MaterialDatabaseConstPtr materialDatabase();
+  TerrainDatabaseConstPtr terrainDatabase();
+  BiomeDatabaseConstPtr biomeDatabase();
+  LiquidsDatabaseConstPtr liquidsDatabase();
+  StatusEffectDatabaseConstPtr statusEffectDatabase();
+  DamageDatabaseConstPtr damageDatabase();
+  ParticleDatabaseConstPtr particleDatabase();
+  EffectSourceDatabaseConstPtr effectSourceDatabase();
+  FunctionDatabaseConstPtr functionDatabase();
+  TreasureDatabaseConstPtr treasureDatabase();
+  DungeonDefinitionsConstPtr dungeonDefinitions();
+  TilesetDatabaseConstPtr tilesetDatabase();
+  StatisticsDatabaseConstPtr statisticsDatabase();
+  EmoteProcessorConstPtr emoteProcessor();
+  SpeciesDatabaseConstPtr speciesDatabase();
+  ImageMetadataDatabaseConstPtr imageMetadataDatabase();
+  VersioningDatabaseConstPtr versioningDatabase();
+  QuestTemplateDatabaseConstPtr questTemplateDatabase();
+  AiDatabaseConstPtr aiDatabase();
+  TechDatabaseConstPtr techDatabase();
+  CodexDatabaseConstPtr codexDatabase();
+  BehaviorDatabaseConstPtr behaviorDatabase();
+  TenantDatabaseConstPtr tenantDatabase();
+  DanceDatabaseConstPtr danceDatabase();
+  SpawnTypeDatabaseConstPtr spawnTypeDatabase();
+  RadioMessageDatabaseConstPtr radioMessageDatabase();
+  CollectionDatabaseConstPtr collectionDatabase();
 
 private:
-    static StringList scanForAssetSources(StringList const& directories, StringList const& manual = {});
-    template <typename T, typename... Params>
-    static shared_ptr<T> loadMember(shared_ptr<T>& ptr, Mutex& mutex, char const* name, Params&&... params);
-    template <typename T>
-    static shared_ptr<T> loadMemberFunction(shared_ptr<T>& ptr, Mutex& mutex, char const* name, function<shared_ptr<T>()> loadFunction);
+  static StringList scanForAssetSources(StringList const& directories, StringList const& manual = {});
+  template <typename T, typename... Params>
+  static shared_ptr<T> loadMember(shared_ptr<T>& ptr, Mutex& mutex, char const* name, Params&&... params);
+  template <typename T>
+  static shared_ptr<T> loadMemberFunction(shared_ptr<T>& ptr, Mutex& mutex, char const* name, function<shared_ptr<T>()> loadFunction);
 
-    // m_configurationMutex must be held when calling
-    void writeConfig();
+  // m_configurationMutex must be held when calling
+  void writeConfig();
 
-    Settings m_settings;
+  Settings m_settings;
 
-    Mutex m_modsMutex;
-    StringList m_modDirectories;
+  Mutex m_modsMutex;
+  StringList m_modDirectories;
 
-    ListenerGroup m_reloadListeners;
+  ListenerGroup m_reloadListeners;
 
-    Json m_lastRuntimeConfig;
-    Maybe<String> m_runtimeConfigFile;
+  Json m_lastRuntimeConfig;
+  Maybe<String> m_runtimeConfigFile;
 
-    ThreadFunction<void> m_maintenanceThread;
-    Mutex m_maintenanceStopMutex;
-    ConditionVariable m_maintenanceStopCondition;
-    bool m_stopMaintenanceThread;
+  ThreadFunction<void> m_maintenanceThread;
+  Mutex m_maintenanceStopMutex;
+  ConditionVariable m_maintenanceStopCondition;
+  bool m_stopMaintenanceThread;
 
-    AssetsPtr m_assets;
-    Mutex m_assetsMutex;
+  AssetsPtr m_assets;
+  Mutex m_assetsMutex;
 
-    ConfigurationPtr m_configuration;
-    Mutex m_configurationMutex;
+  ConfigurationPtr m_configuration;
+  Mutex m_configurationMutex;
 
-    ObjectDatabasePtr m_objectDatabase;
-    Mutex m_objectDatabaseMutex;
+  ObjectDatabasePtr m_objectDatabase;
+  Mutex m_objectDatabaseMutex;
 
-    PlantDatabasePtr m_plantDatabase;
-    Mutex m_plantDatabaseMutex;
+  PlantDatabasePtr m_plantDatabase;
+  Mutex m_plantDatabaseMutex;
 
-    ProjectileDatabasePtr m_projectileDatabase;
-    Mutex m_projectileDatabaseMutex;
+  ProjectileDatabasePtr m_projectileDatabase;
+  Mutex m_projectileDatabaseMutex;
 
-    MonsterDatabasePtr m_monsterDatabase;
-    Mutex m_monsterDatabaseMutex;
+  MonsterDatabasePtr m_monsterDatabase;
+  Mutex m_monsterDatabaseMutex;
 
-    NpcDatabasePtr m_npcDatabase;
-    Mutex m_npcDatabaseMutex;
+  NpcDatabasePtr m_npcDatabase;
+  Mutex m_npcDatabaseMutex;
 
-    StagehandDatabasePtr m_stagehandDatabase;
-    Mutex m_stagehandDatabaseMutex;
+  StagehandDatabasePtr m_stagehandDatabase;
+  Mutex m_stagehandDatabaseMutex;
 
-    VehicleDatabasePtr m_vehicleDatabase;
-    Mutex m_vehicleDatabaseMutex;
+  VehicleDatabasePtr m_vehicleDatabase;
+  Mutex m_vehicleDatabaseMutex;
 
-    PlayerFactoryPtr m_playerFactory;
-    Mutex m_playerFactoryMutex;
+  PlayerFactoryPtr m_playerFactory;
+  Mutex m_playerFactoryMutex;
 
-    EntityFactoryPtr m_entityFactory;
-    Mutex m_entityFactoryMutex;
+  EntityFactoryPtr m_entityFactory;
+  Mutex m_entityFactoryMutex;
 
-    PatternedNameGeneratorPtr m_nameGenerator;
-    Mutex m_nameGeneratorMutex;
+  PatternedNameGeneratorPtr m_nameGenerator;
+  Mutex m_nameGeneratorMutex;
 
-    ItemDatabasePtr m_itemDatabase;
-    Mutex m_itemDatabaseMutex;
+  ItemDatabasePtr m_itemDatabase;
+  Mutex m_itemDatabaseMutex;
 
-    MaterialDatabasePtr m_materialDatabase;
-    Mutex m_materialDatabaseMutex;
+  MaterialDatabasePtr m_materialDatabase;
+  Mutex m_materialDatabaseMutex;
 
-    TerrainDatabasePtr m_terrainDatabase;
-    Mutex m_terrainDatabaseMutex;
+  TerrainDatabasePtr m_terrainDatabase;
+  Mutex m_terrainDatabaseMutex;
 
-    BiomeDatabasePtr m_biomeDatabase;
-    Mutex m_biomeDatabaseMutex;
+  BiomeDatabasePtr m_biomeDatabase;
+  Mutex m_biomeDatabaseMutex;
 
-    LiquidsDatabasePtr m_liquidsDatabase;
-    Mutex m_liquidsDatabaseMutex;
+  LiquidsDatabasePtr m_liquidsDatabase;
+  Mutex m_liquidsDatabaseMutex;
 
-    StatusEffectDatabasePtr m_statusEffectDatabase;
-    Mutex m_statusEffectDatabaseMutex;
+  StatusEffectDatabasePtr m_statusEffectDatabase;
+  Mutex m_statusEffectDatabaseMutex;
 
-    DamageDatabasePtr m_damageDatabase;
-    Mutex m_damageDatabaseMutex;
+  DamageDatabasePtr m_damageDatabase;
+  Mutex m_damageDatabaseMutex;
 
-    ParticleDatabasePtr m_particleDatabase;
-    Mutex m_particleDatabaseMutex;
+  ParticleDatabasePtr m_particleDatabase;
+  Mutex m_particleDatabaseMutex;
 
-    EffectSourceDatabasePtr m_effectSourceDatabase;
-    Mutex m_effectSourceDatabaseMutex;
+  EffectSourceDatabasePtr m_effectSourceDatabase;
+  Mutex m_effectSourceDatabaseMutex;
 
-    FunctionDatabasePtr m_functionDatabase;
-    Mutex m_functionDatabaseMutex;
+  FunctionDatabasePtr m_functionDatabase;
+  Mutex m_functionDatabaseMutex;
 
-    TreasureDatabasePtr m_treasureDatabase;
-    Mutex m_treasureDatabaseMutex;
+  TreasureDatabasePtr m_treasureDatabase;
+  Mutex m_treasureDatabaseMutex;
 
-    DungeonDefinitionsPtr m_dungeonDefinitions;
-    Mutex m_dungeonDefinitionsMutex;
+  DungeonDefinitionsPtr m_dungeonDefinitions;
+  Mutex m_dungeonDefinitionsMutex;
 
-    TilesetDatabasePtr m_tilesetDatabase;
-    Mutex m_tilesetDatabaseMutex;
+  TilesetDatabasePtr m_tilesetDatabase;
+  Mutex m_tilesetDatabaseMutex;
 
-    StatisticsDatabasePtr m_statisticsDatabase;
-    Mutex m_statisticsDatabaseMutex;
+  StatisticsDatabasePtr m_statisticsDatabase;
+  Mutex m_statisticsDatabaseMutex;
 
-    EmoteProcessorPtr m_emoteProcessor;
-    Mutex m_emoteProcessorMutex;
+  EmoteProcessorPtr m_emoteProcessor;
+  Mutex m_emoteProcessorMutex;
 
-    SpeciesDatabasePtr m_speciesDatabase;
-    Mutex m_speciesDatabaseMutex;
+  SpeciesDatabasePtr m_speciesDatabase;
+  Mutex m_speciesDatabaseMutex;
 
-    ImageMetadataDatabasePtr m_imageMetadataDatabase;
-    Mutex m_imageMetadataDatabaseMutex;
+  ImageMetadataDatabasePtr m_imageMetadataDatabase;
+  Mutex m_imageMetadataDatabaseMutex;
 
-    VersioningDatabasePtr m_versioningDatabase;
-    Mutex m_versioningDatabaseMutex;
+  VersioningDatabasePtr m_versioningDatabase;
+  Mutex m_versioningDatabaseMutex;
 
-    QuestTemplateDatabasePtr m_questTemplateDatabase;
-    Mutex m_questTemplateDatabaseMutex;
+  QuestTemplateDatabasePtr m_questTemplateDatabase;
+  Mutex m_questTemplateDatabaseMutex;
 
-    AiDatabasePtr m_aiDatabase;
-    Mutex m_aiDatabaseMutex;
+  AiDatabasePtr m_aiDatabase;
+  Mutex m_aiDatabaseMutex;
 
-    TechDatabasePtr m_techDatabase;
-    Mutex m_techDatabaseMutex;
+  TechDatabasePtr m_techDatabase;
+  Mutex m_techDatabaseMutex;
 
-    CodexDatabasePtr m_codexDatabase;
-    Mutex m_codexDatabaseMutex;
+  CodexDatabasePtr m_codexDatabase;
+  Mutex m_codexDatabaseMutex;
 
-    BehaviorDatabasePtr m_behaviorDatabase;
-    Mutex m_behaviorDatabaseMutex;
+  BehaviorDatabasePtr m_behaviorDatabase;
+  Mutex m_behaviorDatabaseMutex;
 
-    TenantDatabasePtr m_tenantDatabase;
-    Mutex m_tenantDatabaseMutex;
+  TenantDatabasePtr m_tenantDatabase;
+  Mutex m_tenantDatabaseMutex;
 
-    DanceDatabasePtr m_danceDatabase;
-    Mutex m_danceDatabaseMutex;
+  DanceDatabasePtr m_danceDatabase;
+  Mutex m_danceDatabaseMutex;
 
-    SpawnTypeDatabasePtr m_spawnTypeDatabase;
-    Mutex m_spawnTypeDatabaseMutex;
+  SpawnTypeDatabasePtr m_spawnTypeDatabase;
+  Mutex m_spawnTypeDatabaseMutex;
 
-    RadioMessageDatabasePtr m_radioMessageDatabase;
-    Mutex m_radioMessageDatabaseMutex;
+  RadioMessageDatabasePtr m_radioMessageDatabase;
+  Mutex m_radioMessageDatabaseMutex;
 
-    CollectionDatabasePtr m_collectionDatabase;
-    Mutex m_collectionDatabaseMutex;
-    };
+  CollectionDatabasePtr m_collectionDatabase;
+  Mutex m_collectionDatabaseMutex;
+};
 
 }

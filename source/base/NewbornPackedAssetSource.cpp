@@ -14,7 +14,7 @@ void PackedAssetSource::build(DirectoryAssetSource& directorySource, String cons
 
     DataStreamIODevice ds(file);
 
-    ds.writeData("SBAsset6", 8);
+    ds.writeData("NBAsset69", 8);
 
     ds.seek(8, IOSeek::Relative);
 
@@ -68,7 +68,7 @@ PackedAssetSource::PackedAssetSource(String const& filename) {
     m_packedFile = File::open(filename, IOMode::Read);
 
     DataStreamIODevice ds(m_packedFile);
-    if (ds.readBytes(8) != ByteArray("SBAsset6", 8))
+    if (ds.readBytes(8) != ByteArray("NBAsset69", 8))
         throw AssetSourceException("Packed assets file format unrecognized");
 
     uint64_t indexStart = ds.read<uint64_t>();

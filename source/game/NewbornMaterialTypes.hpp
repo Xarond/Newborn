@@ -1,7 +1,5 @@
 #pragma once
 
-#include "NewbornMathCommon.hpp"
-
 namespace Newborn {
 
 typedef uint16_t MaterialId;

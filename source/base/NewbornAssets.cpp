@@ -108,6 +108,7 @@ Maybe<RectU> FramesSpecification::getRect(String const& frame) const {
 
 Assets::Assets(Settings settings, StringList assetSources) {
     const char* AssetsPatchSuffix = ".patch";
+    const char* AssetsPatchListSuffix = ".patchlist";
     const char* AssetsLuaPatchSuffix = ".patch.lua";
 
     m_settings = std::move(settings);
@@ -127,6 +128,7 @@ Assets::Assets(Settings settings, StringList assetSources) {
         LuaCallbacks callbacks;
         callbacks.registerCallbackWithSignature<StringSet, String>("byExtension", bind(&Assets::scanExtension, this , _1));
         callbacks.registerCallbackWithSignature<Json, String>("json", bind(&Assets::json, this, _1));
+        callbacks.registerCallbackWithSignature<bool, String>("exists", bind(&Assets::assetExists, this, _1));
 
         callbacks.registerCallback("bytes", [this](String const& path) -> String {
             auto assetBytes = bytes(path);
@@ -195,37 +197,55 @@ Assets::Assets(Settings settings, StringList assetSources) {
         }
     };
 
-    auto addSource = [&](String const& sourcePath, AssetSourcePtr source) {
-        m_assetSourcePaths.add(sourcePath, source);
+  auto addSource = [&](String const& sourcePath, AssetSourcePtr source) {
+    m_assetSourcePaths.add(sourcePath, source);
 
-        for (auto const& filename : source->assetPaths()) {
-        if (filename.contains(AssetsPatchSuffix, String::CaseInsensitive)) {
-            if (filename.endsWith(AssetsPatchSuffix, String::CaseInsensitive)) {
-            auto targetPatchFile = filename.substr(0, filename.size() - strlen(AssetsPatchSuffix));
-            if (auto p = m_files.ptr(targetPatchFile))
-                p->patchSources.append({filename, source});
-            } else if (filename.endsWith(AssetsLuaPatchSuffix, String::CaseInsensitive)) {
-            auto targetPatchFile = filename.substr(0, filename.size() - strlen(AssetsLuaPatchSuffix));
-            if (auto p = m_files.ptr(targetPatchFile))
-                p->patchSources.append({filename, source});
-            } else {
-            for (int i = 0; i < 10; i++) {
-                if (filename.endsWith(AssetsPatchSuffix + toString(i), String::CaseInsensitive)) {
-                auto targetPatchFile = filename.substr(0, filename.size() - strlen(AssetsPatchSuffix) + 1);
-                if (auto p = m_files.ptr(targetPatchFile))
-                    p->patchSources.append({filename, source});
-                break;
+    for (auto const& filename : source->assetPaths()) {
+      if (filename.contains(AssetsPatchSuffix, String::CaseInsensitive)) {
+        if (filename.endsWith(AssetsPatchSuffix, String::CaseInsensitive)) {
+          auto targetPatchFile = filename.substr(0, filename.size() - strlen(AssetsPatchSuffix));
+          if (auto p = m_files.ptr(targetPatchFile))
+            p->patchSources.append({filename, source});
+        } else if (filename.endsWith(AssetsLuaPatchSuffix, String::CaseInsensitive)) {
+          auto targetPatchFile = filename.substr(0, filename.size() - strlen(AssetsLuaPatchSuffix));
+          if (auto p = m_files.ptr(targetPatchFile))
+            p->patchSources.append({filename, source});
+        } else if (filename.endsWith(AssetsPatchListSuffix, String::CaseInsensitive)) {
+          auto stream = source->read(filename);
+          size_t patchIndex = 0;
+          for (auto const& patchPair : inputUtf8Json(stream.begin(), stream.end(), JsonParseType::Top).iterateArray()) {
+            auto patches = patchPair.getArray("patches");
+            for (auto& path : patchPair.getArray("paths")) {
+              if (auto p = m_files.ptr(path.toString())) {
+                for (size_t i = 0; i != patches.size(); ++i) {
+                  auto& patch = patches[i];
+                  if (patch.isType(Json::Type::String))
+                    p->patchSources.append({patch.toString(), source});
+                  else
+                    p->patchSources.append({strf("{}:[{}].patches[{}]", filename, patchIndex, i), source});
                 }
+              }
+            }
+            patchIndex++;
+          }
+        } else {
+          for (int i = 0; i < 10; i++) {
+            if (filename.endsWith(AssetsPatchSuffix + toString(i), String::CaseInsensitive)) {
+              auto targetPatchFile = filename.substr(0, filename.size() - strlen(AssetsPatchSuffix) + 1);
+              if (auto p = m_files.ptr(targetPatchFile))
+                p->patchSources.append({filename, source});
+              break;
             }
           }
         }
+      }
 
-        auto& descriptor = m_files[filename];
-        descriptor.sourceName = filename;
-        descriptor.source = source;
-        m_filesByExtension[AssetPath::extension(filename).toLower()].insert(filename);
-        }
-    };
+      auto& descriptor = m_files[filename];
+      descriptor.sourceName = filename;
+      descriptor.source = source;
+      m_filesByExtension[AssetPath::extension(filename).toLower()].insert(filename);
+    }
+  };
 
     auto runLoadScripts = [&](String const& groupName, String const& sourcePath, AssetSourcePtr source) {
         auto metadata = source->metadata();
@@ -289,7 +309,7 @@ Assets::Assets(Settings settings, StringList assetSources) {
         digest.push(assetPath);
         digest.push(DataStreamBuffer::serialize(descriptor.source->open(descriptor.sourceName)->size()));
         for (auto const& pair : descriptor.patchSources)
-            digest.push(DataStreamBuffer::serialize(pair.second->open(pair.first)->size()));
+            digest.push(DataStreamBuffer::serialize(pair.second->open(AssetPath::removeSubPath(pair.first))->size()));
         }
     }
 
@@ -954,32 +974,35 @@ Json Assets::readJson(String const& path) const {
     try {
         Json result = inputUtf8Json(streamData.begin(), streamData.end(), JsonParseType::Top);
         for (auto const& pair : m_files.get(path).patchSources) {
-        auto& patchPath = pair.first;
+        auto patchAssetPath = AssetPath::split(pair.first);
+        auto& patchBasePath = patchAssetPath.basePath;
         auto& patchSource = pair.second;
-        auto patchStream = patchSource->read(patchPath);
-        if (patchPath.endsWith(".lua")) {
+        auto patchStream = patchSource->read(patchBasePath);
+        if (patchBasePath.endsWith(".lua")) {
             RecursiveMutexLocker luaLocker(m_luaMutex);
             // Kae: i don't like that lock. perhaps have a LuaEngine and patch context cache per worker thread later on?
-            LuaContextPtr& context = m_patchContexts[patchPath];
+            LuaContextPtr& context = m_patchContexts[patchBasePath];
             if (!context) {
             context = make_shared<LuaContext>(as<LuaEngine>(m_luaEngine.get())->createContext());
-            context->load(patchStream, patchPath);
+            context->load(patchStream, patchBasePath);
             }
             auto newResult = context->invokePath<Json>("patch", result, path);
             if (newResult)
             result = std::move(newResult);
         } else {
             auto patchJson = inputUtf8Json(patchStream.begin(), patchStream.end(), JsonParseType::Top);
+            if (patchAssetPath.subPath)
+                patchJson = patchJson.query(*patchAssetPath.subPath);
             if (patchJson.isType(Json::Type::Array)) {
-            auto patchData = patchJson.toArray();
-            try {
-            result = checkPatchArray(patchPath, patchSource, result, patchData, {});
-            } catch (JsonPatchTestFail const& e) {
-            Logger::debug("Patch test failure from file {} in source: '{}' at '{}'. Caused by: {}", patchPath, patchSource->metadata().value("name", ""), m_assetSourcePaths.getLeft(patchSource), e.what());
-            } catch (JsonPatchException const& e) {
-            Logger::error("Could not apply patch from file {} in source: '{}' at '{}'.  Caused by: {}", patchPath, patchSource->metadata().value("name", ""), m_assetSourcePaths.getLeft(patchSource), e.what());
-            }
-            } else if (patchJson.isType(Json::Type::Object)) {//Kae: Do a good ol' json merge instead if the .patch file is a Json object
+          auto patchData = patchJson.toArray();
+          try {
+            result = checkPatchArray(pair.first, patchSource, result, patchData, {});
+          } catch (JsonPatchTestFail const& e) {
+            Logger::debug("Patch test failure from file {} in source: '{}' at '{}'. Caused by: {}", pair.first, patchSource->metadata().value("name", ""), m_assetSourcePaths.getLeft(patchSource), e.what());
+          } catch (JsonPatchException const& e) {
+            Logger::error("Could not apply patch from file {} in source: '{}' at '{}'.  Caused by: {}", pair.first, patchSource->metadata().value("name", ""), m_assetSourcePaths.getLeft(patchSource), e.what());
+          }
+        } else if (patchJson.isType(Json::Type::Object)) {
             result = jsonMergeNulling(result, patchJson.toObject());
             }
         }
@@ -1216,7 +1239,7 @@ shared_ptr<Assets::AssetData> Assets::loadJson(AssetPath const& path) const {
 shared_ptr<Assets::AssetData> Assets::loadAudio(AssetPath const& path) const {
     return unlockDuring([&]() {
         auto newData = make_shared<AudioData>();
-        newData->audio = make_shared<Audio>(open(path.basePath));
+        newData->audio = make_shared<Audio>(open(path.basePath), path.basePath);
         newData->needsPostProcessing = newData->audio->compressed();
         return newData;
     });

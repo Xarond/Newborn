@@ -17,7 +17,7 @@
         "VCPKG_OVERLAY_TRIPLETS": "${sourceParentDir}/triplets",
         "CMAKE_VERBOSE_MAKEFILE": true,
         "BUILD_TESTING": true,
-        "NEWBORN_ENABLE_STEAM_INTEGRATION": true,
+        "NEWBORN_ENABLE_STEAM_INTEGRATION": false,
         "NEWBORN_ENABLE_DISCORD_INTEGRATION": true
       }
     },
@@ -31,7 +31,9 @@
         "VCPKG_TARGET_TRIPLET": "x64-windows-mixed-md",
         "CMAKE_MSVC_RUNTIME_LIBRARY": "MultiThreaded$<$<CONFIG:Debug>:Debug>DLL",
         "CMAKE_INCLUDE_PATH": "${sourceParentDir}/lib/windows/include",
-        "CMAKE_LIBRARY_PATH": "${sourceParentDir}/lib/windows"
+        "CMAKE_LIBRARY_PATH": "${sourceParentDir}/lib/windows",
+        "CMAKE_LIBRARY_PATH": "${sourceParentDir}/lib/windows",
+        "NEWBORN_USE_RPMALLOC": true
       },
       "vendor": {
         "microsoft.com/VisualStudioSettings/CMake/1.0": {

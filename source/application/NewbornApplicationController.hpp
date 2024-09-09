@@ -11,20 +11,26 @@ namespace Newborn {
 
 NEWBORN_CLASS(ApplicationController);
 
+// Audio format is always 16 bit signed integer samples
 struct AudioFormat {
-    unsigned sampleRate;
-    unsigned channels;
+  unsigned sampleRate;
+  unsigned channels;
 };
 
+// Window size defaults to 800x600, target update rate to 60hz, maximized and
+// fullscreen are false, vsync is on, the cursor is visible, and audio and text
+// input are disabled.
 class ApplicationController {
 public:
   virtual ~ApplicationController() = default;
 
-
+  // Target hz at which update() will be called
   virtual void setTargetUpdateRate(float targetUpdateRate) = 0;
-
+  // Window that controls how long the update rate will be increased or
+  // decreased to make up for rate errors in the past.
   virtual void setUpdateTrackWindow(float updateTrackWindow) = 0;
-
+  // Maximum number of calls to update() that can occur before we force
+  // 'render()' to be called, even if we are still behind on our update rate.
   virtual void setMaxFrameSkip(unsigned maxFrameSkip) = 0;
 
   virtual void setApplicationTitle(String title) = 0;
@@ -53,6 +59,8 @@ public:
   virtual void setClipboard(String text) = 0;
   virtual Maybe<String> getClipboard() = 0;
 
+  // Returns the latest actual measured update and render rate, which may be
+  // different than the target update rate.
   virtual float updateRate() const = 0;
   virtual float renderFps() const = 0;
 
@@ -61,6 +69,7 @@ public:
   virtual UserGeneratedContentServicePtr userGeneratedContentService() const = 0;
   virtual DesktopServicePtr desktopService() const = 0;
 
+  // Signals the application to quit
   virtual void quit() = 0;
 };
 

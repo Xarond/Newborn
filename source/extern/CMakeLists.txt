@@ -70,4 +70,15 @@ SET (newborn_extern_SOURCES
     lua/lzio.c
   )
 
+  
+IF (NEWBORN_USE_RPMALLOC)
+  SET(newborn_extern_HEADERS ${newborn_extern_HEADERS}
+    rpmalloc.h
+    rpnew.h
+  )
+  SET(newborn_extern_SOURCES ${newborn_extern_SOURCES}
+    rpmalloc.c
+  )
+ENDIF()
+
 ADD_LIBRARY (newborn_extern OBJECT ${newborn_extern_SOURCES} ${newborn_extern_HEADERS})

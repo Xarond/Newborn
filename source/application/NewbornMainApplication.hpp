@@ -12,13 +12,13 @@ namespace Newborn {
 
 #include <Windows.h>
 
-#define NEWBORN_MAIN_APPLICATION(ApplicationClose)                                         \
-    int __stdcall WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {                              \
-        int nArgs;                                                                         \
-        LPWSTR* argsList = CommandLineToArgvW(GetCommandLineW(), &nArgs);                  \
-        Newborn::StringList args;                                                          \
-        for (int i = 0; i < nArgs; ++i) args.append(Newborn::String(argsList[i]));         \
-        return Newborn::runMainApplication(Newborn::make_unique<ApplicationClass>(), args) \
+#define NEWBORN_MAIN_APPLICATION(ApplicationClass)                                          \
+    int __stdcall WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {                               \
+        int nArgs;                                                                          \
+        LPWSTR* argsList = CommandLineToArgvW(GetCommandLineW(), &nArgs);                   \
+        Newborn::StringList args;                                                           \
+        for (int i = 0; i < nArgs; ++i) args.append(Newborn::String(argsList[i]));          \
+        return Newborn::runMainApplication(Newborn::make_unique<ApplicationClass>(), args); \
     }
 
 #else

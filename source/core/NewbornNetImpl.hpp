@@ -24,6 +24,7 @@
 #include <poll.h>
 #endif
 
+#include "NewbornString_windows.hpp"
 #include "NewbornHostAddress.hpp"
 
 #ifndef AI_ADDRCONFIG
@@ -45,17 +46,19 @@ static WindowsSocketInitializer g_windowsSocketInitializer;
 
 inline String netErrorString() {
 #ifdef NEWBORN_SYSTEM_WINDOWS
-  LPVOID lpMsgBuf = NULL;
+  LPWSTR lpMsgBuf = NULL;
+  int error = WSAGetLastError();
 
-  FormatMessage(FORMAT_MESSAGE_ALLOCATE_BUFFER | FORMAT_MESSAGE_FROM_SYSTEM | FORMAT_MESSAGE_IGNORE_INSERTS,
+    FormatMessage(FORMAT_MESSAGE_ALLOCATE_BUFFER | FORMAT_MESSAGE_FROM_SYSTEM
+              | FORMAT_MESSAGE_IGNORE_INSERTS | FORMAT_MESSAGE_MAX_WIDTH_MASK,
       NULL,
-      WSAGetLastError(),
+      error,
       MAKELANGID(LANG_NEUTRAL, SUBLANG_DEFAULT), // Default language
       (LPTSTR)&lpMsgBuf,
       0,
       NULL);
 
-  String result = String((char*)lpMsgBuf);
+  String result = strf("{} - {}", error, utf16ToString(lpMsgBuf));
 
   if (lpMsgBuf != NULL)
     LocalFree(lpMsgBuf);

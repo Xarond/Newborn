@@ -136,6 +136,8 @@ endif()
 
 option(NEWBORN_LUA_APICHECK "Use lua api checks" OFF)
 option(NEWBORN_USE_JEMALLOC "Use jemalloc allocators" OFF)
+option(NEWBORN_USE_MIMALLOC "Use mimalloc allocators" OFF)
+option(NEWBORN_USE_RPMALLOC "Use rpmalloc allocators" OFF)
 
 # Report all the discovered system / environment settings and all options.
 
@@ -174,6 +176,9 @@ endif()
 
 message(STATUS "Using Lua API checks: ${NEWBORN_LUA_APICHECK}")
 message(STATUS "Using jemalloc: ${NEWBORN_USE_JEMALLOC}")
+message(STATUS "Using mimalloc: ${NEWBORN_USE_MIMALLOC}")
+message(STATUS "Using rpmalloc: ${NEWBORN_USE_RPMALLOC}")
+
 
 # Set C defines and cmake variables based on the build settings we have now
 # determined...
@@ -244,6 +249,10 @@ endif()
 
 if(NEWBORN_USE_JEMALLOC)
   add_definitions(-DNEWBORN_USE_JEMALLOC)
+elseif(NEWBORN_USE_MIMALLOC)
+  add_definitions(-DSTAR_USE_MIMALLOC)
+elseif(NEWBORN_USE_RPMALLOC)
+  add_definitions(-DSTAR_USE_RPMALLOC -DENABLE_PRELOAD)
 endif()
 
 # Set C/C++ compiler flags based on build environment...
@@ -449,6 +458,11 @@ if(NEWBORN_USE_JEMALLOC)
   set(NEWBORN_EXT_LIBS ${JEMALLOC_LIBRARY})
 endif()
 
+if (NEWBORN_USE_MIMALLOC)
+  find_package(mimalloc CONFIG REQUIRED)
+  set(NEWBORN_EXT_LIBS ${NEWBORN_EXT_LIBS} $<IF:$<TARGET_EXISTS:mimalloc-static>,mimalloc-static,mimalloc>)
+endif()
+
 find_package(ZLIB REQUIRED)
 find_package(PNG REQUIRED)
 find_package(Freetype REQUIRED)
@@ -475,9 +489,11 @@ set(NEWBORN_EXT_LIBS ${NEWBORN_EXT_LIBS}
 if(NEWBORN_BUILD_GUI)
   find_package(SDL2 CONFIG REQUIRED)
 
+
   set(NEWBORN_EXT_GUI_LIBS
+
     $<TARGET_NAME_IF_EXISTS:SDL2::SDL2main>
-    $<IF:$<TARGET_EXISTS:SDL2::SDL2>,SDL2::SDL2,SDL2::SDL2-static>
+  $<IF:$<TARGET_EXISTS:SDL2::SDL2>,SDL2::SDL2,SDL2::SDL2-static>
   )
 
   find_package(OpenGL REQUIRED)
@@ -549,7 +565,8 @@ set(NEWBORN_GAME_INCLUDES
     ${PROJECT_SOURCE_DIR}/game/objects
     ${PROJECT_SOURCE_DIR}/game/scripting
     ${PROJECT_SOURCE_DIR}/game/terrain
-  )
+)
+add_subdirectory(game)
 
 
 # Googletest based tests
@@ -569,22 +586,22 @@ if(NEWBORN_BUILD_GUI)
   # Handles creating windows, keyboard / mouse / joystick input, and the 2d
   # rendering model.
   set(NEWBORN_APPLICATION_INCLUDES ${PROJECT_SOURCE_DIR}/application)
-
+  add_subdirectory(application)
 
   # Rendering code not dependent on widget system
   set(NEWBORN_RENDERING_INCLUDES ${PROJECT_SOURCE_DIR}/rendering)
-
+  add_subdirectory(rendering)
 
   # Panes and Widgets
   set(NEWBORN_WINDOWING_INCLUDES ${PROJECT_SOURCE_DIR}/windowing)
-
+  add_subdirectory(windowing)
 
   # Client interface code
   set(NEWBORN_FRONTEND_INCLUDES ${PROJECT_SOURCE_DIR}/frontend)
-
+  add_subdirectory(frontend)
 
   # newborn game / client
-
+  add_subdirectory(client)
 
   # Qt GUI tools
   if(NEWBORN_BUILD_QT_TOOLS)

@@ -65,6 +65,8 @@ public:
   Maybe<ByteArray> find(ByteArray const& k);
   List<pair<ByteArray, ByteArray>> find(ByteArray const& lower, ByteArray const& upper);
 
+  void recoverAll(function<void(ByteArray, ByteArray)> v, function<void(String const&, std::exception const&)> e);
+
   void forEach(ByteArray const& lower, ByteArray const& upper, function<void(ByteArray, ByteArray)> v);
   void forAll(function<void(ByteArray, ByteArray)> v);
 

@@ -35,7 +35,7 @@ public:
   virtual void setJoinUnavailable() = 0;
   virtual void setJoinLocal(uint32_t capacity) = 0;
   virtual void setJoinRemote(HostAddressWithPort location) = 0;
-  virtual void setActivityData(String const& title, Maybe<pair<uint16_t, uint16_t>>) = 0;
+  virtual void setActivityData(const char* title, const char* details, int64_t startTime, Maybe<pair<uint16_t, uint16_t>>) = 0;
 
   virtual MVariant<P2PNetworkingPeerId, HostAddressWithPort> pullPendingJoin() = 0;
   virtual Maybe<pair<String, RpcPromiseKeeper<P2PJoinRequestReply>>> pullJoinRequest() = 0;

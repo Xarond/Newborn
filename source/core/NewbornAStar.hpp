@@ -13,7 +13,7 @@
 #include "NewbornBlockAllocator.hpp"
 
 namespace Newborn {
-namespace ANewborn {
+namespace AStar {
 
   struct Score {
     Score();

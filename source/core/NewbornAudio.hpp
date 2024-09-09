@@ -29,7 +29,7 @@ NEWBORN_EXCEPTION(AudioException, NewbornException);
 // instances is not expensive.
 class Audio {
 public:
-  explicit Audio(IODevicePtr device);
+  explicit Audio(IODevicePtr device, String name = "");
   Audio(Audio const& audio);
   Audio(Audio&& audio);
 
@@ -93,12 +93,16 @@ public:
       int16_t* destinationBuffer, size_t destinationBufferSize,
       double velocity = 1.0);
 
+  String const& name() const;
+  void setName(String name);
+
 private:
   // If audio is uncompressed, this will be null.
   CompressedAudioImplPtr m_compressed;
   UncompressedAudioImplPtr m_uncompressed;
 
   ByteArray m_workingBuffer;
+  String m_name;
 };
 
 }

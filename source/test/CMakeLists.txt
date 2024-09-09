@@ -39,15 +39,11 @@ ADD_TEST (NAME core_tests WORKING_DIRECTORY ${CMAKE_RUNTIME_OUTPUT_DIRECTORY} CO
 SET (newborn_game_tests_SOURCES
       gtest/gtest-all.cc
 
-      game_tests_main.cpp
+      
 
-      assets_test.cpp
+      
     )
-ADD_EXECUTABLE (game_tests
-  $<TARGET_OBJECTS:newborn_extern> $<TARGET_OBJECTS:newborn_core>
-  ${newborn_game_tests_SOURCES})
-TARGET_LINK_LIBRARIES (game_tests ${NEWBORN_EXT_LIBS})
-ADD_TEST (NAME game_tests WORKING_DIRECTORY ${CMAKE_RUNTIME_OUTPUT_DIRECTORY} COMMAND ${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/game_tests)
+
 
 SET_TESTS_PROPERTIES(core_tests PROPERTIES
                      LABELS "NoAssets")

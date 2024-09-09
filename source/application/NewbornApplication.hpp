@@ -13,7 +13,7 @@ NEWBORN_EXCEPTION(ApplicationException, NewbornException);
 enum class WindowMode {
     Normal,
     Maximized,
-    FullScreen,
+    Fullscreen,
     Borderless
 };
 

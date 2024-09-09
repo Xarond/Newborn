@@ -1,0 +1,25 @@
+1 VERSIONINFO
+FILEVERSION     1,0,0,0
+PRODUCTVERSION  1,0,0,0
+BEGIN
+  BLOCK "StringFileInfo"
+  BEGIN
+    BLOCK "040904E4"
+    BEGIN
+      VALUE "CompanyName", "Xarond LTD"
+      VALUE "FileDescription", "NewbornAlpha Server"
+      VALUE "FileVersion", "1.0"
+      VALUE "InternalName", "newborn_server"
+      VALUE "LegalCopyright", "Xarond LTD"
+      VALUE "OriginalFilename", "newborn_server.exe"
+      VALUE "ProductName", "NewbornAlpha Server"
+      VALUE "ProductVersion", "1.0"
+    END
+  END
+
+  BLOCK "VarFileInfo"
+  BEGIN
+    VALUE "Translation", 0x409, 1252
+  END
+END
+icon ICON "newborn_server.ico"

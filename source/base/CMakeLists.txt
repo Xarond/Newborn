@@ -18,7 +18,9 @@ SET (newborn_base_HEADERS
     NewbornWorldGeometry.hpp
     NewbornMixer.hpp
     NewbornCellularLiquid.hpp
-    NewbornBlockAlongLine.hpp
+    NewbornBlocksAlongLine.hpp
+    NewbornCellularLighting.hpp
+    NewbornCellularLightArray.hpp
     scripting/NewbornImageLuaBindings.hpp
 
 
@@ -34,6 +36,9 @@ SET (newborn_base_SOURCES
     NewbornRootBase.cpp
     NewbornWorldGeometry.cpp
     NewbornMixer.cpp
+    NewbornCellularLighting.cpp
+    NewbornCellularLightArray.cpp
+    NewbornConfiguration.cpp
     scripting/NewbornImageLuaBindings.cpp
 )
 
