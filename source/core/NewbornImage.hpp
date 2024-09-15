@@ -34,6 +34,8 @@ public:
   // png file, without actually loading it.
   static tuple<Vec2U, PixelFormat> readPngMetadata(IODevicePtr device);
 
+  static bool isPng(IODevicePtr device);
+
   static Image filled(Vec2U size, Vec4B color, PixelFormat pf = PixelFormat::RGBA32);
 
   // Creates a zero size image
