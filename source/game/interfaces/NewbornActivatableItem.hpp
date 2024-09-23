@@ -1,5 +1,4 @@
-#ifndef NEWBORN_ACTIVATABLE_ITEM_HPP
-#define NEWBORN_ACTIVATABLE_ITEM_HPP
+#pragma once
 
 #include "NewbornConfig.hpp"
 
@@ -17,5 +16,3 @@ public:
 };
 
 }
-
-#endif

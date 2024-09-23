@@ -835,7 +835,10 @@ void UniverseServer::warpPlayers() {
           // Checking the spawn target validity then adding the client is not
           // perfect, it can still become invalid in between, if we fail at
           // adding the client we need to warp them back.
-          if (toWorld && toWorld->addClient(clientId, warpToWorld.target, !clientContext->remoteAddress(), clientContext->canBecomeAdmin())) {
+          if (toWorld && toWorld->addClient(clientId, warpToWorld.target,
+            !clientContext->remoteAddress(),
+            clientContext->canBecomeAdmin(),
+            clientContext->netRules())) {
             clientContext->setPlayerWorld(toWorld);
             m_chatProcessor->joinChannel(clientId, printWorldId(warpToWorld.world));
 
@@ -1550,12 +1553,12 @@ void UniverseServer::acceptConnection(UniverseConnection connection, Maybe<HostA
     Logger::warn("UniverseServer: client connection aborted, expected ProtocolRequestPacket");
     return;
   }
-  
+
   bool legacyClient = protocolRequest->compressionMode() != PacketCompressionMode::Enabled;
   connection.packetSocket().setLegacy(legacyClient);
 
   auto protocolResponse = make_shared<ProtocolResponsePacket>();
-  protocolResponse->setCompressionMode(PacketCompressionMode::Enabled); // Signal that we're NewbornAlpha
+  protocolResponse->setCompressionMode(PacketCompressionMode::Enabled); // Signal that we're OpenNewborn
   if (protocolRequest->requestProtocolVersion != NewbornProtocolVersion) {
     Logger::warn("UniverseServer: client connection aborted, unsupported protocol version {}, supported version {}",
         protocolRequest->requestProtocolVersion, NewbornProtocolVersion);
@@ -1568,19 +1571,19 @@ void UniverseServer::acceptConnection(UniverseConnection connection, Maybe<HostA
   }
 
   bool useCompressionStream = false;
-
   protocolResponse->allowed = true;
-
   if (!legacyClient) {
     auto compressionName = connectionSettings.getString("compression", "None");
     auto compressionMode = NetCompressionModeNames.maybeLeft(compressionName).value(NetCompressionMode::None);
     useCompressionStream = compressionMode == NetCompressionMode::Zstd;
     protocolResponse->info = JsonObject{
-      {"compression", NetCompressionModeNames.getRight(compressionMode)}
+      {"compression", NetCompressionModeNames.getRight(compressionMode)},
+      {"openProtocolVersion", OpenProtocolVersion}
     };
   }
   connection.pushSingle(protocolResponse);
   connection.sendAll(clientWaitLimit);
+
   if (auto compressedSocket = as<CompressedPacketSocket>(&connection.packetSocket()))
     compressedSocket->setCompressionStreamEnabled(useCompressionStream);
 
@@ -1598,7 +1601,6 @@ void UniverseServer::acceptConnection(UniverseConnection connection, Maybe<HostA
   }
 
   bool administrator = false;
-
   String accountString = !clientConnect->account.empty() ? strf("'{}'", clientConnect->account) : "<anonymous>";
 
   auto connectionFail = [&](String message) {
@@ -1673,13 +1675,18 @@ void UniverseServer::acceptConnection(UniverseConnection connection, Maybe<HostA
   String connectionLog = strf("UniverseServer: Logged in account '{}' as player '{}' from address {}",
     accountString, clientConnect->playerName, remoteAddressString);
 
+  NetCompatibilityRules netRules(legacyClient ? LegacyVersion : 1);
   if (Json& info = clientConnect->info) {
+    if (auto openProtocolVersion = info.optUInt("openProtocolVersion"))
+      netRules.setVersion(*openProtocolVersion);
     if (Json brand = info.get("brand", "custom"))
       connectionLog += strf(" ({} client)", brand.toString());
     if (info.getBool("legacy", false))
       connection.packetSocket().setLegacy(legacyClient = true);
   }
   Logger::log(LogLevel::Info, connectionLog.utf8Ptr());
+
+
 
   mainLocker.lock();
   WriteLocker clientsLocker(m_clientsLock);
@@ -1698,7 +1705,7 @@ void UniverseServer::acceptConnection(UniverseConnection connection, Maybe<HostA
   }
 
   ConnectionId clientId = m_clients.nextId();
-  auto clientContext = make_shared<ServerClientContext>(clientId, remoteAddress, clientConnect->playerUuid,
+  auto clientContext = make_shared<ServerClientContext>(clientId, remoteAddress, netRules, clientConnect->playerUuid,
       clientConnect->playerName, clientConnect->playerSpecies, administrator, clientConnect->shipChunks);
   m_clients.add(clientId, clientContext);
   m_connectionServer->addConnection(clientId, std::move(connection));
@@ -1723,8 +1730,6 @@ void UniverseServer::acceptConnection(UniverseConnection connection, Maybe<HostA
     clientContext->setAdmin(false);
 
   clientContext->setShipUpgrades(clientConnect->shipUpgrades);
-
-
   m_chatProcessor->connectClient(clientId, clientConnect->playerName);
 
   m_connectionServer->sendPackets(clientId, {
@@ -1783,9 +1788,8 @@ void UniverseServer::acceptConnection(UniverseConnection connection, Maybe<HostA
 
   clientFlyShip(clientId, clientContext->shipCoordinate().location(), clientContext->shipLocation());
   Logger::info("UniverseServer: Client {} connected", clientContext->descriptiveName());
-
+  
   ReadLocker m_clientsReadLocker(m_clientsLock);
-
   auto players = static_cast<uint16_t>(m_clients.size());
   auto clients = m_clients.keys();
   m_clientsReadLocker.unlock();

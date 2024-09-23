@@ -30,7 +30,18 @@ SET (newborn_application_SOURCES ${newborn_application_SOURCES}
     NewbornRenderer_opengl.cpp
   )
 
-
+IF (NEWBORN_ENABLE_STEAM_INTEGRATION)
+  SET (newborn_application_HEADERS ${newborn_application_HEADERS}
+      NewbornDesktopService_pc_steam.hpp
+      NewbornStatisticsService_pc_steam.hpp
+      NewbornUserGeneratedContentService_pc_steam.hpp
+    )
+  SET (newborn_application_SOURCES ${newborn_application_SOURCES}
+      NewbornDesktopService_pc_steam.cpp
+      NewbornStatisticsService_pc_steam.cpp
+      NewbornUserGeneratedContentService_pc_steam.cpp
+    )
+ENDIF ()
 
 IF (NEWBORN_ENABLE_DISCORD_INTEGRATION)
   SET (newborn_application_SOURCES ${newborn_application_SOURCES}

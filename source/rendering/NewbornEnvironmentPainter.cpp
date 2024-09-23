@@ -407,7 +407,7 @@ void EnvironmentPainter::drawOrbiter(float pixelRatio, Vec2F const& screenSize, 
   float alpha = 1.0f;
   Vec2F position;
 
-  // The way newborn positions these is weird.
+  // The way Newborn positions these is weird.
   // It's a random point on a 400 by 400 area from the bottom left of the screen.
   // That origin point is then multiplied by the zoom level.
   // This does not intuitively scale with higher-resolution monitors, so lets fix that.

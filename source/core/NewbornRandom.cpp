@@ -1,6 +1,3 @@
-//*************************
-// Jakub Joszko 2024
-//*************************
 #include "NewbornRandom.hpp"
 #include "NewbornThread.hpp"
 #include "NewbornTime.hpp"

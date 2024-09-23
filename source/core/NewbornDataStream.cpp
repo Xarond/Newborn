@@ -1,6 +1,3 @@
-//*************************
-// Jakub Joszko 2024
-//*************************
 #include "NewbornDataStream.hpp"
 #include "NewbornBytes.hpp"
 #include "NewbornVlqEncoding.hpp"
@@ -36,6 +33,10 @@ unsigned DataStream::streamCompatibilityVersion() const {
 
 void DataStream::setStreamCompatibilityVersion(unsigned streamCompatibilityVersion) {
   m_streamCompatibilityVersion = streamCompatibilityVersion;
+}
+
+void DataStream::setStreamCompatibilityVersion(NetCompatibilityRules const& rules) {
+  m_streamCompatibilityVersion = rules.version();
 }
 
 ByteArray DataStream::readBytes(size_t len) {

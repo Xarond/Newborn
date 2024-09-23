@@ -1,6 +1,3 @@
-//*************************
-// Jakub Joszko 2024
-//*************************
 #include "NewbornMemory.hpp"
 
 #ifdef NEWBORN_USE_JEMALLOC
@@ -16,6 +13,7 @@ bool rpm_linker_ref() {
 }
 
 static bool _rpm_linker_ref = rpm_linker_ref();
+
 #endif
 
 namespace Newborn {
@@ -107,7 +105,9 @@ namespace Newborn {
 #endif
 
 }
-#ifndef NEWBORN_USE_RPMALLOC
+
+#ifndef  NEWBORN_USE_RPMALLOC
+
 
 void* operator new(std::size_t size) {
   auto ptr = Newborn::malloc(size);
@@ -158,4 +158,4 @@ void operator delete[](void* ptr, std::size_t size) noexcept {
   Newborn::free(ptr, size);
 }
 
-#endif
+#endif 

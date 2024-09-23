@@ -1,6 +1,3 @@
-//*************************
-// Jakub Joszko 2024
-//*************************
 #include "NewbornJsonRpc.hpp"
 #include "NewbornDataStreamDevices.hpp"
 #include "NewbornLogging.hpp"

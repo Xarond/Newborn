@@ -1,10 +1,11 @@
 #pragma once
 
+#include "NewbornWorldRenderData.hpp"
 #include "NewbornTilePainter.hpp"
+#include "NewbornEnvironmentPainter.hpp"
 #include "NewbornTextPainter.hpp"
 #include "NewbornDrawablePainter.hpp"
 #include "NewbornRenderer.hpp"
-#include "NewbornEnvironmentPainter.hpp"
 
 namespace Newborn {
 

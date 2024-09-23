@@ -1,11 +1,11 @@
 #include <QApplication>
 #include <QGridLayout>
 #include <QPushButton>
-#include "StarFile.hpp"
+#include "NewbornFile.hpp"
 #include "json_tool.hpp"
 #include "editor_gui.hpp"
 
-using namespace Star;
+using namespace Newborn;
 
 int const ImagePreviewWidth = 300;
 int const ImagePreviewHeight = 600;

@@ -1,6 +1,3 @@
-//*************************
-// Jakub Joszko 2024
-//*************************
 #pragma once
 
 #include "NewbornFormat.hpp"
@@ -8,40 +5,63 @@
 #include "NewbornStringView.hpp"
 #include "NewbornMaybe.hpp"
 
-#include <sstream>
-#include <locale>
+#include "fast_float.h"
 
 namespace Newborn {
 
 NEWBORN_EXCEPTION(BadLexicalCast, NewbornException);
 
-// Very simple basic lexical cast using stream input.  Always operates in the
-// "C" locale.
+void throwLexicalCastError(std::errc ec, const char* first, const char* last);
+
 template <typename Type>
-Maybe<Type> maybeLexicalCast(StringView s, std::ios_base::fmtflags flags = std::ios_base::boolalpha) {
-  Type result;
-  std::istringstream stream(std::string(s.utf8()));
-  stream.flags(flags);
-  stream.imbue(std::locale::classic());
+bool tryLexicalCast(Type& result, const char* first, const char* last) {
+  auto res = fast_float::from_chars(first, last, result);
+  return res.ptr == last && (res.ec == std::errc() || res.ec == std::errc::result_out_of_range);
+}
 
-  if (!(stream >> result))
-    return {};
+template <>
+bool tryLexicalCast(bool& result, const char* first, const char* last);
 
-  // Confirm that we read everything out of the stream
-  char ch;
-  if (stream >> ch)
-    return {};
-
-  return result;
+template <typename Type>
+bool tryLexicalCast(Type& result, String const& s) {
+  return tryLexicalCast<Type>(s.utf8Ptr(), s.utf8Ptr() + s.utf8Size());
 }
 
 template <typename Type>
-Type lexicalCast(StringView s, std::ios_base::fmtflags flags = std::ios_base::boolalpha) {
-  auto m = maybeLexicalCast<Type>(s, flags);
-  if (m)
-    return m.take();
+bool tryLexicalCast(Type& result, StringView s) {
+  return tryLexicalCast<Type>(s.utf8Ptr(), s.utf8Ptr() + s.utf8Size());
+}
+
+template <typename Type>
+Maybe<Type> maybeLexicalCast(const char* first, const char* last) {
+  Type result{};
+  if (tryLexicalCast(result, first, last))
+    return result;
   else
-    throw BadLexicalCast(strf("Lexical cast failed on '{}'", s));
+    return {};
+}
+
+template <typename Type>
+Maybe<Type> maybeLexicalCast(StringView s) {
+  return maybeLexicalCast<Type>(s.utf8Ptr(), s.utf8Ptr() + s.utf8Size());
+}
+
+template <typename Type>
+Type lexicalCast(const char* first, const char* last) {
+  Type result{};
+  auto res = fast_float::from_chars(first, last, result);
+  if ((res.ec != std::errc() && res.ec != std::errc::result_out_of_range) || res.ptr != last)
+    throwLexicalCastError(res.ec, first, last);
+  
+  return result;
+}
+
+template <>
+bool lexicalCast(const char* first, const char* last);
+
+template <typename Type>
+Type lexicalCast(StringView s) {
+  return lexicalCast<Type>(s.utf8Ptr(), s.utf8Ptr() + s.utf8Size());
 }
 
 }

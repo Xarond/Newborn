@@ -118,8 +118,9 @@ Json Object::diskStore() const {
   return writeStoredData().setAll({{"name", m_config->name}, {"parameters", m_parameters.baseMap()}});
 }
 
-ByteArray Object::netStore() {
+ByteArray Object::netStore(NetCompatibilityRules rules) {
   DataStreamBuffer ds;
+  ds.setStreamCompatibilityVersion(rules);
   ds.write(m_config->name);
   ds.write<Json>(m_parameters.baseMap());
   return ds.takeData();
@@ -187,7 +188,7 @@ void Object::init(World* world, EntityId entityId, EntityMode mode) {
     m_liquidCheckTimer.setDone();
 
     setKeepAlive(configValue("keepAlive", false).toBool());
-
+    
     auto jScripts = configValue("scripts", JsonArray());
     if (jScripts.isType(Json::Type::Array))
       m_scriptComponent.setScripts(jsonToStringList(jScripts).transformed(bind(AssetPath::relativeTo, m_config->path, _1)));
@@ -297,13 +298,12 @@ RectF Object::metaBoundBox() const {
   }
 }
 
-pair<ByteArray, uint64_t> Object::writeNetState(uint64_t fromVersion) {
-  DataStreamBuffer ds;
-  return m_netGroup.writeNetState(fromVersion);
+pair<ByteArray, uint64_t> Object::writeNetState(uint64_t fromVersion, NetCompatibilityRules rules) {
+  return m_netGroup.writeNetState(fromVersion, rules);
 }
 
-void Object::readNetState(ByteArray delta, float interpolationTime) {
-  m_netGroup.readNetState(std::move(delta), interpolationTime);
+void Object::readNetState(ByteArray data, float interpolationTime, NetCompatibilityRules rules) {
+  m_netGroup.readNetState(data, interpolationTime, rules);
 }
 
 Vec2I Object::tilePosition() const {

@@ -1,6 +1,3 @@
-//*************************
-// Jakub Joszko 2024
-//*************************
 #include "NewbornCompression.hpp"
 #include "NewbornFormat.hpp"
 #include "NewbornLexicalCast.hpp"

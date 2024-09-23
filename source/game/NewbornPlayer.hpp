@@ -76,7 +76,7 @@ public:
   static EnumMap<State> const StateNames;
 
   Player(PlayerConfigPtr config, Uuid uuid = Uuid());
-  Player(PlayerConfigPtr config, ByteArray const& netStore);
+  Player(PlayerConfigPtr config, ByteArray const& netStore, NetCompatibilityRules rules = {});
   Player(PlayerConfigPtr config, Json const& diskStore);
 
   void diskLoad(Json const& diskStore);
@@ -92,7 +92,7 @@ public:
   QuestManagerPtr questManager() const;
 
   Json diskStore();
-  ByteArray netStore();
+  ByteArray netStore(NetCompatibilityRules rules = {});
 
   EntityType entityType() const override;
   ClientEntityMode clientEntityMode() const override;
@@ -118,8 +118,8 @@ public:
   // relative to current position
   RectF collisionArea() const override;
 
-  pair<ByteArray, uint64_t> writeNetState(uint64_t fromStep = 0) override;
-  void readNetState(ByteArray data, float interpolationStep = 0.0f) override;
+  pair<ByteArray, uint64_t> writeNetState(uint64_t fromVersion = 0, NetCompatibilityRules rules = {}) override;
+  void readNetState(ByteArray data, float interpolationStep = 0.0f, NetCompatibilityRules rules = {}) override;
 
   void enableInterpolation(float extrapolationHint = 0.0f) override;
   void disableInterpolation() override;
@@ -402,7 +402,6 @@ public:
 
   State currentState() const;
 
-
   List<ChatAction> pullPendingChatActions() override;
 
   Maybe<String> inspectionLogName() const override;
@@ -501,7 +500,6 @@ public:
   void setSecretProperty(String const& name, Json const& value);
 
 private:
-
   typedef LuaMessageHandlingComponent<LuaStorableComponent<LuaActorMovementComponent<LuaUpdatableComponent<LuaWorldComponent<LuaBaseComponent>>>>> GenericScriptComponent;
   typedef shared_ptr<GenericScriptComponent> GenericScriptComponentPtr;
 

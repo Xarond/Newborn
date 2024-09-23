@@ -1,6 +1,3 @@
-//*************************
-// Jakub Joszko 2024
-//*************************
 #pragma once
 
 #include <map>
@@ -184,7 +181,7 @@ template <typename BaseMap>
 auto MapMixin<BaseMap>::get(key_type const& k) -> mapped_type& {
   iterator i = Base::find(k);
   if (i == Base::end())
-    throw MapException(strf("Key '{}' not found in Map::get(). Called from file: {}, line: {}", outputAny(k), __FILE__, __LINE__));
+    throw MapException(strf("Key '{}' not found in Map::get()", outputAny(k)));
   return i->second;
 }
 
@@ -192,7 +189,7 @@ template <typename BaseMap>
 auto MapMixin<BaseMap>::get(key_type const& k) const -> mapped_type const& {
   const_iterator i = Base::find(k);
   if (i == Base::end())
-    throw MapException(strf("Key '{}' not found in Map::get(). Called from file: {}, line: {}", outputAny(k), __FILE__, __LINE__));
+    throw MapException(strf("Key '{}' not found in Map::get()", outputAny(k)));
   return i->second;
 }
 

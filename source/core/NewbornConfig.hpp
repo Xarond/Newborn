@@ -1,6 +1,3 @@
-//*************************
-// Jakub Joszko 2024
-//*************************
 #pragma once
 
 #include "NewbornPch.hpp"
@@ -75,7 +72,7 @@ typedef int64_t StreamOffset;
 // Forward declare a class or struct, and define a lot of typedefs for
 // different pointer types all at once.
 
-#define NEWBORN_CLASS(ClassName)                                  \
+#define NEWBORN_CLASS(ClassName)                                     \
   class ClassName;                                                \
   using ClassName##Ptr = std::shared_ptr<ClassName>;              \
   using ClassName##ConstPtr = std::shared_ptr<const ClassName>;   \
@@ -84,7 +81,7 @@ typedef int64_t StreamOffset;
   using ClassName##UPtr = std::unique_ptr<ClassName>;             \
   using ClassName##ConstUPtr = std::unique_ptr<const ClassName>
 
-#define NEWBORN_STRUCT(StructName)                                  \
+#define NEWBORN_STRUCT(StructName)                                     \
   struct StructName;                                                \
   using StructName##Ptr = std::shared_ptr<StructName>;              \
   using StructName##ConstPtr = std::shared_ptr<const StructName>;   \

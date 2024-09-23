@@ -4,6 +4,9 @@
 
 namespace Newborn {
 
+// Iterate over integral cells based on Bresenham's line drawing algorithm.
+// Returns false immediately when the callback returns false for any cell,
+// returns true after iterating through every cell otherwise.
 template <typename Scalar>
 bool forBlocksAlongLine(Vector<Scalar, 2> origin, Vector<Scalar, 2> const& dxdy, function<bool(int, int)> callback) {
   Vector<Scalar, 2> remote = origin + dxdy;

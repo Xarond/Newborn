@@ -5,71 +5,87 @@
 
 namespace Newborn {
 
+// Operations for simple scalar lighting.
 struct ScalarLightTraits {
-    typedef float Value;
+  typedef float Value;
 
-    static float spread(float source, float dest, float drop);
-    static float subtract(float value, float drop);
-    static float multiply(float v1, float v2);
+  static float spread(float source, float dest, float drop);
+  static float subtract(float value, float drop);
+  static float multiply(float v1, float v2);
 
-    static float maxIntensity(float value);
-    static float minIntensity(float value);
+  static float maxIntensity(float value);
+  static float minIntensity(float value);
 
-    static float max(float v1, float v2);
+  static float max(float v1, float v2);
 };
 
+// Operations for 3 component (colored) lighting.  Spread and subtract are
+// applied proportionally, so that color ratios stay the same, to prevent hues
+// changing as light spreads.
 struct ColoredLightTraits {
-    typedef Vec3F Value;
+  typedef Vec3F Value;
 
-    static Vec3F spread(Vec3F const& source, Vec3F const& dest, float drop);
-    static Vec3F subtract(Vec3F value, float drop);
-    static Vec3F multiply(Vec3F value, float drop);
+  static Vec3F spread(Vec3F const& source, Vec3F const& dest, float drop);
+  static Vec3F subtract(Vec3F value, float drop);
+  static Vec3F multiply(Vec3F value, float drop);
 
-    static float maxIntensity(Vec3F const& value);
-    static float minIntensity(Vec3F const& value);
+  static float maxIntensity(Vec3F const& value);
+  static float minIntensity(Vec3F const& value);
 
-    static Vec3F max(Vec3F const& v1, Vec3F const& v2);
+  static Vec3F max(Vec3F const& v1, Vec3F const& v2);
 };
 
 template <typename LightTraits>
 class CellularLightArray {
 public:
-    typedef typename LightTraits::Value LightValue;
+  typedef typename LightTraits::Value LightValue;
 
-    struct Cell {
-        LightValue light;
-        bool obstacle;
-    };
+  struct Cell {
+    LightValue light;
+    bool obstacle;
+  };
 
-    struct SpreadLight {
-        Vec2F position;
-        LightValue value;
-    };
+  struct SpreadLight {
+    Vec2F position;
+    LightValue value;
+  };
 
-    struct PointLight {
-        Vec2F position;
-        LightValue value;
-        float beam;
-        float beamAngle;
-        float beamAmbience;
-        bool asSpread;
-    };
+  struct PointLight {
+    Vec2F position;
+    LightValue value;
+    float beam;
+    float beamAngle;
+    float beamAmbience;
+    bool asSpread;
+  };
 
-    void setParameters(unsigned spreadPasses, float spreadMaxAir, float spreadMaxObstacle,
-        float pointMaxAir, float pointMaxObstacle, float pointObstacleBoost, bool pointAdditive);
+  void setParameters(unsigned spreadPasses, float spreadMaxAir, float spreadMaxObstacle,
+      float pointMaxAir, float pointMaxObstacle, float pointObstacleBoost, bool pointAdditive);
 
-    size_t borderCells() const;
+  // The border around the target lighting array where initial lighting / light
+  // source data is required.  Based on parameters.
+  size_t borderCells() const;
 
-    void begin(size_t newWidth, size_t newHeight);
+  // Begin a new calculation, setting internal storage to new width and height
+  // (if these are the same as last time this is cheap).  Always clears all
+  // existing light and collision data.
+  void begin(size_t newWidth, size_t newHeight);
 
-    void addSpreadLight(SpreadLight const& spreadLight);
-    void addPointLight(PointLight const& pointLight);
+  // Position is in index space, spread lights will have no effect if they are
+  // outside of the array.  Integer points are assumed to be on the corners of
+  // the grid (not the center)
+  void addSpreadLight(SpreadLight const& spreadLight);
+  void addPointLight(PointLight const& pointLight);
 
-    void setLight(size_t x, size_t y, LightValue const& light);
+  // Directly set the lighting values for this position.
+  void setLight(size_t x, size_t y, LightValue const& light);
 
-    LightValue getLight(size_t x, size_t y) const;
+  // Get current light value.  Call after calling calculate() to pull final
+  // data out.
+  LightValue getLight(size_t x, size_t y) const;
 
-void setObstacle(size_t x, size_t y, bool obstacle);
+  // Set obstacle values for this position
+  void setObstacle(size_t x, size_t y, bool obstacle);
   bool getObstacle(size_t x, size_t y) const;
 
   Cell const& cell(size_t x, size_t y) const;
@@ -96,7 +112,7 @@ private:
   // obstacle attenuation.  Calculates within the given sub-rect
   void calculatePointLighting(size_t xmin, size_t ymin, size_t xmax, size_t ymax);
 
- 
+  // Run Xiaolin Wu's anti-aliased line drawing algorithm from start to end,
   // summing each block that would be drawn to to produce an attenuation.  Not
   // circularized.
   float lineAttenuation(Vec2F const& start, Vec2F const& end, float perObstacleAttenuation, float maxAttenuation);
@@ -386,136 +402,137 @@ void CellularLightArray<LightTraits>::calculateLightSpread(size_t xMin, size_t y
 
 template <typename LightTraits>
 float CellularLightArray<LightTraits>::lineAttenuation(Vec2F const& start, Vec2F const& end,
-        float perObstacleAttenuation, float maxAttenuation) {
+    float perObstacleAttenuation, float maxAttenuation) {
+  // Run Xiaolin Wu's line algorithm from start to end, summing over colliding
+  // blocks using perObstacleAttenuation.
+  float obstacleAttenuation = 0.0;
 
-    float obstacleAttenuation = 0.0;
+  // Apply correction because integer coordinates are lower left corner.
+  float x1 = start[0] - 0.5;
+  float y1 = start[1] - 0.5;
+  float x2 = end[0] - 0.5;
+  float y2 = end[1] - 0.5;
 
-    // Apply correction because integer coordinates are lower left corner.
-    float x1 = start[0] - 0.5;
-    float y1 = start[1] - 0.5;
-    float x2 = end[0] - 0.5;
-    float y2 = end[1] - 0.5;
+  float dx = x2 - x1;
+  float dy = y2 - y1;
 
-    float dx = x2 - x1;
-    float dy = y2 - y1;
-
-    if (fabs(dx) < fabs(dy)) {
-        if (y2 < y1) {
-        swap(y1, y2);
-        swap(x1, x2);
-        }
-
-        float gradient = dx / dy;
-
-        // first end point
-        float yend = round(y1);
-        float xend = x1 + gradient * (yend - y1);
-        float ygap = rfpart(y1 + 0.5);
-        int ypxl1 = yend;
-        int xpxl1 = ipart(xend);
-
-        if (cell(xpxl1, ypxl1).obstacle)
-        obstacleAttenuation += rfpart(xend) * ygap * perObstacleAttenuation;
-
-        if (cell(xpxl1 + 1, ypxl1).obstacle)
-        obstacleAttenuation += fpart(xend) * ygap * perObstacleAttenuation;
-
-        if (obstacleAttenuation >= maxAttenuation)
-        return maxAttenuation;
-
-        float interx = xend + gradient;
-
-        // second end point
-        yend = round(y2);
-        xend = x2 + gradient * (yend - y2);
-        ygap = fpart(y2 + 0.5);
-        int ypxl2 = yend;
-        int xpxl2 = ipart(xend);
-
-        if (cell(xpxl2, ypxl2).obstacle)
-        obstacleAttenuation += rfpart(xend) * ygap * perObstacleAttenuation;
-
-        if (cell(xpxl2 + 1, ypxl2).obstacle)
-        obstacleAttenuation += fpart(xend) * ygap * perObstacleAttenuation;
-
-        if (obstacleAttenuation >= maxAttenuation)
-        return maxAttenuation;
-
-        for (int y = ypxl1 + 1; y < ypxl2; ++y) {
-        int interxIpart = ipart(interx);
-        float interxFpart = interx - interxIpart;
-        float interxRFpart = 1.0 - interxFpart;
-
-        if (cell(interxIpart, y).obstacle)
-            obstacleAttenuation += interxRFpart * perObstacleAttenuation;
-        if (cell(interxIpart + 1, y).obstacle)
-            obstacleAttenuation += interxFpart * perObstacleAttenuation;
-
-        if (obstacleAttenuation >= maxAttenuation)
-            return maxAttenuation;
-
-        interx += gradient;
-        }
-    } else {
-        if (x2 < x1) {
-        swap(x1, x2);
-        swap(y1, y2);
-        }
-
-        float gradient = dy / dx;
-
-        // first end point
-        float xend = round(x1);
-        float yend = y1 + gradient * (xend - x1);
-        float xgap = rfpart(x1 + 0.5);
-        int xpxl1 = xend;
-        int ypxl1 = ipart(yend);
-
-        if (cell(xpxl1, ypxl1).obstacle)
-        obstacleAttenuation += rfpart(yend) * xgap * perObstacleAttenuation;
-
-        if (cell(xpxl1, ypxl1 + 1).obstacle)
-        obstacleAttenuation += fpart(yend) * xgap * perObstacleAttenuation;
-
-        if (obstacleAttenuation >= maxAttenuation)
-        return maxAttenuation;
-
-        float intery = yend + gradient;
-
-        // second end point
-        xend = round(x2);
-        yend = y2 + gradient * (xend - x2);
-        xgap = fpart(x2 + 0.5);
-        int xpxl2 = xend;
-        int ypxl2 = ipart(yend);
-
-        if (cell(xpxl2, ypxl2).obstacle)
-        obstacleAttenuation += rfpart(yend) * xgap * perObstacleAttenuation;
-
-        if (cell(xpxl2, ypxl2 + 1).obstacle)
-        obstacleAttenuation += fpart(yend) * xgap * perObstacleAttenuation;
-
-        if (obstacleAttenuation >= maxAttenuation)
-        return maxAttenuation;
-
-        for (int x = xpxl1 + 1; x < xpxl2; ++x) {
-        int interyIpart = ipart(intery);
-        float interyFpart = intery - interyIpart;
-        float interyRFpart = 1.0 - interyFpart;
-
-        if (cell(x, interyIpart).obstacle)
-            obstacleAttenuation += interyRFpart * perObstacleAttenuation;
-        if (cell(x, interyIpart + 1).obstacle)
-            obstacleAttenuation += interyFpart * perObstacleAttenuation;
-
-        if (obstacleAttenuation >= maxAttenuation)
-            return maxAttenuation;
-
-        intery += gradient;
-        }
+  if (fabs(dx) < fabs(dy)) {
+    if (y2 < y1) {
+      swap(y1, y2);
+      swap(x1, x2);
     }
 
-    return min(obstacleAttenuation, maxAttenuation);
+    float gradient = dx / dy;
+
+    // first end point
+    float yend = round(y1);
+    float xend = x1 + gradient * (yend - y1);
+    float ygap = rfpart(y1 + 0.5);
+    int ypxl1 = yend;
+    int xpxl1 = ipart(xend);
+
+    if (cell(xpxl1, ypxl1).obstacle)
+      obstacleAttenuation += rfpart(xend) * ygap * perObstacleAttenuation;
+
+    if (cell(xpxl1 + 1, ypxl1).obstacle)
+      obstacleAttenuation += fpart(xend) * ygap * perObstacleAttenuation;
+
+    if (obstacleAttenuation >= maxAttenuation)
+      return maxAttenuation;
+
+    float interx = xend + gradient;
+
+    // second end point
+    yend = round(y2);
+    xend = x2 + gradient * (yend - y2);
+    ygap = fpart(y2 + 0.5);
+    int ypxl2 = yend;
+    int xpxl2 = ipart(xend);
+
+    if (cell(xpxl2, ypxl2).obstacle)
+      obstacleAttenuation += rfpart(xend) * ygap * perObstacleAttenuation;
+
+    if (cell(xpxl2 + 1, ypxl2).obstacle)
+      obstacleAttenuation += fpart(xend) * ygap * perObstacleAttenuation;
+
+    if (obstacleAttenuation >= maxAttenuation)
+      return maxAttenuation;
+
+    for (int y = ypxl1 + 1; y < ypxl2; ++y) {
+      int interxIpart = ipart(interx);
+      float interxFpart = interx - interxIpart;
+      float interxRFpart = 1.0 - interxFpart;
+
+      if (cell(interxIpart, y).obstacle)
+        obstacleAttenuation += interxRFpart * perObstacleAttenuation;
+      if (cell(interxIpart + 1, y).obstacle)
+        obstacleAttenuation += interxFpart * perObstacleAttenuation;
+
+      if (obstacleAttenuation >= maxAttenuation)
+        return maxAttenuation;
+
+      interx += gradient;
+    }
+  } else {
+    if (x2 < x1) {
+      swap(x1, x2);
+      swap(y1, y2);
+    }
+
+    float gradient = dy / dx;
+
+    // first end point
+    float xend = round(x1);
+    float yend = y1 + gradient * (xend - x1);
+    float xgap = rfpart(x1 + 0.5);
+    int xpxl1 = xend;
+    int ypxl1 = ipart(yend);
+
+    if (cell(xpxl1, ypxl1).obstacle)
+      obstacleAttenuation += rfpart(yend) * xgap * perObstacleAttenuation;
+
+    if (cell(xpxl1, ypxl1 + 1).obstacle)
+      obstacleAttenuation += fpart(yend) * xgap * perObstacleAttenuation;
+
+    if (obstacleAttenuation >= maxAttenuation)
+      return maxAttenuation;
+
+    float intery = yend + gradient;
+
+    // second end point
+    xend = round(x2);
+    yend = y2 + gradient * (xend - x2);
+    xgap = fpart(x2 + 0.5);
+    int xpxl2 = xend;
+    int ypxl2 = ipart(yend);
+
+    if (cell(xpxl2, ypxl2).obstacle)
+      obstacleAttenuation += rfpart(yend) * xgap * perObstacleAttenuation;
+
+    if (cell(xpxl2, ypxl2 + 1).obstacle)
+      obstacleAttenuation += fpart(yend) * xgap * perObstacleAttenuation;
+
+    if (obstacleAttenuation >= maxAttenuation)
+      return maxAttenuation;
+
+    for (int x = xpxl1 + 1; x < xpxl2; ++x) {
+      int interyIpart = ipart(intery);
+      float interyFpart = intery - interyIpart;
+      float interyRFpart = 1.0 - interyFpart;
+
+      if (cell(x, interyIpart).obstacle)
+        obstacleAttenuation += interyRFpart * perObstacleAttenuation;
+      if (cell(x, interyIpart + 1).obstacle)
+        obstacleAttenuation += interyFpart * perObstacleAttenuation;
+
+      if (obstacleAttenuation >= maxAttenuation)
+        return maxAttenuation;
+
+      intery += gradient;
+    }
+  }
+
+  return min(obstacleAttenuation, maxAttenuation);
 }
 
 }

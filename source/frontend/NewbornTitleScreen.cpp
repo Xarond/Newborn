@@ -225,9 +225,6 @@ void TitleScreen::initMainMenu() {
   buttonCallbacks["back"] = [=](Widget*) { back(); };
   buttonCallbacks["mods"] = [=](Widget*) { switchState(TitleState::Mods); };
 
-
-
-
   for (auto buttonConfig : assets->json("/interface/windowconfig/title.config:mainMenuButtons").toArray()) {
     String key = buttonConfig.getString("key");
     String image = buttonConfig.getString("button");
@@ -235,10 +232,6 @@ void TitleScreen::initMainMenu() {
     Vec2I offset = jsonToVec2I(buttonConfig.get("offset"));
     WidgetCallbackFunc callback = buttonCallbacks.get(key);
     bool rightAnchored = buttonConfig.getBool("rightAnchored", false);
-    //bool centerAnchored = buttonConfig.getBool("centerAnchored", false);
-
-    unsigned screenWidth = windowWidth();
-    unsigned screenHeight = windowHeight();
 
     auto button = make_shared<ButtonWidget>(callback, image, imageHover, "", "");
     button->setPosition(offset);
@@ -252,11 +245,11 @@ void TitleScreen::initMainMenu() {
       m_mainMenu->addChild(key, button);
   }
 
-  m_mainMenu->setAnchor(PaneAnchor::Center);
+  m_mainMenu->setAnchor(PaneAnchor::BottomLeft);
   m_mainMenu->lockPosition();
 
   backMenu->determineSizeFromChildren();
-  backMenu->setAnchor(PaneAnchor::Center);
+  backMenu->setAnchor(PaneAnchor::BottomLeft);
   backMenu->lockPosition();
 
   m_paneManager.registerPane("mainMenu", PaneLayer::Hud, m_mainMenu);

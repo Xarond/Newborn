@@ -11,7 +11,6 @@
 #include "steam/steam_api.h"
 #endif
 
-
 #ifdef NEWBORN_ENABLE_DISCORD_INTEGRATION
 #include "discord/discord.h"
 #endif
@@ -51,7 +50,8 @@ struct PcPlatformServicesState {
 
 class PcPlatformServices {
 public:
-
+  // Any command line arguments that start with '+platform' will be stripped
+  // out and passed here
   static PcPlatformServicesUPtr create(String const& path, StringList platformArguments);
 
   StatisticsServicePtr statisticsService() const;
@@ -59,7 +59,9 @@ public:
   UserGeneratedContentServicePtr userGeneratedContentService() const;
   DesktopServicePtr desktopService() const;
 
-
+  // Will return true if there is an in-game overlay active.  This is important
+  // because the cursor must be visible when such an overlay is active,
+  // regardless of the ApplicationController setting.
   bool overlayActive() const;
 
   void update();

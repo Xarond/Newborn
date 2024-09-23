@@ -6,42 +6,43 @@ namespace Newborn {
 AnimatedPartSet::AnimatedPartSet() {}
 
 AnimatedPartSet::AnimatedPartSet(Json config) {
-    for (auto const& stateTypePair : config.get("stateTypes", JsonObject()).iterateObject()) {
-        auto const& stateTypeName = stateTypePair.first;
-        auto const& stateTypeConfig = stateTypePair.second;
+  for (auto const& stateTypePair : config.get("stateTypes", JsonObject()).iterateObject()) {
+    auto const& stateTypeName = stateTypePair.first;
+    auto const& stateTypeConfig = stateTypePair.second;
 
-        StateType newStateType;
-        newStateType.priority = stateTypeConfig.getFloat("priority", 0.0f);
-        newStateType.enabled = stateTypeConfig.getBool("enabled", true);
-        newStateType.defaultState = stateTypeConfig.getString("default", "");
-        newStateType.stateTypeProperties = stateTypeConfig.getObject("properties", {});
+    StateType newStateType;
+    newStateType.priority = stateTypeConfig.getFloat("priority", 0.0f);
+    newStateType.enabled = stateTypeConfig.getBool("enabled", true);
+    newStateType.defaultState = stateTypeConfig.getString("default", "");
+    newStateType.stateTypeProperties = stateTypeConfig.getObject("properties", {});
 
-        for (auto const& statePair : stateTypeConfig.get("states", JsonObject()).iterateObject()) {
-            auto const& stateName = statePair.first;
-            auto const& stateConfig = statePair.second;
+    for (auto const& statePair : stateTypeConfig.get("states", JsonObject()).iterateObject()) {
+      auto const& stateName = statePair.first;
+      auto const& stateConfig = statePair.second;
 
-            auto newState = make_shared<State>();
-            newState->frames = stateConfig.getInt("frames", 1);
-            newState->cycle = stateConfig.getFloat("cycle", 1.0f);
-            newState->animationMode = stringToAnimationMode(stateConfig.getString("mode", "end"));
-            newState->transitionState = stateConfig.getString("transition", "");
-            newState->stateProperties = stateConfig.getObject("properties", {});
-            newState->stateFrameProperties = stateConfig.getObject("frameProperties", {});
-            newStateType.states[stateName] = std::move(newState);
-        }
-
-        newStateType.states.sortByKey();
-
-        newStateType.activeState.stateTypeName = stateTypeName;
-        newStateType.activeStateDirty = true;
-
-        if (newStateType.defaultState.empty() && !newStateType.states.empty())
-            newStateType.defaultState = newStateType.states.firstKey();
-        
-        m_stateTypes[stateTypeName] = std::move(newStateType);
+      auto newState = make_shared<State>();
+      newState->frames = stateConfig.getInt("frames", 1);
+      newState->cycle = stateConfig.getFloat("cycle", 1.0f);
+      newState->animationMode = stringToAnimationMode(stateConfig.getString("mode", "end"));
+      newState->transitionState = stateConfig.getString("transition", "");
+      newState->stateProperties = stateConfig.getObject("properties", {});
+      newState->stateFrameProperties = stateConfig.getObject("frameProperties", {});
+      newStateType.states[stateName] = std::move(newState);
     }
 
-    m_stateTypes.sort([](pair<String, StateType> const& a, pair<String, StateType> const& b) {
+    newStateType.states.sortByKey();
+
+    newStateType.activeState.stateTypeName = stateTypeName;
+    newStateType.activeStateDirty = true;
+
+    if (newStateType.defaultState.empty() && !newStateType.states.empty())
+      newStateType.defaultState = newStateType.states.firstKey();
+
+    m_stateTypes[stateTypeName] = std::move(newStateType);
+  }
+
+  // Sort state types by decreasing priority.
+  m_stateTypes.sort([](pair<String, StateType> const& a, pair<String, StateType> const& b) {
       return b.second.priority < a.second.priority;
     });
 

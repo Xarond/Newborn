@@ -80,6 +80,15 @@ void main() {
 }
 )SHADER";
 
+/*
+static void GLAPIENTRY GlMessageCallback(GLenum, GLenum type, GLuint, GLenum, GLsizei, const GLchar* message, const void* renderer) {
+  if (type == GL_DEBUG_TYPE_ERROR) {
+    Logger::error("GL ERROR: {}", message);
+    __debugbreak();
+  }
+}
+*/
+
 OpenGlRenderer::OpenGlRenderer() {
   auto glewResult = glewInit();
   if (glewResult != GLEW_OK && glewResult != GLEW_ERROR_NO_GLX_DISPLAY)
@@ -170,6 +179,7 @@ OpenGlRenderer::GlFrameBuffer::GlFrameBuffer(Json const& fbConfig) : config(fbCo
       glTexParameterf(target, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
     }
   }
+
   glGenFramebuffers(1, &id);
   if (!id)
     throw RendererException("Failed to create OpenGL framebuffer");
@@ -410,7 +420,7 @@ bool OpenGlRenderer::switchEffectConfig(String const& name) {
   if (auto frameBufferId = effect.config.optString("frameBuffer")) {
     auto buf = getGlFrameBuffer(*frameBufferId);
     switchGlFrameBuffer(buf);
-    effectScreenSize = m_screenSize/(buf->sizeDiv);
+    effectScreenSize = m_screenSize / (buf->sizeDiv);
   } else {
     m_currentFrameBuffer.reset();
     glBindFramebuffer(GL_DRAW_FRAMEBUFFER, 0);
@@ -424,7 +434,7 @@ bool OpenGlRenderer::switchEffectConfig(String const& name) {
   if (auto fbts = effect.config.optArray("frameBufferTextures")) {
     for (auto const& fbt : *fbts) {
       if (auto frameBufferId = fbt.optString("framebuffer")) {
-        auto textureUniform=fbt.getString("texture");
+        auto textureUniform = fbt.getString("texture");
         auto ptr = m_currentEffect->textures.ptr(textureUniform);
         if (ptr) {
           if (!ptr->textureValue || ptr->textureValue->textureId == 0) {  
@@ -537,7 +547,7 @@ void OpenGlRenderer::setScreenSize(Vec2U screenSize) {
   glUniform2f(m_screenSizeUniform, m_screenSize[0], m_screenSize[1]);
 
   for (auto& frameBuffer : m_frameBuffers) {
-      unsigned sizeDiv = frameBuffer.second->sizeDiv;
+    unsigned sizeDiv = frameBuffer.second->sizeDiv;
     if (unsigned multisample = frameBuffer.second->multisample) {
       glBindTexture(GL_TEXTURE_2D_MULTISAMPLE, frameBuffer.second->texture->glTextureId());
       glTexImage2DMultisample(GL_TEXTURE_2D_MULTISAMPLE, multisample, GL_RGBA8, m_screenSize[0] / sizeDiv, m_screenSize[1] / sizeDiv, GL_TRUE);
@@ -749,7 +759,7 @@ OpenGlRenderer::GlRenderBuffer::~GlRenderBuffer() {
   }
   for (auto const& vb : vertexBuffers)
     glDeleteBuffers(1, &vb.vertexBuffer);
-    glDeleteVertexArrays(1, &vertexArray);
+  glDeleteVertexArrays(1, &vertexArray);
 }
 
 void OpenGlRenderer::GlRenderBuffer::set(List<RenderPrimitive>& primitives) {
@@ -764,7 +774,6 @@ void OpenGlRenderer::GlRenderBuffer::set(List<RenderPrimitive>& primitives) {
   List<GLuint> currentTextures;
   List<Vec2U> currentTextureSizes;
   size_t currentVertexCount = 0;
-
   glBindVertexArray(vertexArray);
   auto finishCurrentBuffer = [&]() {
     if (currentVertexCount > 0) {
@@ -1050,6 +1059,7 @@ void OpenGlRenderer::setupGlUniforms(Effect& effect, Vec2U screenSize) {
     for (size_t i = 0; i < MultiTextureCount; ++i)
       glUniform1i(m_textureUniforms[i], i);
   }
+
   glUniform2f(m_screenSizeUniform, screenSize[0], screenSize[1]);
 }
 

@@ -1,6 +1,3 @@
-//*************************
-// Jakub Joszko 2024
-//*************************
 #include "NewbornSecureRandom.hpp"
 #include <windows.h>
 #include <wincrypt.h>

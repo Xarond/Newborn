@@ -1,6 +1,3 @@
-//*************************
-// Jakub Joszko 2024
-//*************************
 #include "NewbornUuid.hpp"
 #include "NewbornRandom.hpp"
 #include "NewbornFormat.hpp"

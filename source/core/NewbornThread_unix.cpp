@@ -1,6 +1,3 @@
-//*************************
-// Jakub Joszko 2024
-//*************************
 #include "NewbornThread.hpp"
 #include "NewbornTime.hpp"
 #include "NewbornLogging.hpp"
@@ -24,6 +21,10 @@
 #else
 #define MAX_THREAD_NAMELEN 16
 #endif
+
+//#ifndef NEWBORN_SYSTEM_MACOS
+//#define NEWBORN_MUTEX_TIMED
+//#endif
 
 namespace Newborn {
 
@@ -134,7 +135,7 @@ struct MutexImpl {
   }
 
   void lock() {
-#ifndef NEWBORN_SYSTEM_MACOS
+#ifdef NEWBORN_MUTEX_TIMED
     timespec ts;
     clock_gettime(CLOCK_REALTIME, &ts);
     ts.tv_sec += 60;
@@ -213,7 +214,7 @@ struct RecursiveMutexImpl {
   }
 
   void lock() {
-#ifndef NEWBORN_SYSTEM_MACOS
+#ifdef NEWBORN_MUTEX_TIMED
     timespec ts;
     clock_gettime(CLOCK_REALTIME, &ts);
     ts.tv_sec += 60;

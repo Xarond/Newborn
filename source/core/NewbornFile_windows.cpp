@@ -1,6 +1,3 @@
-//*************************
-// Jakub Joszko 2024
-//*************************
 #include "NewbornFile.hpp"
 #include "NewbornFormat.hpp"
 #include "NewbornRandom.hpp"
@@ -162,7 +159,7 @@ String File::temporaryFileName() {
     throw IOException(strf("Could not call GetTempPath {}", error));
   }
 
-  return relativeTo(utf16ToString(tempPath), strf("starbound.tmpfile.{}", hexEncode(Random::randBytes(16))));
+  return relativeTo(utf16ToString(tempPath), strf("newborn.tmpfile.{}", hexEncode(Random::randBytes(16))));
 }
 
 FilePtr File::temporaryFile() {
@@ -183,7 +180,7 @@ String File::temporaryDirectory() {
     throw IOException(strf("Could not call GetTempPath {}", error));
   }
 
-  String dirname = relativeTo(utf16ToString(tempPath), strf("starbound.tmpdir.{}", hexEncode(Random::randBytes(16))));
+  String dirname = relativeTo(utf16ToString(tempPath), strf("newborn.tmpdir.{}", hexEncode(Random::randBytes(16))));
   makeDirectory(dirname);
   return dirname;
 }

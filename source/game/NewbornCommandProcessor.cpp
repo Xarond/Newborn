@@ -53,12 +53,14 @@ String CommandProcessor::help(ConnectionId connectionId, String const& argumentS
 
   auto assets = Root::singleton().assets();
   auto basicCommands = assets->json("/help.config:basicCommands");
+  auto openSbCommands = assets->json("/help.config:openSbCommands");
   auto adminCommands = assets->json("/help.config:adminCommands");
   auto debugCommands = assets->json("/help.config:debugCommands");
+  auto openSbDebugCommands = assets->json("/help.config:openSbDebugCommands");
 
   if (arguments.size()) {
     if (arguments.size() >= 1) {
-      if (auto helpText = basicCommands.optString(arguments[0]).orMaybe(adminCommands.optString(arguments[0])).orMaybe(debugCommands.optString(arguments[0])))
+      if (auto helpText = basicCommands.optString(arguments[0]).orMaybe(openSbCommands.optString(arguments[0])).orMaybe(adminCommands.optString(arguments[0])).orMaybe(debugCommands.optString(arguments[0])).orMaybe(openSbDebugCommands.optString(arguments[0])))
         return *helpText;
     }
   }
@@ -74,12 +76,18 @@ String CommandProcessor::help(ConnectionId connectionId, String const& argumentS
   String basicHelpFormat = assets->json("/help.config:basicHelpText").toString();
   res = res + strf(basicHelpFormat.utf8Ptr(), commandDescriptions(basicCommands));
 
+  String openSbHelpFormat = assets->json("/help.config:openSbHelpText").toString();
+  res = res + "\n" + strf(openSbHelpFormat.utf8Ptr(), commandDescriptions(openSbCommands));
+
   if (!adminCheck(connectionId, "")) {
     String adminHelpFormat = assets->json("/help.config:adminHelpText").toString();
     res = res + "\n" + strf(adminHelpFormat.utf8Ptr(), commandDescriptions(adminCommands));
 
     String debugHelpFormat = assets->json("/help.config:debugHelpText").toString();
     res = res + "\n" + strf(debugHelpFormat.utf8Ptr(), commandDescriptions(debugCommands));
+
+    String openSbDebugHelpFormat = assets->json("/help.config:openSbDebugHelpText").toString();
+    res = res + "\n" + strf(openSbDebugHelpFormat.utf8Ptr(), commandDescriptions(openSbDebugCommands));
   }
 
   res = res + "\n" + basicCommands.getString("help");
@@ -254,16 +262,33 @@ String CommandProcessor::setTileProtection(ConnectionId connectionId, String con
     return "Not enough arguments to /settileprotection. Use /settileprotection <dungeonId> <protected>";
 
   try {
-    DungeonId dungeonId = lexicalCast<DungeonId>(arguments.at(0));
-    bool isProtected = lexicalCast<bool>(arguments.at(1));
-
-    bool done = m_universe->executeForClient(connectionId, [dungeonId, isProtected](WorldServer* world, PlayerPtr const&) {
-        world->setTileProtection(dungeonId, isProtected);
-      });
-
-    return done ? "" : "Failed to set block protection.";
+    bool isProtected = Json::parse(arguments.takeLast()).toBool();
+    List<DungeonId> dungeonIds;
+    for (auto& banana : arguments) {
+      auto slices = banana.split("..");
+      auto it = slices.begin();
+      DungeonId previous = 0;
+      while (it != slices.end()) {
+        DungeonId current = lexicalCast<DungeonId>(*it);
+        dungeonIds.append(current);
+        if (it++ != slices.begin() && previous != current) {
+          if (current < previous) swap(previous, current);
+          for (DungeonId id = previous + 1; id != current; ++id)
+            dungeonIds.append(id);
+        }
+        previous = current;
+      }
+    }
+    size_t changed = 0;
+    if (!m_universe->executeForClient(connectionId, [&](WorldServer* world, PlayerPtr const&) {
+       changed = world->setTileProtection(dungeonIds, isProtected);
+      })) {
+      return "Invalid client state";
+    }
+    String output = strf("{} {} dungeon IDs", isProtected ? "Protected" : "Unprotected", changed);
+    return changed < dungeonIds.size() ? strf("{} ({} unchanged)", output, dungeonIds.size() - changed) : output;
   } catch (BadLexicalCast const&) {
-    return strf("Could not parse /settileprotection parameters. Use /settileprotection <dungeonId> <protected>", argumentString);
+    return strf("Could not parse /settileprotection parameters. Use /settileprotection <dungeonId...> <protected>", argumentString);
   }
 }
 

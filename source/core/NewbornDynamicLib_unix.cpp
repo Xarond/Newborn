@@ -1,6 +1,3 @@
-//*************************
-// Jakub Joszko 2024
-//*************************
 #include "NewbornDynamicLib.hpp"
 
 #include <dlfcn.h>

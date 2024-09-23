@@ -323,7 +323,7 @@ String ClientCommandProcessor::cinema(String const& argumentsString) {
   m_cinematicOverlay->load(Root::singleton().assets()->json(arguments.at(0)));
   if (arguments.size() > 1)
     m_cinematicOverlay->setTime(lexicalCast<float>(arguments.at(1)));
-  return strf("Started cinematic {} at {}", arguments.at(0), arguments.size() > 1 ? arguments.at(1) : "beginning");
+  return strf("Newbornted cinematic {} at {}", arguments.at(0), arguments.size() > 1 ? arguments.at(1) : "beginning");
 }
 
 String ClientCommandProcessor::suicide() {
@@ -430,14 +430,12 @@ String ClientCommandProcessor::swap(String const& argumentsString) {
 
 String ClientCommandProcessor::respawnInWorld(String const& argumentsString) {
   auto arguments = m_parser.tokenizeToStringList(argumentsString);
-
   auto worldClient = m_universeClient->worldClient();
-
+  
   if (arguments.size() == 0)
     return strf("Respawn in this world is currently {}", worldClient->respawnInWorld() ? "true" : "false");
 
   bool respawnInWorld = Json::parse(arguments.at(0)).toBool();
-
   worldClient->setRespawnInWorld(respawnInWorld);
   return strf("Respawn in this world set to {} (This is client-side!)", respawnInWorld ? "true" : "false");
 }

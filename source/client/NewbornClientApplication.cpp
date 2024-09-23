@@ -18,7 +18,6 @@
 #include "NewbornVoice.hpp"
 #include "NewbornCurve25519.hpp"
 #include "NewbornInterpolation.hpp"
-#include "NewbornUniverseServer.hpp"
 
 #include "NewbornInterfaceLuaBindings.hpp"
 #include "NewbornInputLuaBindings.hpp"
@@ -148,7 +147,7 @@ void ClientApplication::startup(StringList const& cmdLineArgs) {
   RootLoader rootLoader({AdditionalAssetsSettings, AdditionalDefaultConfiguration, String("newborn.log"), LogLevel::Info, false, String("newborn.config")});
   m_root = rootLoader.initOrDie(cmdLineArgs).first;
 
-  Logger::info("Client Version {} ({}) Source ID: {}, Protocol Version: {}", NewbornVersionString, NewbornArchitectureString, NewbornSourceIdentifierString, NewbornProtocolVersion);
+  Logger::info("Client Version {} ({}) Source ID: {} Protocol: {}", NewbornVersionString, NewbornArchitectureString, NewbornSourceIdentifierString, NewbornProtocolVersion);
 }
 
 void ClientApplication::shutdown() {
@@ -401,6 +400,7 @@ void ClientApplication::render() {
       });
       LogMap::set("client_render_world_painter", strf(u8"{:05d}\u00b5s", Time::monotonicMicroseconds() - paintStart));
       LogMap::set("client_render_world_total", strf(u8"{:05d}\u00b5s", Time::monotonicMicroseconds() - totalStart));
+      
       auto size = Vec2F(renderer->screenSize());
       auto quad = renderFlatRect(RectF::withSize(size / -2, size), Vec4B::filled(0), 0.0f);
       for (auto& layer : m_postProcessLayers) {
@@ -460,7 +460,9 @@ void ClientApplication::renderReload() {
   };
 
   renderer->loadConfig(assets->json("/rendering/opengl.config"));
-
+  
+  loadEffectConfig("world");
+  
   m_postProcessLayers.clear();
   auto postProcessLayers = assets->json("/client.config:postProcessLayers").toArray();
   for (auto& layer : postProcessLayers) {
@@ -470,7 +472,6 @@ void ClientApplication::renderReload() {
     m_postProcessLayers.append(PostProcessLayer{ std::move(effects), (unsigned)layer.getUInt("passes", 1) });
   }
 
-  loadEffectConfig("world");
   loadEffectConfig("interface");
 }
 
@@ -706,10 +707,11 @@ void ClientApplication::setError(String const& error, std::exception const& e) {
 void ClientApplication::updateMods(float dt) {
   m_cinematicOverlay->update(dt);
   auto ugcService = appController()->userGeneratedContentService();
-  if (ugcService) {
+  if (ugcService && m_root->settings().includeUGC) {
+    Logger::info("Checking for user generated content...");
     if (ugcService->triggerContentDownload()) {
       StringList modDirectories;
-      for (auto contentId : ugcService->subscribedContentIds()) {
+      for (auto& contentId : ugcService->subscribedContentIds()) {
         if (auto contentDirectory = ugcService->contentDownloadDirectory(contentId)) {
           Logger::info("Loading mods from user generated content with id '{}' from directory '{}'", contentId, *contentDirectory);
           modDirectories.append(*contentDirectory);
@@ -768,7 +770,7 @@ void ClientApplication::updateTitle(float dt) {
   appController()->setAcceptingTextInput(m_titleScreen->textInputActive());
 
   auto p2pNetworkingService = appController()->p2pNetworkingService();
-if (p2pNetworkingService) {
+  if (p2pNetworkingService) {
     auto getStateString = [](TitleState state) -> const char* {
       switch (state) {
         case TitleState::Main:
@@ -840,7 +842,6 @@ if (p2pNetworkingService) {
 void ClientApplication::updateRunning(float dt) {
   try {
     auto worldClient = m_universeClient->worldClient();
-
     auto p2pNetworkingService = appController()->p2pNetworkingService();
     bool clientIPJoinable = m_root->configuration()->get("clientIPJoinable").toBool();
     bool clientP2PJoinable = m_root->configuration()->get("clientP2PJoinable").toBool();
@@ -867,7 +868,7 @@ void ClientApplication::updateRunning(float dt) {
       }
     }
     
-if (p2pNetworkingService) {
+    if (p2pNetworkingService) {
       auto getActivityDetail = [&](String const& tag) -> String {
         if (tag == "playerName")
           return Text::stripEscapeCodes(m_player->name());

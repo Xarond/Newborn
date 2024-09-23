@@ -185,7 +185,7 @@ void Root::reload() {
 
     // Entity factory depends on all the entity databases and the versioning
     // database.
-    /*MutexLocker entityFactoryLock(m_entityFactoryMutex);
+    MutexLocker entityFactoryLock(m_entityFactoryMutex);
 
     // Species database depends on the item database.
     MutexLocker speciesDatabaseLock(m_speciesDatabaseMutex);
@@ -242,7 +242,7 @@ void Root::reload() {
     MutexLocker danceDatabaseLock(m_danceDatabaseMutex);
     MutexLocker spawnTypeDatabaseLock(m_spawnTypeDatabaseMutex);
     MutexLocker radioMessageDatabaseLock(m_radioMessageDatabaseMutex);
-    MutexLocker collectionDatabaseLock(m_collectionDatabaseMutex);*/
+    MutexLocker collectionDatabaseLock(m_collectionDatabaseMutex);
 
     // Configuration and Assets are at the very bottom of the hierarchy.
     MutexLocker configurationLock(m_configurationMutex);
@@ -309,7 +309,6 @@ void Root::fullyLoad() {
 
   loaders.append(workerPool.addWork(swallow(bind(&Root::assets, this))));
   loaders.append(workerPool.addWork(swallow(bind(&Root::configuration, this))));
-  /*
   loaders.append(workerPool.addWork(swallow(bind(&Root::codexDatabase, this))));
   loaders.append(workerPool.addWork(swallow(bind(&Root::behaviorDatabase, this))));
   loaders.append(workerPool.addWork(swallow(bind(&Root::techDatabase, this))));
@@ -347,7 +346,7 @@ void Root::fullyLoad() {
   loaders.append(workerPool.addWork(swallow(bind(&Root::biomeDatabase, this))));
   loaders.append(workerPool.addWork(swallow(bind(&Root::liquidsDatabase, this))));
   loaders.append(workerPool.addWork(swallow(bind(&Root::dungeonDefinitions, this))));
-  loaders.append(workerPool.addWork(swallow(bind(&Root::tilesetDatabase, this))));*/
+  loaders.append(workerPool.addWork(swallow(bind(&Root::tilesetDatabase, this))));
 
   auto startSeconds = Time::monotonicTime();
   for (auto& loader : loaders)
@@ -571,6 +570,10 @@ CollectionDatabaseConstPtr Root::collectionDatabase() {
   return loadMember(m_collectionDatabase, m_collectionDatabaseMutex, "CollectionDatabase");
 }
 
+Root::Settings& Root::settings() {
+  return m_settings;
+}
+
 StringList Root::scanForAssetSources(StringList const& directories, StringList const& manual) {
   struct AssetSource {
     String path;
@@ -680,7 +683,7 @@ StringList Root::scanForAssetSources(StringList const& directories, StringList c
         dependencySortVisit(*requirement);
       else
         throw NewbornException(strf("Asset source '{}' is missing dependency '{}'{}", *source->name, requirementName,
-          requirementName != "base" ? "" : "\n\n(The base newborn asset package could not be found, please copy it from another newborn install!)\n"));
+          requirementName != "base" ? "" : "\n\nThe base Newborn asset package could not be found, please copy it from another Newborn install!\n(Locate 'packed.pak' in vanilla Newborn's assets folder, then copy it to OpenNewborn's assets folder.)\n"));
     }
 
     workingSet.remove(source);

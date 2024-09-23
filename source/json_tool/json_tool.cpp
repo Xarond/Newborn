@@ -1,11 +1,11 @@
-#include "StarFile.hpp"
+#include "NewbornFile.hpp"
 #include "json_tool.hpp"
 #include "editor_gui.hpp"
 
 // Tool for scripting and mass-editing of JSON+Comments files without affecting
 // formatting.
 
-using namespace Star;
+using namespace Newborn;
 
 FormattedJson GenericInputFormat::toJson(String const& input) const {
   return FormattedJson::parse(input);

@@ -210,8 +210,8 @@ void Voice::loadJson(Json const& config, bool skipSave) {
 		if (change(m_inputMode, VoiceInputModeNames.getLeft(*inputMode), changed))
 			m_lastInputTime = 0;
 	}
-	bool shouldResetEncoder = false;
 
+	bool shouldResetEncoder = false;
 	if (auto channelMode = config.optString("channelMode")) {
 		if (change(m_channelMode, VoiceChannelModeNames.getLeft(*channelMode), changed)) {
 			closeDevice();
@@ -220,6 +220,8 @@ void Voice::loadJson(Json const& config, bool skipSave) {
 		}
 	}
 
+	// not saving this setting to disk, as it's just for audiophiles
+	// don't want someone fudging their bitrate from the intended defaults and forgetting
 	if (auto bitrate = config.opt("bitrate")) {
     unsigned newBitrate = bitrate->canConvert(Json::Type::Int)
 			? clamp((unsigned)bitrate->toUInt(), 6000u, 510000u) : 0;

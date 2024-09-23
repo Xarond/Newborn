@@ -1,6 +1,3 @@
-//*************************
-// Jakub Joszko 2024
-//*************************
 #pragma once
 
 #include "NewbornDataStream.hpp"

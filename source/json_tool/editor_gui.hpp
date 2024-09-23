@@ -9,7 +9,7 @@
 
 #include "json_tool.hpp"
 
-namespace Star {
+namespace Newborn {
 
 class JsonEditor : public QMainWindow {
   Q_OBJECT

@@ -760,7 +760,8 @@ void MainInterface::update(float dt) {
   m_chatBubbleManager->setCamera(m_worldPainter->camera());
   if (auto worldClient = m_client->worldClient()) {
     auto chatActions = worldClient->pullPendingChatActions();
-      for (auto& action : chatActions) {
+
+    for (auto& action : chatActions) {
       if (action.is<PortraitChatAction>()) {
         PortraitChatAction& portraitAction = action.get<PortraitChatAction>();
 
@@ -777,7 +778,7 @@ void MainInterface::update(float dt) {
         m_chat->addMessages({message}, false);
       } else if (action.is<SayChatAction>()) {
         SayChatAction& sayAction = action.get<SayChatAction>();
-
+        
         if (sayAction.config) {
           if (auto message = sayAction.config.opt("message"))
             m_chat->addMessages({ChatReceivedMessage(*message)}, sayAction.config.getBool("showPane", false));
@@ -1016,7 +1017,7 @@ PanePtr MainInterface::createEscapeDialog() {
     });
 
   escapeDialogReader.construct(assets->json("/interface.config:escapeDialog"), escapeDialogPtr);
-  escapeDialog->fetchChild<LabelWidget>("lblversion")->setText(strf("Newborn Beta - {} ({})", NewbornVersionString, NewbornArchitectureString));
+  escapeDialog->fetchChild<LabelWidget>("lblversion")->setText(strf("Newborn - {} ({})", NewbornVersionString, NewbornArchitectureString));
   return escapeDialog;
 }
 

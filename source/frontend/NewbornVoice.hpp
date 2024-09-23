@@ -197,7 +197,6 @@ private:
   VoiceChannelMode m_channelMode;
   unsigned m_bitrate = 0;
 
-
   ThreadFunction<void> m_thread;
   Mutex m_threadMutex;
   ConditionVariable m_threadCond;

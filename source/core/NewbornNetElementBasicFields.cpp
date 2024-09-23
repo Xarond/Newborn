@@ -1,6 +1,3 @@
-//*************************
-// Jakub Joszko 2024
-//*************************
 #include "NewbornNetElementBasicFields.hpp"
 
 namespace Newborn {
@@ -52,8 +49,8 @@ void NetElementEvent::setIgnoreOccurrencesOnNetLoad(bool ignoreOccurrencesOnNetL
   m_ignoreOccurrencesOnNetLoad = ignoreOccurrencesOnNetLoad;
 }
 
-void NetElementEvent::netLoad(DataStream& ds) {
-  NetElementUInt::netLoad(ds);
+void NetElementEvent::netLoad(DataStream& ds, NetCompatibilityRules rules) {
+  NetElementUInt::netLoad(ds, rules);
   if (m_ignoreOccurrencesOnNetLoad)
     ignoreOccurrences();
 }

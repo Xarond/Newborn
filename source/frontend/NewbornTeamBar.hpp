@@ -1,5 +1,4 @@
-#ifndef NEWBORN_TEAMBAR_HPP
-#define NEWBORN_TEAMBAR_HPP
+#pragma once
 
 #include "NewbornPane.hpp"
 #include "NewbornUuid.hpp"
@@ -114,5 +113,3 @@ private:
 };
 
 }
-
-#endif

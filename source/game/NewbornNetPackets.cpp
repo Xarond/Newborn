@@ -198,7 +198,7 @@ ProtocolResponsePacket::ProtocolResponsePacket(bool allowed, Json info)
 void ProtocolResponsePacket::read(DataStream& ds) {
   ds.read(allowed);
   if (compressionMode() == PacketCompressionMode::Enabled) {
-    // gross hack for backwards compatibility with older NEWBORN servers
+    // gross hack for backwards compatibility with older OpenSB servers
     // can be removed later
     auto externalBuffer = as<DataStreamExternalBuffer>(&ds);
     if (!externalBuffer || !externalBuffer->atEnd())

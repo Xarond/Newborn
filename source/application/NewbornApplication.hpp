@@ -11,39 +11,55 @@ NEWBORN_CLASS(Application);
 NEWBORN_EXCEPTION(ApplicationException, NewbornException);
 
 enum class WindowMode {
-    Normal,
-    Maximized,
-    Fullscreen,
-    Borderless
+  Normal,
+  Maximized,
+  Fullscreen,
+  Borderless
 };
 
 class Application {
 public:
-    virtual ~Application() = default;
-    virtual void startup(StringList const& cmdLineArgs);
+  virtual ~Application() = default;
 
-    virtual void applicationInit(ApplicationControllerPtr appController);
+  // Called once on application startup, before any other methods.
+  virtual void startup(StringList const& cmdLineArgs);
 
-    virtual void renderInit(RendererPtr renderer);
+  // Called on application initialization, before rendering initialization.  If
+  // overriden, must call base class instance.
+  virtual void applicationInit(ApplicationControllerPtr appController);
 
-    virtual void windowChanged(WindowMode windowMode, Vec2U screenSize);
+  // Called immediately after application initialization on startup, and then
+  // also whenever the renderer invalidated and recreated.  If overridden, must
+  // call base class instance.
+  virtual void renderInit(RendererPtr renderer);
 
-    virtual void processInput(InputEvent const& event);
+  // Called when the window mode or size is changed.
+  virtual void windowChanged(WindowMode windowMode, Vec2U screenSize);
 
-    virtual void update();
+  // Called before update, once for every pending event.
+  virtual void processInput(InputEvent const& event);
 
-    virtual void render();
+  // Will be called at updateRate hz, or as close as possible.
+  virtual void update();
 
-    virtual void getAudioData(int16_t* sampleData, size_t frameCount);
+  // Will be called at updateRate hz, or more or less depending on settings and
+  // performance.  update() is always prioritized over render().
+  virtual void render();
 
-    virtual void shutdown();
+  // Will be called *from a different thread* to retrieve audio data (if audio
+  // is playing). Default implementation simply fills the buffer with silence.
+  virtual void getAudioData(int16_t* sampleData, size_t frameCount);
 
-    ApplicationControllerPtr const& appController() const;
-    RendererPtr const& renderer() const;
+  // Will be called once on application shutdown, including when shutting down
+  // due to an Application exception.
+  virtual void shutdown();
+
+  ApplicationControllerPtr const& appController() const;
+  RendererPtr const& renderer() const;
 
 private:
-    ApplicationControllerPtr m_appController;
-    RendererPtr m_renderer;
+  ApplicationControllerPtr m_appController;
+  RendererPtr m_renderer;
 };
 
 inline ApplicationControllerPtr const& Application::appController() const {

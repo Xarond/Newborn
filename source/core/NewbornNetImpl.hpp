@@ -1,12 +1,11 @@
-//*************************
-// Jakub Joszko 2024
-//*************************
 #pragma once
 
 #ifdef NEWBORN_SYSTEM_FAMILY_WINDOWS
 #include <winsock2.h>
 #include <ws2tcpip.h>
 #include <stdio.h>
+
+#include "NewbornString_windows.hpp"
 #else
 #ifdef NEWBORN_SYSTEM_FREEBSD
 #include <sys/types.h>
@@ -24,7 +23,6 @@
 #include <poll.h>
 #endif
 
-#include "NewbornString_windows.hpp"
 #include "NewbornHostAddress.hpp"
 
 #ifndef AI_ADDRCONFIG
@@ -49,7 +47,7 @@ inline String netErrorString() {
   LPWSTR lpMsgBuf = NULL;
   int error = WSAGetLastError();
 
-    FormatMessage(FORMAT_MESSAGE_ALLOCATE_BUFFER | FORMAT_MESSAGE_FROM_SYSTEM
+  FormatMessage(FORMAT_MESSAGE_ALLOCATE_BUFFER | FORMAT_MESSAGE_FROM_SYSTEM
               | FORMAT_MESSAGE_IGNORE_INSERTS | FORMAT_MESSAGE_MAX_WIDTH_MASK,
       NULL,
       error,

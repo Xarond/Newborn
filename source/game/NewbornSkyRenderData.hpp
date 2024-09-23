@@ -34,7 +34,7 @@ struct SkyRenderData {
 
   StringList starTypes() const;
 
-  // Newborn and orbiter positions here are in view space, from (0, 0) to viewSize
+  // Star and orbiter positions here are in view space, from (0, 0) to viewSize
 
   List<SkyOrbiter> backOrbiters(Vec2F const& viewSize) const;
   SkyWorldHorizon worldHorizon(Vec2F const& viewSize) const;

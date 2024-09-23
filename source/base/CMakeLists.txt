@@ -5,45 +5,41 @@ INCLUDE_DIRECTORIES (
   )
 
 SET (newborn_base_HEADERS
+    NewbornAnimatedPartSet.hpp
     NewbornAssets.hpp
     NewbornAssetSource.hpp
+    NewbornBlocksAlongLine.hpp
+    NewbornCellularLightArray.hpp
+    NewbornCellularLighting.hpp
+    NewbornCellularLiquid.hpp
+    NewbornConfiguration.hpp
     NewbornDirectoryAssetSource.hpp
     NewbornMemoryAssetSource.hpp
+    NewbornMixer.hpp
     NewbornPackedAssetSource.hpp
     NewbornRootBase.hpp
-    NewbornAnimatedPartSet.hpp
-    NewbornVersion.hpp
-    NewbornConfiguration.hpp
     NewbornVersionOptionParser.hpp
     NewbornWorldGeometry.hpp
-    NewbornMixer.hpp
-    NewbornCellularLiquid.hpp
-    NewbornBlocksAlongLine.hpp
-    NewbornCellularLighting.hpp
-    NewbornCellularLightArray.hpp
     scripting/NewbornImageLuaBindings.hpp
-
-
-)
+  )
 
 SET (newborn_base_SOURCES
-    NewbornAssets.cpp
-    NewbornDirectoryAssetSource.cpp
     NewbornAnimatedPartSet.cpp
-    NewbornMemoryAssetSource.cpp
-    NewbornPackedAssetSource.cpp
-    NewbornVersionOptionParser.cpp
-    NewbornRootBase.cpp
-    NewbornWorldGeometry.cpp
-    NewbornMixer.cpp
-    NewbornCellularLighting.cpp
+    NewbornAssets.cpp
     NewbornCellularLightArray.cpp
+    NewbornCellularLighting.cpp
     NewbornConfiguration.cpp
+    NewbornDirectoryAssetSource.cpp
+    NewbornMemoryAssetSource.cpp
+    NewbornMixer.cpp
+    NewbornPackedAssetSource.cpp
+    NewbornRootBase.cpp
+    NewbornVersionOptionParser.cpp
+    NewbornWorldGeometry.cpp
     scripting/NewbornImageLuaBindings.cpp
-)
+  )
 
-CONFIGURE_FILE (NewbornVersion.cpp.in ${CMAKE_CURRENT_BINARY_DIR}/NewbornVersion.cpp)
-ADD_LIBRARY (newborn_base OBJECT ${newborn_base_SOURCES} ${newborn_base_HEADERS} ${CMAKE_CURRENT_BINARY_DIR}/NewbornVersion.cpp)
+ADD_LIBRARY (newborn_base OBJECT ${newborn_base_SOURCES} ${newborn_base_HEADERS})
 
 IF(NEWBORN_PRECOMPILED_HEADERS)
   TARGET_PRECOMPILE_HEADERS (newborn_base REUSE_FROM newborn_core)

@@ -1,9 +1,9 @@
 #pragma once
 
-#include "StarFormattedJson.hpp"
-#include "StarJsonPath.hpp"
+#include "NewbornFormattedJson.hpp"
+#include "NewbornJsonPath.hpp"
 
-namespace Star {
+namespace Newborn {
 
 struct GetCommand {
   JsonPath::PathPtr path;

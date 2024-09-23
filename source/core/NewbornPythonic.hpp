@@ -1,6 +1,3 @@
-//*************************
-// Jakub Joszko 2024
-//*************************
 #pragma once
 
 #include "NewbornAlgorithm.hpp"
@@ -475,7 +472,7 @@ private:
 
     if ((m_end < m_start) != (RangeHelper::checkIfDiffLessThanZero<Diff>(m_diff))) {
       if (RangeHelper::checkIfDiffLessThanZero<Diff>(m_diff))
-        throw RangeException("Start cannot be less than end if diff is negative.");
+        throw RangeException("Newbornt cannot be less than end if diff is negative.");
       throw RangeException("Max cannot be less than min.");
     }
 

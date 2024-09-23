@@ -1,6 +1,3 @@
-//*************************
-// Jakub Joszko 2024
-//*************************
 #include "NewbornBuffer.hpp"
 #include "NewbornMathCommon.hpp"
 #include "NewbornIODevice.hpp"

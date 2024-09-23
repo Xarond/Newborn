@@ -1,6 +1,3 @@
-//*************************
-// Jakub Joszko 2024
-//*************************
 #pragma once
 
 #include "NewbornString.hpp"
@@ -141,6 +138,8 @@ enum class Key : uint16_t {
   Pause,
   Menu,
   Power,
+  // can't have this where I want because canvases
+  // pass keycodes to Lua as a numeric code >:[
   F16,
   F17,
   F18,

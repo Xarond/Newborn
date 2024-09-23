@@ -271,7 +271,6 @@ public:
 #endif
 
     Logger::info("Application: Initializing SDL Audio");
-
     if (SDL_InitSubSystem(SDL_INIT_AUDIO))
       throw ApplicationException(strf("Couldn't initialize SDL Audio: {}", SDL_GetError()));
 
@@ -315,7 +314,7 @@ public:
     int height;
     SDL_GetWindowSize(m_sdlWindow, &width, &height);
     m_windowSize = Vec2U(width, height);
-
+    
     SDL_GL_SetAttribute(SDL_GL_CONTEXT_MAJOR_VERSION, 4);
     SDL_GL_SetAttribute(SDL_GL_CONTEXT_MINOR_VERSION, 1);
     SDL_GL_SetAttribute(SDL_GL_CONTEXT_PROFILE_MASK, SDL_GL_CONTEXT_PROFILE_CORE);

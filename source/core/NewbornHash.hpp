@@ -1,6 +1,3 @@
-//*************************
-// Jakub Joszko 2024
-//*************************
 #pragma once
 
 #include "NewbornBytes.hpp"
@@ -8,7 +5,7 @@
 namespace Newborn {
 
 // To avoid having to specialize std::hash in the std namespace, which is
-// slightly annoying, Newborn type wrappers use Newborn::hash, which just defaults to
+// slightly annoying, Star type wrappers use Newborn::hash, which just defaults to
 // std::hash.  Newborn::hash also enables template specialization with a dummy
 // Enable parameter.
 template <typename T, typename Enable = void>

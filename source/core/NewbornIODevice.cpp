@@ -1,6 +1,3 @@
-//*************************
-// Jakub Joszko 2024
-//*************************
 #include "NewbornIODevice.hpp"
 #include "NewbornMathCommon.hpp"
 #include "NewbornFormat.hpp"

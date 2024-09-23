@@ -1,6 +1,3 @@
-//*************************
-// Jakub Joszko 2024
-//*************************
 #pragma once
 
 #include "NewbornImageProcessing.hpp"
@@ -15,7 +12,7 @@ NEWBORN_CLASS(Directives);
 NEWBORN_CLASS(DirectivesGroup);
 NEWBORN_EXCEPTION(DirectivesException, NewbornException);
 
-// My attempt at reducing memory allocation and per-frame string parsing for extremely long directives
+// Kae: My attempt at reducing memory allocation and per-frame string parsing for extremely long directives
 class Directives {
 public:
   struct Shared;

@@ -119,7 +119,7 @@ namespace Dungeon {
 
   unsigned ImageTileset::colorAsInt(Vec4B color) const {
     if ((color[3] != 0) && (color[3] != 255)) {
-        newbornAssert(false);
+      newbornAssert(false);
       return 0;
     }
     if (color[3] == 0)

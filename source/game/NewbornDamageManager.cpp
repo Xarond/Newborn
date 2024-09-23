@@ -142,7 +142,7 @@ void DamageManager::pushRemoteDamageRequest(RemoteDamageRequest const& remoteDam
     throw NewbornException("RemoteDamageRequest routed to wrong DamageManager");
 
   if (auto targetEntity = m_world->entity(remoteDamageRequest.targetEntityId)) {
-      newbornAssert(targetEntity->isMaster());
+    newbornAssert(targetEntity->isMaster());
     for (auto& damageNotification : targetEntity->applyDamage(remoteDamageRequest.damageRequest))
       addDamageNotification({remoteDamageRequest.damageRequest.sourceEntityId, std::move(damageNotification)});
   }

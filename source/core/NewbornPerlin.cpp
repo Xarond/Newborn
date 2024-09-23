@@ -1,6 +1,3 @@
-//*************************
-// Jakub Joszko 2024
-//*************************
 #include "NewbornPerlin.hpp"
 
 namespace Newborn {

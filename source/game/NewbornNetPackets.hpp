@@ -14,6 +14,7 @@
 #include "NewbornWiring.hpp"
 #include "NewbornClientContext.hpp"
 #include "NewbornSystemWorld.hpp"
+#include "NewbornNetCompatibility.hpp"
 
 namespace Newborn {
 
@@ -122,17 +123,14 @@ enum class NetCompressionMode : uint8_t {
 };
 extern EnumMap<NetCompressionMode> const NetCompressionModeNames;
 
-
 enum class PacketCompressionMode : uint8_t {
   Disabled,
   Automatic,
   Enabled
-  
 };
 
 struct Packet {
   virtual ~Packet();
-
 
   virtual PacketType type() const = 0;
 
@@ -158,8 +156,6 @@ struct PacketBase : public Packet {
   static PacketType const Type = PacketT;
 
   PacketType type() const override { return Type; }
-
-
 };
 
 struct ProtocolRequestPacket : PacketBase<PacketType::ProtocolRequest> {
@@ -174,7 +170,6 @@ struct ProtocolRequestPacket : PacketBase<PacketType::ProtocolRequest> {
 
 struct ProtocolResponsePacket : PacketBase<PacketType::ProtocolResponse> {
   ProtocolResponsePacket(bool allowed = false, Json info = {});
-
 
   void read(DataStream& ds) override;
   void writeLegacy(DataStream& ds) const override;
@@ -420,7 +415,7 @@ struct WorldStartPacket : PacketBase<PacketType::WorldStart> {
   bool respawnInWorld;
   HashMap<DungeonId, float> dungeonIdGravity;
   HashMap<DungeonId, bool> dungeonIdBreathable;
-  Set<DungeonId> protectedDungeonIds;
+  StableHashSet<DungeonId> protectedDungeonIds;
   Json worldProperties;
   ConnectionId clientId;
   bool localInterpolationMode;

@@ -42,6 +42,7 @@ void FarmableObject::update(float dt, uint64_t currentStep) {
       enterStage(m_stage);
     }
 
+
     while (!m_finalStage && world()->epochTime() >= m_nextStageTime) {
       int lastStage = m_stage;
       enterStage(m_stage + 1);

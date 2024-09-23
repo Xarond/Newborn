@@ -81,8 +81,8 @@ Maybe<String> UniverseClient::connect(UniverseConnection connection, bool allowA
   {
     auto protocolRequest = make_shared<ProtocolRequestPacket>(NewbornProtocolVersion);
     protocolRequest->setCompressionMode(PacketCompressionMode::Enabled);
-    // Signal that we're NewbornAlpha. Vanilla newborn only compresses packets above 64 bytes - by forcing it we can communicate this.
-    // If you know a less cursed way, please let me know.
+    // Signal that we're OpenNewborn. Vanilla Newborn only compresses
+    // packets above 64 bytes - by forcing it, we can communicate this.
     connection.pushSingle(protocolRequest);
   }
   connection.sendAll(timeout);
@@ -94,28 +94,38 @@ Maybe<String> UniverseClient::connect(UniverseConnection connection, bool allowA
   else if (!protocolResponsePacket->allowed)
     return String(strf("Join failed! Server does not support connections with protocol version {}", NewbornProtocolVersion));
 
-  if (!(m_legacyServer = protocolResponsePacket->compressionMode() != PacketCompressionMode::Enabled)) {
-    if (auto compressedSocket = as<CompressedPacketSocket>(&connection.packetSocket())) {
-      if (protocolResponsePacket->info) {
-        auto compressionName = protocolResponsePacket->info.getString("compression", "None");
+  NetCompatibilityRules compatibilityRules;
+  compatibilityRules.setVersion(LegacyVersion);
+  bool legacyServer = protocolResponsePacket->compressionMode() != PacketCompressionMode::Enabled;
+  if (!legacyServer) {
+    auto compressedSocket = as<CompressedPacketSocket>(&connection.packetSocket());
+    if (protocolResponsePacket->info) {
+      compatibilityRules.setVersion(protocolResponsePacket->info.getUInt("openProtocolVersion", 1));
+      auto compressionName = protocolResponsePacket->info.getString("compression", "None");
+      if (compressedSocket) {
         auto compressionMode = NetCompressionModeNames.maybeLeft(compressionName);
         if (!compressionMode)
           return String(strf("Join failed! Unknown net stream connection type '{}'", compressionName));
 
         Logger::info("UniverseClient: Using '{}' network stream compression", NetCompressionModeNames.getRight(*compressionMode));
         compressedSocket->setCompressionStreamEnabled(compressionMode == NetCompressionMode::Zstd);
-      } else if (!m_legacyServer) {
+      }
+    } else {
+      compatibilityRules.setVersion(1); // A version of 1 is OpenNewborn prior to the NetElement compatibility stuff
+      if (compressedSocket) {
         Logger::info("UniverseClient: Defaulting to Zstd network stream compression (older server version)");
-        compressedSocket->setCompressionStreamEnabled(true);// old OpenSB server version always expects it!
+        compressedSocket->setCompressionStreamEnabled(true);
       }
     }
   }
-  connection.packetSocket().setLegacy(m_legacyServer);
-
+  connection.packetSocket().setLegacy(legacyServer);
   auto clientConnect = make_shared<ClientConnectPacket>(Root::singleton().assets()->digest(), allowAssetsMismatch, m_mainPlayer->uuid(), m_mainPlayer->name(),
       m_mainPlayer->species(), m_playerStorage->loadShipData(m_mainPlayer->uuid()), m_mainPlayer->shipUpgrades(),
       m_mainPlayer->log()->introComplete(), account);
-  clientConnect->info = JsonObject{ {"brand", "Newborn"} };
+  clientConnect->info = JsonObject{
+    {"brand", "Newborn"},
+    {"openProtocolVersion", OpenProtocolVersion }
+  };
   connection.pushSingle(std::move(clientConnect));
   connection.sendAll(timeout);
 
@@ -137,11 +147,12 @@ Maybe<String> UniverseClient::connect(UniverseConnection connection, bool allowA
   if (auto success = as<ConnectSuccessPacket>(packet)) {
     m_universeClock = make_shared<Clock>();
     m_clientContext = make_shared<ClientContext>(success->serverUuid, m_mainPlayer->uuid());
+    m_clientContext->setNetCompatibilityRules(compatibilityRules);
     m_teamClient = make_shared<TeamClient>(m_mainPlayer, m_clientContext);
     m_mainPlayer->setClientContext(m_clientContext);
     m_mainPlayer->setStatistics(m_statistics);
     m_worldClient = make_shared<WorldClient>(m_mainPlayer);
-    m_worldClient->clientState().setLegacy(m_legacyServer);
+    m_worldClient->clientState().setNetCompatibilityRules(compatibilityRules);
     m_worldClient->setAsyncLighting(true);
     for (auto& pair : m_luaCallbacks)
       m_worldClient->setLuaCallbacks(pair.first, pair.second);
@@ -150,7 +161,7 @@ Maybe<String> UniverseClient::connect(UniverseConnection connection, bool allowA
     m_celestialDatabase = make_shared<CelestialSlaveDatabase>(std::move(success->celestialInformation));
     m_systemWorldClient = make_shared<SystemWorldClient>(m_universeClock, m_celestialDatabase, m_mainPlayer->universeMap());
 
-    Logger::info("UniverseClient: Joined {} server as client {}", m_legacyServer ? "newborn" : "NewbornAlpha", success->clientId);
+    Logger::info("UniverseClient: Joined {} server as client {}", legacyServer ? "Newborn" : "Newborn", success->clientId);
     return {};
   } else if (auto failure = as<ConnectFailurePacket>(packet)) {
     Logger::error("UniverseClient: Join failed: {}", failure->reason);
@@ -264,7 +275,7 @@ void UniverseClient::update(float dt) {
 
   m_teamClient->update();
 
-  auto contextUpdate = m_clientContext->writeUpdate();
+  auto contextUpdate = m_clientContext->writeUpdate(m_clientContext->netCompatibilityRules());
   if (!contextUpdate.empty())
     m_connection->pushSingle(make_shared<ClientContextUpdatePacket>(std::move(contextUpdate)));
 
@@ -649,58 +660,64 @@ void UniverseClient::setPause(bool pause) {
 
 void UniverseClient::handlePackets(List<PacketPtr> const& packets) {
   for (auto const& packet : packets) {
-    if (auto clientContextUpdate = as<ClientContextUpdatePacket>(packet)) {
-      m_clientContext->readUpdate(clientContextUpdate->updateData);
-      m_playerStorage->applyShipUpdates(m_clientContext->playerUuid(), m_clientContext->newShipUpdates());
+    try {
+      if (auto clientContextUpdate = as<ClientContextUpdatePacket>(packet)) {
+        m_clientContext->readUpdate(clientContextUpdate->updateData, m_clientContext->netCompatibilityRules());
+        m_playerStorage->applyShipUpdates(m_clientContext->playerUuid(), m_clientContext->newShipUpdates());
 
-      if (playerIsOriginal())
-        m_mainPlayer->setShipUpgrades(m_clientContext->shipUpgrades());
+        if (playerIsOriginal())
+          m_mainPlayer->setShipUpgrades(m_clientContext->shipUpgrades());
 
-      m_mainPlayer->setAdmin(m_clientContext->isAdmin());
-      m_mainPlayer->setTeam(m_clientContext->team());
+        m_mainPlayer->setAdmin(m_clientContext->isAdmin());
+        m_mainPlayer->setTeam(m_clientContext->team());
 
-    } else if (auto chatReceivePacket = as<ChatReceivePacket>(packet)) {
-      m_pendingMessages.append(chatReceivePacket->receivedMessage);
+      } else if (auto chatReceivePacket = as<ChatReceivePacket>(packet)) {
+        m_pendingMessages.append(chatReceivePacket->receivedMessage);
 
-    } else if (auto universeTimeUpdatePacket = as<UniverseTimeUpdatePacket>(packet)) {
-      m_universeClock->setTime(universeTimeUpdatePacket->universeTime);
+      } else if (auto universeTimeUpdatePacket = as<UniverseTimeUpdatePacket>(packet)) {
+        m_universeClock->setTime(universeTimeUpdatePacket->universeTime);
 
-    } else if (auto serverDisconnectPacket = as<ServerDisconnectPacket>(packet)) {
-      reset();
-      m_disconnectReason = serverDisconnectPacket->reason;
-      break; // Stop handling other packets
+      } else if (auto serverDisconnectPacket = as<ServerDisconnectPacket>(packet)) {
+        reset();
+        m_disconnectReason = serverDisconnectPacket->reason;
+        break; // Stop handling other packets
 
-    } else if (auto celestialResponse = as<CelestialResponsePacket>(packet)) {
-      m_celestialDatabase->pushResponses(std::move(celestialResponse->responses));
+      } else if (auto celestialResponse = as<CelestialResponsePacket>(packet)) {
+        m_celestialDatabase->pushResponses(std::move(celestialResponse->responses));
 
-    } else if (auto warpResult = as<PlayerWarpResultPacket>(packet)) {
-      if (m_mainPlayer->isDeploying() && m_warping && m_warping->is<WarpToPlayer>()) {
-        Uuid target = m_warping->get<WarpToPlayer>();
-        for (auto member : m_teamClient->members()) {
-          if (member.uuid == target) {
-            if (member.warpMode != WarpMode::DeployOnly && member.warpMode != WarpMode::BeamOrDeploy)
-              m_mainPlayer->deployAbort();
-            break;
+      } else if (auto warpResult = as<PlayerWarpResultPacket>(packet)) {
+        if (m_mainPlayer->isDeploying() && m_warping && m_warping->is<WarpToPlayer>()) {
+          Uuid target = m_warping->get<WarpToPlayer>();
+          for (auto member : m_teamClient->members()) {
+            if (member.uuid == target) {
+              if (member.warpMode != WarpMode::DeployOnly && member.warpMode != WarpMode::BeamOrDeploy)
+                m_mainPlayer->deployAbort();
+              break;
+            }
           }
         }
-      }
 
-      m_warping.reset();
-      if (!warpResult->success) {
-        m_mainPlayer->teleportAbort();
-        if (warpResult->warpActionInvalid)
-          m_mainPlayer->universeMap()->invalidateWarpAction(warpResult->warpAction);
+        m_warping.reset();
+        if (!warpResult->success) {
+          m_mainPlayer->teleportAbort();
+          if (warpResult->warpActionInvalid)
+            m_mainPlayer->universeMap()->invalidateWarpAction(warpResult->warpAction);
+        }
+      } else if (auto planetTypeUpdate = as<PlanetTypeUpdatePacket>(packet)) {
+        m_celestialDatabase->invalidateCacheFor(planetTypeUpdate->coordinate);
+      } else if (auto pausePacket = as<PausePacket>(packet)) {
+        setPause(pausePacket->pause);
+        GlobalTimescale = clamp(pausePacket->timescale, 0.0f, 1024.f);
+      } else if (auto serverInfoPacket = as<ServerInfoPacket>(packet)) {
+        m_serverInfo = ServerInfo{serverInfoPacket->players, serverInfoPacket->maxPlayers};
+      } else if (!m_systemWorldClient->handleIncomingPacket(packet)) {
+        // see if the system world will handle it, otherwise pass it along to the world client
+        m_worldClient->handleIncomingPackets({packet});
       }
-    } else if (auto planetTypeUpdate = as<PlanetTypeUpdatePacket>(packet)) {
-      m_celestialDatabase->invalidateCacheFor(planetTypeUpdate->coordinate);
-    } else if (auto pausePacket = as<PausePacket>(packet)) {
-      setPause(pausePacket->pause);
-      GlobalTimescale = clamp(pausePacket->timescale, 0.0f, 1024.f);
-    } else if (auto serverInfoPacket = as<ServerInfoPacket>(packet)) {
-      m_serverInfo = ServerInfo{serverInfoPacket->players, serverInfoPacket->maxPlayers};
-    } else if (!m_systemWorldClient->handleIncomingPacket(packet)) {
-      // see if the system world will handle it, otherwise pass it along to the world client
-      m_worldClient->handleIncomingPackets({packet});
+    }
+    catch (NewbornException const& e) {
+      Logger::error("Exception thrown while handling {} packet", PacketTypeNames.getRight(packet->type()));
+      throw;
     }
   }
 }

@@ -1,6 +1,3 @@
-//*************************
-// Jakub Joszko 2024
-//*************************
 #include "NewbornText.hpp"
 #include "NewbornJsonExtra.hpp"
 #include <regex>

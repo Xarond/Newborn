@@ -4,10 +4,9 @@
 #include "NewbornTime.hpp"
 #include "NewbornLogging.hpp"
 
-namespace Newborn
-{
+namespace Newborn {
 
-    namespace {
+namespace {
   float rateOfChangeFromRampTime(float rampTime) {
     static const float MaxRate = 10000.0f;
 

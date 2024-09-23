@@ -62,7 +62,7 @@ namespace Dungeon {
     }
 
     if (m_kind == ObjectKind::Tile) {
-      // Used for placing newborn-Tiles and newborn-Objects
+
       Vec2I position(pos().x(), map->height() - pos().y());
       return callback(position, tile());
     }
@@ -175,7 +175,7 @@ namespace Dungeon {
         // Ignore flipped tiles. Tiled can flip selected regions with X, but
         // this
         // also flips individual tiles (setting the high bits on the GID).
-        // newborn has no support for flipped tiles, but being able to flip
+        // Newborn has no support for flipped tiles, but being able to flip
         // regions is still useful.
         m_tileData.append(index.toUInt() & ~TileFlip::AllBits);
       }

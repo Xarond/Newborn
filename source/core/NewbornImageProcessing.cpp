@@ -1,6 +1,3 @@
-//*************************
-// Jakub Joszko 2024
-//*************************
 #include "NewbornImageProcessing.hpp"
 #include "NewbornMatrix3.hpp"
 #include "NewbornInterpolation.hpp"
@@ -217,7 +214,7 @@ ImageOperation imageOperationFromString(StringView string) {
             else // we're in A of A=B. In vanilla only A=B pairs are evaluated, so only throw an error if B is also there.
                 return operation;
               
-            if (which = !which)
+            if ((which = !which))
               operation.colorReplaceMap[*(Vec4B*)&a] = *(Vec4B*)&b;
 
             hexLen = 0;

@@ -1,0 +1,9 @@
+#include "NewbornVersion.hpp"
+
+namespace Newborn {
+
+char const* const NewbornVersionString = "1.0.0";
+char const* const NewbornSourceIdentifierString = "${NEWBORN_SOURCE_IDENTIFIER}";
+char const* const NewbornArchitectureString = "${NEWBORN_SYSTEM} ${NEWBORN_ARCHITECTURE}";
+
+}

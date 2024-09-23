@@ -1,6 +1,3 @@
-//*************************
-// Jakub Joszko 2024
-//*************************
 #include "NewbornFile.hpp"
 #include "NewbornFormat.hpp"
 

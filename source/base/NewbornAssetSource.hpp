@@ -1,6 +1,3 @@
-//*************************
-// Jakub Joszko 2024
-//*************************
 #pragma once
 
 #include "NewbornIODevice.hpp"
@@ -9,6 +6,7 @@
 namespace Newborn {
 
 NEWBORN_CLASS(AssetSource);
+
 NEWBORN_EXCEPTION(AssetSourceException, NewbornException);
 
 // An asset source could be a directory on a filesystem, where assets are

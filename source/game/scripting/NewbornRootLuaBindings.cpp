@@ -33,6 +33,7 @@ LuaCallbacks LuaBindings::makeRootCallbacks() {
 
   callbacks.registerCallbackWithSignature<String, String>("assetData", bind(RootCallbacks::assetData, root, _1));
   callbacks.registerCallbackWithSignature<Image, String>("assetImage", bind(RootCallbacks::assetImage, root, _1));
+  callbacks.registerCallbackWithSignature<Json, String>("assetFrames", bind(RootCallbacks::assetFrames, root, _1));
   callbacks.registerCallbackWithSignature<Json, String>("assetJson", bind(RootCallbacks::assetJson, root, _1));
   callbacks.registerCallbackWithSignature<Json, String, Json>("makeCurrentVersionedJson", bind(RootCallbacks::makeCurrentVersionedJson, root, _1, _2));
   callbacks.registerCallbackWithSignature<Json, Json, String>("loadVersionedJson", bind(RootCallbacks::loadVersionedJson, root, _1, _2));
@@ -237,14 +238,14 @@ LuaCallbacks LuaBindings::makeRootCallbacks() {
 
   
   callbacks.registerCallback("getConfigurationPath", [root](String const& path) -> Json {
-    if (path.beginsWith("title"))
+    if (path.empty() || path.beginsWith("title"))
       throw ConfigurationException(strf("cannot get {}", path));
     else
       return root->configuration()->getPath(path);
     });
 
   callbacks.registerCallback("setConfigurationPath", [root](String const& path, Json const& value) {
-    if (path.beginsWith("safeScripts"))
+    if (path.empty() || path.beginsWith("safeScripts"))
       throw ConfigurationException(strf("cannot set {}", path));
     else
       root->configuration()->setPath(path, value);
@@ -260,6 +261,12 @@ String LuaBindings::RootCallbacks::assetData(Root* root, String const& path) {
 
 Image LuaBindings::RootCallbacks::assetImage(Root* root, String const& path) {
   return *root->assets()->image(path);
+}
+
+Json LuaBindings::RootCallbacks::assetFrames(Root* root, String const& path) {
+  if (auto frames = root->assets()->imageFrames(path))
+    return frames->toJson();
+  return Json();
 }
 
 Json LuaBindings::RootCallbacks::assetJson(Root* root, String const& path) {

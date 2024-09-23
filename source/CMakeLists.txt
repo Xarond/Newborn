@@ -179,7 +179,6 @@ message(STATUS "Using jemalloc: ${NEWBORN_USE_JEMALLOC}")
 message(STATUS "Using mimalloc: ${NEWBORN_USE_MIMALLOC}")
 message(STATUS "Using rpmalloc: ${NEWBORN_USE_RPMALLOC}")
 
-
 # Set C defines and cmake variables based on the build settings we have now
 # determined...
 
@@ -250,9 +249,9 @@ endif()
 if(NEWBORN_USE_JEMALLOC)
   add_definitions(-DNEWBORN_USE_JEMALLOC)
 elseif(NEWBORN_USE_MIMALLOC)
-  add_definitions(-DSTAR_USE_MIMALLOC)
+  add_definitions(-DNEWBORN_USE_MIMALLOC)
 elseif(NEWBORN_USE_RPMALLOC)
-  add_definitions(-DSTAR_USE_RPMALLOC -DENABLE_PRELOAD)
+  add_definitions(-DNEWBORN_USE_RPMALLOC -DENABLE_PRELOAD)
 endif()
 
 # Set C/C++ compiler flags based on build environment...
@@ -489,11 +488,9 @@ set(NEWBORN_EXT_LIBS ${NEWBORN_EXT_LIBS}
 if(NEWBORN_BUILD_GUI)
   find_package(SDL2 CONFIG REQUIRED)
 
-
   set(NEWBORN_EXT_GUI_LIBS
-
     $<TARGET_NAME_IF_EXISTS:SDL2::SDL2main>
-  $<IF:$<TARGET_EXISTS:SDL2::SDL2>,SDL2::SDL2,SDL2::SDL2-static>
+    $<IF:$<TARGET_EXISTS:SDL2::SDL2>,SDL2::SDL2,SDL2::SDL2-static>
   )
 
   find_package(OpenGL REQUIRED)
@@ -546,12 +543,13 @@ set(NEWBORN_CORE_INCLUDES
 )
 add_subdirectory(core)
 
+# Less general purpose code than core that is available to both the game and
+# application modules.
 set(NEWBORN_BASE_INCLUDES
     ${PROJECT_SOURCE_DIR}/base
     ${PROJECT_SOURCE_DIR}/base/scripting
 )
 add_subdirectory(base)
-
 
 # Platform APIs that are implemented by the application module
 set(NEWBORN_PLATFORM_INCLUDES ${PROJECT_SOURCE_DIR}/platform)
@@ -565,9 +563,8 @@ set(NEWBORN_GAME_INCLUDES
     ${PROJECT_SOURCE_DIR}/game/objects
     ${PROJECT_SOURCE_DIR}/game/scripting
     ${PROJECT_SOURCE_DIR}/game/terrain
-)
+  )
 add_subdirectory(game)
-
 
 # Googletest based tests
 option(BUILD_TESTING "Build test projects" OFF)
@@ -576,8 +573,8 @@ if(BUILD_TESTING)
   add_subdirectory(test)
 endif()
 
-# newborn stand-alone server.
-
+# Newborn stand-alone server.
+add_subdirectory(server)
 
 # cmdline utilities
 add_subdirectory(utility)
@@ -600,7 +597,7 @@ if(NEWBORN_BUILD_GUI)
   set(NEWBORN_FRONTEND_INCLUDES ${PROJECT_SOURCE_DIR}/frontend)
   add_subdirectory(frontend)
 
-  # newborn game / client
+  # Newborn game / client
   add_subdirectory(client)
 
   # Qt GUI tools

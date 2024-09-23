@@ -60,7 +60,7 @@ R"JSON(
       "bannedUuids" : [],
       "bannedIPs" : [],
 
-      "serverName" : "A newborn Server",
+      "serverName" : "A Newborn Server",
       "maxPlayers" : 8,
       "maxTeamSize" : 4,
       "serverFidelity" : "automatic",
@@ -100,6 +100,7 @@ R"JSON(
       "inventory" : {
         "pickupToActionBar" : true
       },
+
       "discord" : {
         "activityDetails" : "<playerName> | <worldName>"
       }
@@ -182,6 +183,7 @@ Root::Settings RootLoader::rootSettingsForOptions(Options const& options) const 
     rootSettings.logDirectory = bootConfig.optString("logDirectory");
     rootSettings.logFile = options.parameters.value("logfile").maybeFirst().orMaybe(m_defaults.logFile);
     rootSettings.logFileBackups = bootConfig.getUInt("logFileBackups", 10);
+    rootSettings.includeUGC = bootConfig.getBool("includeUGC", true);
 
     if (auto ll = options.parameters.value("loglevel").maybeFirst())
       rootSettings.logLevel = LogLevelNames.getLeft(*ll);

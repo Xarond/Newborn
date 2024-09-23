@@ -1,5 +1,6 @@
 #include "NewbornCellularLightArray.hpp"
 #include "NewbornInterpolation.hpp"
+// just specializing these in a cpp file so I can iterate on them without recompiling like 40 files!!
 
 namespace Newborn {
 

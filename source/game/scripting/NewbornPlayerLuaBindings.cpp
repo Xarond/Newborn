@@ -116,7 +116,7 @@ LuaCallbacks LuaBindings::makePlayerCallbacks(Player* player) {
     Personality newPersonality = oldPersonality;
     player->setPersonality(parsePersonality(newPersonality, personalityConfig));
   });
-  
+
   callbacks.registerCallback(   "favoriteColor", [player]()            { return player->favoriteColor();  });
   callbacks.registerCallback("setFavoriteColor", [player](Color color) { player->setFavoriteColor(color); });
 

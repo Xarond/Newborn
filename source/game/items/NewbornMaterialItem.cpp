@@ -74,7 +74,6 @@ void MaterialItem::init(ToolUserEntity* owner, ToolHand hand) {
 void MaterialItem::uninit() {
   FireableItem::uninit();
   m_lastAimPosition.reset();
-
 }
 
 void MaterialItem::update(float dt, FireMode fireMode, bool shifting, HashSet<MoveControlType> const& moves) {

@@ -48,6 +48,7 @@ public:
   // false if the timeout was reached with no packets receivable.
   bool receiveAny(unsigned timeout);
 
+  // Returns a reference to the packet socket.
   PacketSocket& packetSocket();
 
   // Packet stats for the most recent one second window of activity incoming

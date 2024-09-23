@@ -181,7 +181,7 @@ Input::Bind Input::bindFromJson(Json const& json) {
     if (auto button = ControllerButtonNames.maybeLeft(value.toString()))
       controllerBind.button = *button;
     else
-      return bind;;
+      return bind;
     controllerBind.controller = json.getUInt("controller", 0);
     bind = std::move(controllerBind);
   }

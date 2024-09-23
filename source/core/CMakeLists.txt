@@ -70,10 +70,12 @@ SET (newborn_core_HEADERS
     NewbornMultiArray.hpp
     NewbornMultiArrayInterpolator.hpp
     NewbornMultiTable.hpp
+    NewbornNetCompatibility.hpp
     NewbornNetElement.hpp
     NewbornNetElementBasicFields.hpp
     NewbornNetElementContainers.hpp
     NewbornNetElementDynamicGroup.hpp
+    NewbornNetElementExt.hpp
     NewbornNetElementFloatFields.hpp
     NewbornNetElementGroup.hpp
     NewbornNetElementSignal.hpp
@@ -122,6 +124,7 @@ SET (newborn_core_HEADERS
     NewbornUnicode.hpp
     NewbornUuid.hpp
     NewbornVector.hpp
+    NewbornVersion.hpp
     NewbornVlqEncoding.hpp
     NewbornWeightedPool.hpp
     NewbornWorkerPool.hpp
@@ -157,11 +160,13 @@ SET (newborn_core_SOURCES
     NewbornJsonPatch.cpp
     NewbornJsonRpc.cpp
     NewbornFormattedJson.cpp
+    NewbornLexicalCast.cpp
     NewbornListener.cpp
     NewbornLogging.cpp
     NewbornLua.cpp
     NewbornLuaConverters.cpp
     NewbornMemory.cpp
+    NewbornNetCompatibility.cpp
     NewbornNetElement.cpp
     NewbornNetElementBasicFields.cpp
     NewbornNetElementGroup.cpp
@@ -217,7 +222,8 @@ ELSEIF (NEWBORN_SYSTEM_FAMILY_WINDOWS)
 
 ENDIF ()
 
-ADD_LIBRARY (newborn_core OBJECT ${newborn_core_SOURCES} ${newborn_core_HEADERS})
+CONFIGURE_FILE (NewbornVersion.cpp.in ${CMAKE_CURRENT_BINARY_DIR}/NewbornVersion.cpp)
+ADD_LIBRARY (newborn_core OBJECT ${newborn_core_SOURCES} ${newborn_core_HEADERS} ${CMAKE_CURRENT_BINARY_DIR}/NewbornVersion.cpp)
 
 IF(NEWBORN_PRECOMPILED_HEADERS)
   TARGET_PRECOMPILE_HEADERS (newborn_core PUBLIC NewbornPch.hpp)

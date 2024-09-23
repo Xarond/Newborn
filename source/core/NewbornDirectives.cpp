@@ -1,6 +1,3 @@
-//*************************
-// Jakub Joszko 2024
-//*************************
 #include "NewbornDirectives.hpp"
 #include "NewbornImage.hpp"
 #include "NewbornImageProcessing.hpp"

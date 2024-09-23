@@ -60,7 +60,6 @@ private:
   String swap(String const& argumentsString);
   String respawnInWorld(String const& argumentsString);
 
-
   UniverseClientPtr m_universeClient;
   CinematicPtr m_cinematicOverlay;
   MainInterfacePaneManager* m_paneManager;

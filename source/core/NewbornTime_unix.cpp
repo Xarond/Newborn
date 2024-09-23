@@ -1,6 +1,3 @@
-//*************************
-// Jakub Joszko 2024
-//*************************
 #include "NewbornTime.hpp"
 #include "NewbornMathCommon.hpp"
 

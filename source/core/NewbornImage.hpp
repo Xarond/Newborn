@@ -1,6 +1,3 @@
-//*************************
-// Jakub Joszko 2024
-//*************************
 #pragma once
 
 #include "NewbornString.hpp"
@@ -30,11 +27,10 @@ NEWBORN_CLASS(Image);
 class Image {
 public:
   static Image readPng(IODevicePtr device);
+  static bool isPng(IODevicePtr device);
   // Returns the size and pixel format that would be constructed from the given
   // png file, without actually loading it.
   static tuple<Vec2U, PixelFormat> readPngMetadata(IODevicePtr device);
-
-  static bool isPng(IODevicePtr device);
 
   static Image filled(Vec2U size, Vec4B color, PixelFormat pf = PixelFormat::RGBA32);
 
