@@ -1,11 +1,11 @@
 #pragma once
 
-#include "StarThread.hpp"
-#include "StarTcp.hpp"
-#include "StarMap.hpp"
-#include "StarServerRconClient.hpp"
+#include "NewbornThread.hpp"
+#include "NewbornTcp.hpp"
+#include "NewbornMap.hpp"
+#include "NewbornServerRconClient.hpp"
 
-namespace Star {
+namespace Newborn {
 
 NEWBORN_CLASS(UniverseServer);
 NEWBORN_CLASS(ServerRconThread);

@@ -1,12 +1,12 @@
-#include "StarServerRconThread.hpp"
-#include "StarServerRconClient.hpp"
-#include "StarLogging.hpp"
-#include "StarRoot.hpp"
-#include "StarConfiguration.hpp"
-#include "StarUniverseServer.hpp"
-#include "StarLexicalCast.hpp"
+#include "NewbornServerRconThread.hpp"
+#include "NewbornServerRconClient.hpp"
+#include "NewbornLogging.hpp"
+#include "NewbornRoot.hpp"
+#include "NewbornConfiguration.hpp"
+#include "NewbornUniverseServer.hpp"
+#include "NewbornLexicalCast.hpp"
 
-namespace Star {
+namespace Newborn {
 
 ServerRconClient::ServerRconClient(UniverseServer* universe, TcpSocketPtr socket)
   : Thread("RconClient"),

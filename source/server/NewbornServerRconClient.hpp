@@ -1,11 +1,11 @@
 #pragma once
 
-#include "StarThread.hpp"
-#include "StarTcp.hpp"
-#include "StarMap.hpp"
-#include "StarDataStreamDevices.hpp"
+#include "NewbornThread.hpp"
+#include "NewbornTcp.hpp"
+#include "NewbornMap.hpp"
+#include "NewbornDataStreamDevices.hpp"
 
-namespace Star {
+namespace Newborn {
 
 class UniverseServer;
 

@@ -1,12 +1,12 @@
-#include "StarServerQueryThread.hpp"
-#include "StarLogging.hpp"
-#include "StarRoot.hpp"
-#include "StarConfiguration.hpp"
-#include "StarVersion.hpp"
-#include "StarUniverseServer.hpp"
-#include "StarIterator.hpp"
+#include "NewbornServerQueryThread.hpp"
+#include "NewbornLogging.hpp"
+#include "NewbornRoot.hpp"
+#include "NewbornConfiguration.hpp"
+#include "NewbornVersion.hpp"
+#include "NewbornUniverseServer.hpp"
+#include "NewbornIterator.hpp"
 
-namespace Star {
+namespace Newborn {
 
 ServerQueryThread::ServerQueryThread(UniverseServer* universe, HostAddressWithPort const& bindAddress)
   : Thread("QueryServer"),

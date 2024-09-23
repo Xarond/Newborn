@@ -1,14 +1,14 @@
 #pragma once
 
-#include "StarThread.hpp"
-#include "StarHostAddress.hpp"
-#include "StarUdp.hpp"
-#include "StarMap.hpp"
-#include "StarDataStreamDevices.hpp"
+#include "NewbornThread.hpp"
+#include "NewbornHostAddress.hpp"
+#include "NewbornUdp.hpp"
+#include "NewbornMap.hpp"
+#include "NewbornDataStreamDevices.hpp"
 
 #include <random>
 
-namespace Star {
+namespace Newborn {
 
 NEWBORN_CLASS(UniverseServer);
 NEWBORN_CLASS(ServerQueryThread);

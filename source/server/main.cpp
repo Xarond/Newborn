@@ -1,16 +1,16 @@
-#include "StarFile.hpp"
-#include "StarRandom.hpp"
-#include "StarLexicalCast.hpp"
-#include "StarLogging.hpp"
-#include "StarUniverseServer.hpp"
-#include "StarRootLoader.hpp"
-#include "StarConfiguration.hpp"
-#include "StarVersion.hpp"
-#include "StarServerQueryThread.hpp"
-#include "StarServerRconThread.hpp"
-#include "StarSignalHandler.hpp"
+#include "NewbornFile.hpp"
+#include "NewbornRandom.hpp"
+#include "NewbornLexicalCast.hpp"
+#include "NewbornLogging.hpp"
+#include "NewbornUniverseServer.hpp"
+#include "NewbornRootLoader.hpp"
+#include "NewbornConfiguration.hpp"
+#include "NewbornVersion.hpp"
+#include "NewbornServerQueryThread.hpp"
+#include "NewbornServerRconThread.hpp"
+#include "NewbornSignalHandler.hpp"
 
-using namespace Star;
+using namespace Newborn;
 
 Json const AdditionalDefaultConfiguration = Json::parseJson(R"JSON(
     {
@@ -35,7 +35,7 @@ Json const AdditionalDefaultConfiguration = Json::parseJson(R"JSON(
 
 int main(int argc, char** argv) {
   try {
-    RootLoader rootLoader({{}, AdditionalDefaultConfiguration, String("newborn_server.log"), LogLevel::Info, false, String("newborn_server.config")});
+    RootLoader rootLoader({{}, AdditionalDefaultConfiguration, String("Newborn_server.log"), LogLevel::Info, false, String("Newborn_server.config")});
     RootUPtr root = rootLoader.commandInitOrDie(argc, argv).first;
     root->fullyLoad();
 
@@ -45,7 +45,7 @@ int main(int argc, char** argv) {
 
     auto configuration = root->configuration();
     {
-      Logger::info("Server Version {} ({}) Source ID: {} Protocol: {}", StarVersionString, StarArchitectureString, StarSourceIdentifierString, NewbornProtocolVersion);
+      Logger::info("Server Version {} ({}) Source ID: {} Protocol: {}", NewbornVersionString, NewbornArchitectureString, NewbornSourceIdentifierString, NewbornProtocolVersion);
 
       float updateRate = 1.0f / GlobalTimestep;
       if (auto jUpdateRate = configuration->get("updateRate")) {

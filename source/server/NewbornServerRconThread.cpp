@@ -1,12 +1,12 @@
-#include "StarServerRconThread.hpp"
-#include "StarLogging.hpp"
-#include "StarRoot.hpp"
-#include "StarConfiguration.hpp"
-#include "StarUniverseServer.hpp"
-#include "StarServerRconClient.hpp"
-#include "StarIterator.hpp"
+#include "NewbornServerRconThread.hpp"
+#include "NewbornLogging.hpp"
+#include "NewbornRoot.hpp"
+#include "NewbornConfiguration.hpp"
+#include "NewbornUniverseServer.hpp"
+#include "NewbornServerRconClient.hpp"
+#include "NewbornIterator.hpp"
 
-namespace Star {
+namespace Newborn {
 
 ServerRconThread::ServerRconThread(UniverseServer* universe, HostAddressWithPort const& address)
   : Thread("RconServer"), m_universe(universe), m_rconServer(address), m_stop(true) {
