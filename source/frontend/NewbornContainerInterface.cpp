@@ -18,6 +18,7 @@
 #include "NewbornStatusControllerLuaBindings.hpp"
 #include "NewbornWidgetLuaBindings.hpp"
 #include "NewbornAugmentItem.hpp"
+#include "NewbornInput.hpp"
 
 namespace Newborn {
 
@@ -265,6 +266,8 @@ void ContainerPane::update(float dt) {
     m_script->update(m_script->updateDt(dt));
 
   m_itemBag->clearItems();
+  Input& input = Input::singleton();
+
 
   if (!m_containerInteractor->containerOpen()) {
     dismiss();
@@ -295,6 +298,10 @@ void ContainerPane::update(float dt) {
         }
         fuelGauge->setPotentialFuelAmount(totalFuelAmount);
         fuelGauge->setRequestedFuelAmount(0);
+
+      if (input.bindDown("opensb", "takeAll")) {
+        m_containerInteractor->clearContainer();
+      }
       }
     }
   }
