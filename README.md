@@ -364,7 +364,7 @@ Sets the player's mode. **mode** must be either `"casual"`, `"survival"` or `"ha
 #### `Color` player.favoriteColor()
 
 Returns the player's favorite color.
-It is used for the beam shown when wiring, placing, and highlighting with beam-tools (Matter Manipulator).
+It is used for the beam shown when wiring, placing, and highlighting with beam-tools.
 
 #### `void` player.setFavoriteColor(`Color` color)
 
