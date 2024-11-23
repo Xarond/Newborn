@@ -29,7 +29,9 @@ public:
   // accept it.
   void offer(QuestPtr const& quest);
   QuestPtr getQuest(String const& questId) const;
-
+  StringMap<QuestPtr> quests() const;
+  // Only returns quests that are exclusive to the current server.
+  StringMap<QuestPtr> serverQuests() const;
   bool hasQuest(String const& questId) const;
   bool hasAcceptedQuest(String const& questId) const;
   bool isActive(String const& questId) const;
@@ -60,7 +62,7 @@ public:
   void update(float dt);
 
 private:
-  List<QuestPtr> serverQuests() const;
+  bool questValidOnServer(QuestPtr quest) const;
   void startInitialQuests();
   void setMostRecentQuestCurrent();
 
