@@ -2049,7 +2049,7 @@ Maybe<WorkerPoolPromise<WorldServerThreadPtr>> UniverseServer::shipWorldPromise(
 
       shipWorld->setUniverseSettings(m_universeSettings);
       shipWorld->setReferenceClock(shipClock);
-      shipWorld->start;
+      shipClock->start();
 
       if (auto systemWorld = clientContext->systemWorld())
         shipWorld->setOrbitalSky(systemWorld->clientSkyParameters(clientContext->clientId()));
