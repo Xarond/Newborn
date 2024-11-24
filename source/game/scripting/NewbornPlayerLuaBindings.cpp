@@ -502,7 +502,7 @@ LuaCallbacks LuaBindings::makePlayerCallbacks(Player* player) {
           return printWorldId(*worldId);
       }
       return {};
-    });
+  });
 
   callbacks.registerCallback("questWorlds", [player]() -> List<pair<String, bool>> {
       List<pair<String, bool>> res;
