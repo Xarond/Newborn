@@ -2038,14 +2038,13 @@ Maybe<WorkerPoolPromise<WorldServerThreadPtr>> UniverseServer::shipWorldPromise(
         shipWorld->setProperty("ship.fuelEfficiency", currentUpgrades.fuelEfficiency);
         shipWorld->setProperty("ship.epoch", Time::timeSinceEpoch());
       }
-
       auto shipClock = make_shared<Clock>();
       auto shipTime = shipWorld->getProperty("ship.epoch");
       if (!shipTime.canConvert(Json::Type::Float)) {
-        auto now Time::timeSinceEpoch();
+        auto now = Time::timeSinceEpoch();
         shipWorld->setProperty("ship.epoch", now);
       } else {
-        shipWorld->setTime(Time::timeSinceEpoch() - shipTime.toDouble());
+        shipClock->setTime(Time::timeSinceEpoch() - shipTime.toDouble());
       }
 
       shipWorld->setUniverseSettings(m_universeSettings);
