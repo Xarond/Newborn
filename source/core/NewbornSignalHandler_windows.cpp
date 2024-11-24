@@ -2,17 +2,16 @@
 #include "NewbornFormat.hpp"
 #include "NewbornString.hpp"
 #include "NewbornLogging.hpp"
-#include "minidumpapiset.h"
-
 
 #include <windows.h>
+#include "minidumpapiset.h"
 
 namespace Newborn {
 
 String g_sehMessage;
 
 static DWORD WINAPI writeMiniDump(void* ExceptionInfo) {
-  auto hFile = CreateFileA("starbound.dmp", GENERIC_WRITE, FILE_SHARE_READ, 0, CREATE_ALWAYS, FILE_ATTRIBUTE_NORMAL, 0);
+  auto hFile = CreateFileA("newborn.dmp", GENERIC_WRITE, FILE_SHARE_READ, 0, CREATE_ALWAYS, FILE_ATTRIBUTE_NORMAL, 0);
   if (hFile == INVALID_HANDLE_VALUE)
     return 0;
   MINIDUMP_EXCEPTION_INFORMATION dumpExceptionInfo{};
