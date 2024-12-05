@@ -186,7 +186,7 @@ void KeybindingsMenu::setKeybinding(KeyChord desc) {
     try {
       auto stored = inputDescriptorFromJson(entry);
       buttonText.push_back(printInputDescriptor(stored));
-    } catch (StarException const& e) {
+    } catch (NewbornException const& e) {
       buttonText.push_back("unknown");
     }
   }
