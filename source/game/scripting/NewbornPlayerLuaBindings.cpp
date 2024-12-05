@@ -11,6 +11,8 @@
 #include "NewbornStatistics.hpp"
 #include "NewbornPlayerUniverseMap.hpp"
 #include "NewbornJsonExtra.hpp"
+#include "NewbornUniverseClient.hpp"
+#include "NewbornTeamClient.hpp"
 
 namespace Newborn {
 
@@ -27,7 +29,19 @@ LuaCallbacks LuaBindings::makePlayerCallbacks(Player* player) {
     }
   });
 
-  callbacks.registerCallback("teamMembers", [player]() { return player->teamMembers(); });
+  callbacks.registerCallback("teamMembers", [player]() -> Maybe<JsonArray> {
+    if (auto client = player->universeClient()) {
+      return client->teamClient()->members().transformed([](TeamClient::Member& member) -> Json {
+        return JsonObject{
+          {"name", member.name},
+          {"uuid", member.uuid.hex()},
+          {"entity", member.entity},
+          {"healthPercentage", member.healthPercentage},
+          {"energyPercentage", member.energyPercentage}};
+      });
+    }
+    return {};
+  });
 
   callbacks.registerCallback(   "humanoidIdentity", [player]()         { return player->humanoid()->identity().toJson();  });
   callbacks.registerCallback("setHumanoidIdentity", [player](Json const& id) { player->setIdentity(HumanoidIdentity(id)); });
