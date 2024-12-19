@@ -54,7 +54,8 @@ public:
   Maybe<QuestPtr> currentQuest() const;
   Maybe<QuestPtr> trackedQuest() const;
   Maybe<QuestIndicator> getQuestIndicator(EntityPtr const& entity) const;
-
+  Maybe<String> currentQuestId() const;
+  Maybe<String> trackedQuestId() const;
   // Handled at this level to allow multiple active quests to specify interestingObjects
   StringSet interestingObjects();
 

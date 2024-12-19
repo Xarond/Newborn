@@ -31,7 +31,7 @@ LuaCallbacks LuaBindings::makePlayerCallbacks(Player* player) {
 
   callbacks.registerCallback("teamMembers", [player]() -> Maybe<JsonArray> {
     if (auto client = player->universeClient()) {
-      return client->teamClient()->members().transformed([](TeamClient::Member& member) -> Json {
+      return client->teamClient()->members().transformed([](TeamClient::Member const& member) -> Json {
         return JsonObject{
           {"name", member.name},
           {"uuid", member.uuid.hex()},
@@ -497,8 +497,8 @@ LuaCallbacks LuaBindings::makePlayerCallbacks(Player* player) {
       return player->questManager()->hasCompleted(questId);
     });
 
-  callbacks.registerCallback("trackedQuest", [player]() {
-    return player->questManager()->trackedQuest();
+  callbacks.registerCallback("trackedQuestId", [player]() {
+    return player->questManager()->trackedQuestId();
   });
 
   callbacks.registerCallback("setTrackedQuest", [player](Maybe<String> const& questId) {
@@ -506,6 +506,9 @@ LuaCallbacks LuaBindings::makePlayerCallbacks(Player* player) {
   });
   callbacks.registerCallback("canTurnInQuest", [player](String const& questId) {
     return player->questManager()->canTurnIn(questId);
+  });
+  callbacks.registerCallback("currentQuestId", [player]() {
+    return player->questManager()->currentQuestId();
   });
   callbacks.registerCallback("currentQuest", [player]() -> Json {
     auto maybeQuest = player->questManager()->currentQuest();
