@@ -476,23 +476,27 @@ LuaCallbacks LuaBindings::makePlayerCallbacks(Player* player) {
     return player->questManager()->serverQuests().keys();
   });
   callbacks.registerCallback("quest", [player](String const& questId) -> Json {
-    if (auto quest = player->questManager()->getQuest(questId))
-      return quest->diskStore();
-    return {};
+    if (!player->questManager()->hasQuest(questId))
+      return {};
+    return player->questManager()->getQuest(questId)->diskStore();
+  });
+
+  callbacks.registerCallback("questPortrait", [player](String const& questId, String const& portraitName) -> Maybe<List<Drawable>> {
+    if (!player->questManager()->hasQuest(questId))
+      return {};
+    return player->questManager()->getQuest(questId)->portrait(portraitName);
   });
 
   callbacks.registerCallback("questState", [player](String const& questId) -> Maybe<String> {
-    if (auto quest = player->questManager()->getQuest(questId))
-      return QuestStateNames.getRight(quest->state());
-
-    return {};
+    if (!player->questManager()->hasQuest(questId))
+      return {};
+    return QuestStateNames.getRight(player->questManager()->getQuest(questId)->state());
   });
   
   callbacks.registerCallback("callQuest", [player](String const& questId, String const& func, LuaVariadic<LuaValue> const& args) -> Maybe<LuaValue> {
-    if (auto quest = player->questManager()->getQuest(questId))
-      return quest->callScript(func, args);
-    
-    return {};
+    if (!player->questManager()->hasQuest(questId))
+      return {};
+    return player->questManager()->getQuest(questId)->callScript(func, args);
   });
 
   callbacks.registerCallback("hasQuest", [player](String const& questId) {
