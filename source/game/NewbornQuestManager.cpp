@@ -407,9 +407,9 @@ void QuestManager::update(float dt) {
     }
   }
 
-  for (auto& q : m_quests) {
-    if (questValidOnServer(q.second))
-      q.second->update(dt);
+  for (auto& q : m_quests.values()) {
+    if (questValidOnServer(q))
+      q->update(dt);
   }
 }
 
