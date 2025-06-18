@@ -164,7 +164,7 @@ StringView Directives::prefix() const {
   else if (m_shared->string.utf8().at(0) == '?')
     return "";
   else
-    return m_shared->entries.front().string(*m_shared);
+    return m_shared->entries.front().string(*m_shared);-+
 }
 
 String Directives::string() const {
