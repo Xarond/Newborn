@@ -175,6 +175,7 @@ SET (newborn_game_HEADERS
     NewbornWorldStructure.hpp
     NewbornWorldTemplate.hpp
     NewbornWorldTiles.hpp
+    NewbornWorldCamera.hpp
 
     interfaces/NewbornAnchorableEntity.hpp
     interfaces/NewbornActivatableItem.hpp
@@ -231,6 +232,7 @@ SET (newborn_game_HEADERS
     objects/NewbornPhysicsObject.hpp
     objects/NewbornTeleporterObject.hpp
 
+    scripting/NewbornCameraLuaBindings.hpp
     scripting/NewbornCelestialLuaBindings.hpp
     scripting/NewbornBehaviorLuaBindings.hpp
     scripting/NewbornConfigLuaBindings.hpp
@@ -432,6 +434,7 @@ SET (newborn_game_SOURCES
     NewbornWorldStructure.cpp
     NewbornWorldTemplate.cpp
     NewbornWorldTiles.cpp
+    NewbornWorldCamera.cpp
 
     interfaces/NewbornAnchorableEntity.cpp
     interfaces/NewbornBeamItem.cpp
@@ -470,6 +473,7 @@ SET (newborn_game_SOURCES
     objects/NewbornPhysicsObject.cpp
     objects/NewbornTeleporterObject.cpp
 
+    scripting/NewbornCameraLuaBindings.cpp
     scripting/NewbornCelestialLuaBindings.cpp
     scripting/NewbornBehaviorLuaBindings.cpp
     scripting/NewbornConfigLuaBindings.cpp

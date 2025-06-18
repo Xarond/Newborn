@@ -18,6 +18,7 @@
 #include "NewbornVoice.hpp"
 #include "NewbornCurve25519.hpp"
 #include "NewbornInterpolation.hpp"
+#include "NewbornCameraLuaBindings.hpp"
 
 #include "NewbornInterfaceLuaBindings.hpp"
 #include "NewbornInputLuaBindings.hpp"
@@ -541,6 +542,8 @@ void ClientApplication::changeState(MainAppState newState) {
 
     m_universeClient->setLuaCallbacks("input", LuaBindings::makeInputCallbacks());
     m_universeClient->setLuaCallbacks("voice", LuaBindings::makeVoiceCallbacks());
+    m_universeClient->setLuaCallbacks("camera", LuaBindings::makeCameraCallbacks(&m_worldPainter->camera()));
+
     if (!m_root->configuration()->get("safeScripts").toBool())
       m_universeClient->setLuaCallbacks("clipboard", LuaBindings::makeClipboardCallbacks(appController()));
 

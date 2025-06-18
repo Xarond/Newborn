@@ -16,7 +16,6 @@ SET (newborn_rendering_HEADERS
       NewbornFontTextureGroup.hpp
       NewbornTextPainter.hpp
       NewbornTilePainter.hpp
-      NewbornWorldCamera.hpp
       NewbornWorldPainter.hpp
     )
 
@@ -28,7 +27,6 @@ SET (newborn_rendering_SOURCES
       NewbornFontTextureGroup.cpp
       NewbornTextPainter.cpp
       NewbornTilePainter.cpp
-      NewbornWorldCamera.cpp
       NewbornWorldPainter.cpp
     )
 
