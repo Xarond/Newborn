@@ -1,6 +1,6 @@
 #pragma once
 
-#include "NewbornPane.hpp"
+#include "NewbornBaseScriptPane.hpp"
 #include "NewbornChatTypes.hpp"
 
 namespace Newborn {
@@ -13,9 +13,9 @@ NEWBORN_CLASS(ImageStretchWidget);
 NEWBORN_CLASS(CanvasWidget);
 NEWBORN_CLASS(Chat);
 
-class Chat : public Pane {
+class Chat : public BaseScriptPane {
 public:
-  Chat(UniverseClientPtr client);
+  Chat(UniverseClientPtr client, Json const&);
 
   void startChat();
   void startCommand();
@@ -57,6 +57,7 @@ private:
   void updateBottomButton();
 
   UniverseClientPtr m_client;
+  bool m_scripted;
 
   TextBoxWidgetPtr m_textBox;
   LabelWidgetPtr m_say;

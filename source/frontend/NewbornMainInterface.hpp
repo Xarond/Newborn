@@ -75,6 +75,8 @@ public:
   void openCraftingWindow(Json const& config, EntityId sourceEntityId = NullEntityId);
   void openMerchantWindow(Json const& config, EntityId sourceEntityId = NullEntityId);
   void togglePlainCraftingWindow();
+  void displayDefaultPanes();
+
 
   bool windowsOpen() const;
 

@@ -15,7 +15,7 @@ NEWBORN_CLASS(BaseScriptPane);
 
 class BaseScriptPane : public Pane {
 public:
-  BaseScriptPane(Json config);
+  BaseScriptPane(Json config, bool construct = true);
 
   virtual void show() override;
   void displayed() override;
@@ -34,6 +34,7 @@ public:
   Maybe<String> cursorOverride(Vec2I const& screenPosition) override;
 protected:
   virtual GuiReaderPtr reader() override;
+  void construct(Json config);
   Json m_config;
   Json m_rawConfig;
 
@@ -45,7 +46,7 @@ protected:
   bool m_interactive;
 
   bool m_callbacksAdded;
-  LuaUpdatableComponent<LuaBaseComponent> m_script;
+  mutable LuaUpdatableComponent<LuaBaseComponent> m_script;
 };
 
 }

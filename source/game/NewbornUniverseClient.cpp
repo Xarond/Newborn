@@ -523,7 +523,9 @@ void UniverseClient::stopLua() {
 
   m_scriptContexts.clear();
 }
-
+LuaRootPtr UniverseClient::luaRoot() {
+  return m_luaRoot;
+}
 bool UniverseClient::reloadPlayer(Json const& data, Uuid const&, bool resetInterfaces, bool showIndicator) {
   auto player = mainPlayer();
   bool playerInWorld = player->inWorld();
