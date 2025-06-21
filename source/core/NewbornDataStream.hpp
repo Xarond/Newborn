@@ -5,6 +5,8 @@
 
 namespace Newborn {
 
+extern unsigned const CurrentStreamVersion;
+
 NEWBORN_EXCEPTION(DataStreamException, IOException);
 
 // Writes complex types to bytes in a portable big-endian fashion.
@@ -12,8 +14,6 @@ class DataStream {
 public:
   DataStream();
   virtual ~DataStream() = default;
-
-  static unsigned const CurrentStreamVersion = 2;
 
   // DataStream defaults to big-endian order for all primitive types
   ByteOrder byteOrder() const;

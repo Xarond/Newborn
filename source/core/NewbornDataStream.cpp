@@ -6,6 +6,8 @@
 
 namespace Newborn {
 
+unsigned const CurrentStreamVersion = 3;
+
 DataStream::DataStream()
   : m_byteOrder(ByteOrder::BigEndian),
     m_nullTerminatedStrings(false),

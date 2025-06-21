@@ -2,6 +2,6 @@
 
 namespace Newborn {
 
-VersionNumber const OpenProtocolVersion = 2;
+VersionNumber const OpenProtocolVersion = 3;
 
 }
