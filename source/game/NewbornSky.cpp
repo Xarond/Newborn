@@ -615,7 +615,6 @@ bool Sky::controlledMovement(JsonArray const& path, Json const& origin, float ti
     previousOffset = stepOffset;
     previousRotation = stepRotation;
   }
-  // if loop wasn't broken
   // then we're done with this phase of controlled movement
   // signal that we're ready to head out of this system
 

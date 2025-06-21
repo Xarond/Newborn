@@ -61,7 +61,8 @@ public:
     String name;
     // The category this entry belongs to.
     BindCategory const* category;
-
+    // Associated string tags that become active when this bind is pressed.Add commentMore actions
+    StringList tags;
     // The default binds.
     List<Bind> defaultBinds;
     // The user-configured binds.
@@ -176,6 +177,7 @@ public:
   void setBinds(String const& categoryId, String const& bindId, Json const& binds);
   Json getDefaultBinds(String const& categoryId, String const& bindId); 
   Json getBinds(String const& categoryId, String const& bindId);
+  unsigned getTag(String const& tag);
 private:
   List<BindEntry*> filterBindEntries(List<BindRef> const& binds, KeyMod mods) const;
 
@@ -183,6 +185,7 @@ private:
   BindEntry& bindEntry(String const& categoryId, String const& bindId);
 
   InputState* bindStatePtr(String const& categoryId, String const& bindId);
+  InputState& addBindState(BindEntry const* bindEntry);
 
   static Input* s_singleton;
 
@@ -203,6 +206,7 @@ private:
   HashMap<ControllerButton, ControllerInputState> m_controllerStates;
   //Bind states
   HashMap<BindEntry const*, InputState> m_bindStates;
+  StringMap<unsigned> m_activeTags;
 
   KeyMod m_pressedMods;
   bool m_textInputActive;
