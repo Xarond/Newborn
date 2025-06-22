@@ -43,81 +43,67 @@ jobs:
         } >> "$GITHUB_OUTPUT"
 
     # 4️⃣  Wyślij embed do Discorda
-    - name: Send neat Discord embed
+    - name: Send Discord embed
       env:
-        WEBHOOK_URL: ${{ secrets.DISCORD_WEBHOOK }}
-        REPO:        ${{ github.repository }}
-        BRANCH:      ${{ github.ref_name }}
-        ACTOR:       ${{ github.actor }}
-        SHA:         ${{ github.sha }}
-        COMMIT_URL:  ${{ github.event.head_commit.url }}
-        COMMIT_MSG:  ${{ github.event.head_commit.message }}
-        FILE_LIST:   ${{ steps.diff.outputs.list }}
-        FILE_COUNT:  ${{ steps.diff.outputs.count }}
+        WEBHOOK_URL:  ${{ secrets.DISCORD_WEBHOOK }}
+        REPO:         ${{ github.repository }}
+        BRANCH:       ${{ github.ref_name }}
+        ACTOR:        ${{ github.actor }}
+        SHA:          ${{ github.sha }}
+        COMMIT_URL:   ${{ github.event.head_commit.url }}
+        COMMIT_MSG:   ${{ github.event.head_commit.message }}
+        FILE_LIST:    ${{ steps.diff.outputs.list }}
+        FILE_COUNT:   ${{ steps.diff.outputs.count }}
       run: |
-        set -e
+        set -euo pipefail
 
-        # --- 0. Walidacja sekretu ------------------------------------------
-        if [ -z "$WEBHOOK_URL" ]; then
-          echo "::error::Sekret DISCORD_WEBHOOK jest pusty"
-          exit 1
-        fi
+        [[ -z "$WEBHOOK_URL" ]] && {
+          echo "::error:: Brak sekretu DISCORD_WEBHOOK"; exit 1; }
 
-        # --- 1. Przygotuj pola w bashu -------------------------------------
+        ### 1. Przytnij commit message (pierwsza linia, max 256 znaków)
         COMMIT_TITLE=$(echo "$COMMIT_MSG" | head -n1 | head -c256)
 
-        if [ -z "$FILE_LIST" ]; then
+        ### 2. Zrób blok z plikami (max 10 linii + licznik)
+        if [[ -z "$FILE_LIST" ]]; then
           FILES_BLOCK="(brak zmian)"
         else
           FILES_BLOCK=$(echo "$FILE_LIST" | head -n10)
-          if [ "$FILE_COUNT" -gt 10 ]; then
-            FILES_BLOCK="$FILES_BLOCK\n…i $(($FILE_COUNT-10)) więcej"
-          fi
+          (( FILE_COUNT > 10 )) && \
+            FILES_BLOCK="${FILES_BLOCK}\n…i $((FILE_COUNT-10)) więcej"
         fi
+        FILES_BLOCK="\`\`\`\n${FILES_BLOCK}\n\`\`\`"
 
-        FILES_NAME="Pliki ($FILE_COUNT)"
-        FILES_BLOCK="```$FILES_BLOCK```"
-        AVATAR_URL="https://github.com/$ACTOR.png?size=40"
-        SHORT_SHA=${SHA:0:7}
+        ### 3. JSON-escape dwóch pól (samymi cudzysłowami)
+        esc() { python3 -c 'import json,sys; print(json.dumps(sys.stdin.read())[1:-1])'; }
+        ESC_COMMIT=$(printf '%s' "$COMMIT_TITLE" | esc)
+        ESC_FILES=$(printf '%s' "$FILES_BLOCK"  | esc)
 
-        # --- 2. Zbuduj JSON w jq (bez konkatenacji +) -----------------------
-        JSON=$(jq -n \
-          --arg content "@everyone" \
-          --arg title   "Push → $REPO [$BRANCH]" \
-          --arg url     "$COMMIT_URL" \
-          --arg actor   "$ACTOR" \
-          --arg avatar  "$AVATAR_URL" \
-          --arg commit  "$COMMIT_TITLE" \
-          --arg filesNm "$FILES_NAME" \
-          --arg filesVl "$FILES_BLOCK" \
-          --arg sha     "$SHORT_SHA" \
-          --argjson color 5814783 \
-          '{
-             content: $content,
-             embeds: [{
-               title: $title,
-               url:   $url,
-               color: $color,
-               author: { name: $actor, url: ("https://github.com/" + $actor), icon_url: $avatar },
-               fields: [
-                 { name: "Commit", value: $commit,   inline: false },
-                 { name: $filesNm,   value: $filesVl, inline: false }
-               ],
-               footer: { text: ("SHA " + $sha) },
-               timestamp: (now|toiso8601)
-             }]
-           }')
+        ### 4. Zbuduj payload heredokiem
+        read -r -d '' PAYLOAD <<EOF
+{
+  "content": "@everyone",
+  "embeds": [{
+    "title": "Push → $REPO [$BRANCH]",
+    "url": "$COMMIT_URL",
+    "color": 5814783,
+    "author": {
+      "name": "$ACTOR",
+      "url": "https://github.com/$ACTOR",
+      "icon_url": "https://github.com/$ACTOR.png?size=40"
+    },
+    "fields": [
+      { "name": "Commit",           "value": "$ESC_COMMIT", "inline": false },
+      { "name": "Pliki ($FILE_COUNT)", "value": "$ESC_FILES", "inline": false }
+    ],
+    "footer": { "text": "SHA ${SHA:0:7}" },
+    "timestamp": "$(date -u +'%Y-%m-%dT%H:%M:%SZ')"
+  }]
+}
+EOF
 
-        echo "== JSON wysyłany do Discorda =="
-        echo "$JSON"
-
-        # --- 3. Wyślij i sprawdź kod HTTP ----------------------------------
+        ### 5. Wyślij i sprawdź kod HTTP
         CODE=$(curl -sSL -o /dev/null -w '%{http_code}' \
-               -H "Content-Type: application/json" \
-               -d "$JSON" "$WEBHOOK_URL")
-
+                 -H "Content-Type: application/json" \
+                 -d "$PAYLOAD" "$WEBHOOK_URL")
         echo "Discord HTTP $CODE"
-        [ "$CODE" -ne 204 ] && exit 1
-
-
-
+        [[ "$CODE" -ne 204 ]] && exit 1
