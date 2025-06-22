@@ -72,7 +72,7 @@ jobs:
 
         # zbuduj JSON za pomocą jq (bez łączenia stringów w jq ⇒ działa w 1.5)
         payload=$(jq -n \
-          --arg content "@everyone" \
+          --arg content "@here" \
           --arg push_title "$PUSH_TITLE" \
           --arg url "$COMMIT_URL" \
           --arg actor "$ACTOR" \
