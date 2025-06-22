@@ -48,7 +48,7 @@ jobs:
 
     # 3️⃣ wysyłka gotowego embeda przez marketplace-ową akcję
     - name: Post to Discord
-      uses: tsickert/discord-webhook@v5
+      uses: tsickert/discord-webhook@v7.0.0
       with:
         webhook-url: ${{ secrets.DISCORD_WEBHOOK }}
         username: GitHub Actions
