@@ -11,6 +11,7 @@ INCLUDE_DIRECTORIES (
   )
 
 SET (newborn_frontend_HEADERS
+    NewbornShadersMenu.hpp
     NewbornActionBar.hpp
     NewbornAiInterface.hpp
     NewbornBaseScriptPane.hpp
@@ -63,6 +64,7 @@ SET (newborn_frontend_HEADERS
   )
 
 SET (newborn_frontend_SOURCES
+    NewbornShadersMenu.cpp
     NewbornActionBar.cpp
     NewbornAiInterface.cpp
     NewbornBaseScriptPane.cpp

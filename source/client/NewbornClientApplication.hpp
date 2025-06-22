@@ -18,6 +18,10 @@ NEWBORN_CLASS(Input);
 NEWBORN_CLASS(Voice);
 
 class ClientApplication : public Application {
+public:
+  void setPostProcessGroupEnabled(String group, bool enabled, Maybe<bool> save);
+  bool postProcessGroupEnabled(String group);
+  Json postProcessGroups();
 protected:
   virtual void startup(StringList const& cmdLineArgs) override;
   virtual void shutdown() override;
@@ -52,10 +56,15 @@ private:
     String account;
     String password;
   };
+
+  struct PostProcessGroup {
+    bool enabled;
+  };
   
   struct PostProcessLayer {
     List<String> effects;
     unsigned passes;
+    PostProcessGroup* group;
   };
 
   void renderReload();
@@ -104,6 +113,7 @@ private:
   WorldRenderData m_renderData;
   MainInterfacePtr m_mainInterface;
   
+  StringMap<PostProcessGroup> m_postProcessGroups;
   List<PostProcessLayer> m_postProcessLayers;
 
   // Valid if main app state == SinglePlayer

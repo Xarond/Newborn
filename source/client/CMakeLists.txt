@@ -12,10 +12,12 @@ INCLUDE_DIRECTORIES (
 
 SET (newborn_client_HEADERS
       NewbornClientApplication.hpp
+      NewbornRenderingLuaBindings.hpp
     )
 
 SET (newborn_client_SOURCES
       NewbornClientApplication.cpp
+      NewbornRenderingLuaBindings.cpp
     )
 
 IF (NEWBORN_SYSTEM_WINDOWS)

@@ -4,6 +4,7 @@
 #include "NewbornAmbient.hpp"
 #include "NewbornRegisteredPaneManager.hpp"
 #include "NewbornInterfaceCursor.hpp"
+#include "NewbornUniverseClient.hpp"
 
 namespace Newborn {
 
@@ -39,7 +40,7 @@ enum class TitleState {
 
 class TitleScreen {
 public:
-  TitleScreen(PlayerStoragePtr playerStorage, MixerPtr mixer);
+  TitleScreen(PlayerStoragePtr playerStorage, MixerPtr mixer, UniverseClientPtr client);
 
   void renderInit(RendererPtr renderer);
 
@@ -80,7 +81,7 @@ private:
   void initCharSelectionMenu();
   void initCharCreationMenu();
   void initMultiPlayerMenu();
-  void initOptionsMenu();
+  void initOptionsMenu(UniverseClientPtr client);
   void initModsMenu();
 
   void renderCursor();

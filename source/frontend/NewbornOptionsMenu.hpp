@@ -3,6 +3,7 @@
 #include "NewbornPane.hpp"
 #include "NewbornConfiguration.hpp"
 #include "NewbornMainInterfaceTypes.hpp"
+#include "NewbornUniverseClient.hpp"
 
 namespace Newborn {
 
@@ -17,7 +18,7 @@ NEWBORN_CLASS(OptionsMenu);
 
 class OptionsMenu : public Pane {
 public:
-  OptionsMenu(PaneManager* manager);
+  OptionsMenu(PaneManager* manager, UniverseClientPtr client);
 
   virtual void show() override;
 
