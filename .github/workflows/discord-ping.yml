@@ -2,100 +2,73 @@ name: discord-embed-ping
 
 on:
   push:
-    branches: [ main ]        # ← zmień, jeśli potrzebujesz innej gałęzi
+    branches: [ main ]        # ← zmień, jeśli używasz innej gałęzi
 
 jobs:
   notify:
     runs-on: ubuntu-latest
-
     steps:
-      # 1️⃣ pobranie kodu – dwa commity wystarczą do diff-a
-      - uses: actions/checkout@v4
-        with:
-          fetch-depth: 2
+    # 1️⃣ checkout repo – dwie ostatnie rewizje wystarczą do diff-a
+    - uses: actions/checkout@v4
+      with:
+        fetch-depth: 2
 
-      # 2️⃣ lista zmienionych plików + licznik
-      - id: files
-        run: |
-          before='${{ github.event.before }}'
-          after='${{ github.event.after }}'
+    # 2️⃣ mały skrypt, który przygotuje zmienne środowiskowe
+    - id: build-vars
+      shell: bash
+      run: |
+        set -euo pipefail
+        before='${{ github.event.before }}'
+        after='${{ github.event.after }}'
 
-          if [[ "$before" == 0000000000000000000000000000000000000000 ]]; then
-            all=$(git diff --name-only "$after")
-          else
-            all=$(git diff --name-only "$before" "$after")
-          fi
+        # lista zmodyfikowanych plików (do 10) i licznik
+        if [[ "$before" == 0000000000000000000000000000000000000000 ]]; then
+          files=$(git diff --name-only "$after")
+        else
+          files=$(git diff --name-only "$before" "$after")
+        fi
+        count=$(printf '%s\n' "$files" | wc -l)
+        list=$(printf '%s\n' "$files" | head -n10)
 
-          echo "count=$(echo "$all" | wc -l)" >>"$GITHUB_OUTPUT"
-          {
-            echo 'list<<EOF'
-            echo "$all" | head -n 15
-            echo EOF
-          } >>"$GITHUB_OUTPUT"
+        # blok code z plikami + ewentualny licznik
+        if [[ -z "$list" ]]; then
+          block="(brak zmian)"
+        else
+          block='```'"$list"'```'
+          (( count > 10 )) && block="${block}\n…i $((count-10)) więcej"
+        fi
 
-      # 3️⃣ wysyłka ładnego embeda
-      - name: Send Discord embed
-        env:
-          HOOK:  ${{ secrets.DISCORD_WEBHOOK }}
+        first_line=$(printf '%s' "${{ github.event.head_commit.message }}" | head -n1 | head -c256)
 
-          # ∙ kontekst Gita
-          REPO:   ${{ github.repository }}
-          BRANCH: ${{ github.ref_name }}
-          ACTOR:  ${{ github.actor }}
-          SHA:    ${{ github.sha }}
-          URL:    ${{ github.event.head_commit.url }}
-          MSG:    ${{ github.event.head_commit.message }}
+        echo "BLOCK<<EOF" >> "$GITHUB_OUTPUT"
+        echo "$block"    >> "$GITHUB_OUTPUT"
+        echo "EOF"       >> "$GITHUB_OUTPUT"
+        echo "COUNT=$count"              >> "$GITHUB_OUTPUT"
+        echo "TITLE=$first_line"         >> "$GITHUB_OUTPUT"
 
-          # ∙ dane z kroku files
-          FILES:  ${{ steps.files.outputs.list }}
-          CNT:    ${{ steps.files.outputs.count }}
-        run: |
-          set -euo pipefail
-          [[ -z "$HOOK" ]] && { echo "::error::Sekret DISCORD_WEBHOOK nie ustawiony"; exit 1; }
-
-          first_line=$(printf '%s' "$MSG" | head -n1 | head -c256)
-
-          if [[ -z "$FILES" ]]; then
-            block="(brak zmian)"
-          else
-            block=$(printf '%s\n' "$FILES" | head -n10)
-            (( CNT > 10 )) && block+="
-…i $((CNT-10)) więcej"
-          fi
-          block="\`\`\`
-${block}
-\`\`\`"
-
-          # konstruujemy JSON małym Pythoniem (żadnych heredoców w YAML!)
-          python3 - <<PY >payload.json
-import json, os, datetime, html
-print(json.dumps({
-  "content": "@everyone",
-  "embeds": [{
-    "title": f"Push → {os.environ['REPO']} [{os.environ['BRANCH']}]",
-    "url":   os.environ["URL"],
-    "color": 5814783,
-    "author": {
-      "name": os.environ["ACTOR"],
-      "url":  f"https://github.com/{os.environ['ACTOR']}",
-      "icon_url": f"https://github.com/{os.environ['ACTOR']}.png?size=40"
-    },
-    "fields": [
-      {"name": "Commit",
-       "value": html.escape(os.environ["first_line"]),
-       "inline": False},
-      {"name": f"Pliki ({os.environ['CNT']})",
-       "value": os.environ["block"],
-       "inline": False}
-    ],
-    "footer": {"text": f"SHA {os.environ['SHA'][:7]}"},
-    "timestamp": datetime.datetime.utcnow().isoformat(timespec='seconds')+"Z"
-  }]
-}))
-PY
-
-          code=$(curl -sSL -o /dev/null -w '%{http_code}' \
-                 -H "Content-Type: application/json" \
-                 -d @payload.json "$HOOK")
-          echo "Discord HTTP $code"
-          [[ "$code" != 204 ]] && exit 1
+    # 3️⃣ wysyłka gotowego embeda przez marketplace-ową akcję
+    - name: Post to Discord
+      uses: tsickert/discord-webhook@v5
+      with:
+        webhook-url: ${{ secrets.DISCORD_WEBHOOK }}
+        username: GitHub Actions
+        avatar-url: https://github.githubassets.com/images/modules/logos_page/GitHub-Mark.png
+        content: "@everyone"
+        embeds: |
+          [
+            {
+              "title": "Push → ${{ github.repository }} [${{ github.ref_name }}]",
+              "url": "${{ github.event.head_commit.url }}",
+              "color": 5814783,
+              "author": {
+                "name": "${{ github.actor }}",
+                "url": "https://github.com/${{ github.actor }}",
+                "icon_url": "https://github.com/${{ github.actor }}.png?size=40"
+              },
+              "fields": [
+                { "name": "Commit", "value": "${{ steps.build-vars.outputs.TITLE }}", "inline": false },
+                { "name": "Pliki (${{ steps.build-vars.outputs.COUNT }})", "value": "${{ steps.build-vars.outputs.BLOCK }}", "inline": false }
+              ],
+              "footer": { "text": "SHA ${{ github.sha }}".substr(0,7) }
+            }
+          ]
