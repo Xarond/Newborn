@@ -55,22 +55,31 @@ jobs:
         FILE_LIST:   ${{ steps.diff.outputs.list }}
         FILE_COUNT:  ${{ steps.diff.outputs.count }}
       run: |
-        # --- 0. Walidacja sekretu -------------------------------------------
+        set -e
+
+        # 0️⃣ Walidacja sekretu
         if [ -z "$WEBHOOK_URL" ]; then
-          echo "::error::Sekret DISCORD_WEBHOOK jest pusty – sprawdź ustawienia repo!"
+          echo "::error::Sekret DISCORD_WEBHOOK jest pusty – ustaw go w Settings → Secrets"
           exit 1
         fi
 
-        # --- 1. Przytnij commit-message (Discord limit 4096, ale zostawiamy zapas)
+        # 1️⃣ Przytnij commit-message do 1900 znaków
         SHORT_MSG=$(echo "$COMMIT_MSG" | head -c 1900)
 
-        # --- 2. Buduj JSON webhooka ----------------------------------------
+        # 2️⃣ Wartość pola „Zmodyfikowane pliki”
+        if [ -z "$FILE_LIST" ]; then
+          FILES_VALUE="— brak zmian —"
+        else
+          FILES_VALUE="$FILE_LIST"
+        fi
+
+        # 3️⃣ Zbuduj JSON webhooka (bez żadnych ternary w jq)
         JSON=$(jq -n \
           --arg content "@everyone" \
           --arg title   "Push ➜ $REPO [$BRANCH]" \
           --arg desc    "**$ACTOR** wypchnął commit [`${SHA:0:7}`]($COMMIT_URL)" \
           --arg msg     "$SHORT_MSG" \
-          --arg files   "$FILE_LIST" \
+          --arg files   "$FILES_VALUE" \
           --arg count   "$FILE_COUNT" \
           --argjson color 5814783 \
           '{
@@ -81,24 +90,23 @@ jobs:
                color: $color,
                fields: [{
                  name: ("Zmodyfikowane pliki (" + $count + ")"),
-                 value: ($files != "" ? $files : "— brak zmian —"),
+                 value: $files,
                  inline: false
                }]
              }]
            }')
 
-        echo "== JSON wysyłany do Discorda =="
+        echo "== JSON do Discorda =="
         echo "$JSON"
 
-        # --- 3. Wyślij i zapisz kod HTTP -----------------------------------
-        HTTP_CODE=$(curl -sSL -o /dev/null -w '%{http_code}' \
-                     -H "Content-Type: application/json" \
-                     -d "$JSON" "$WEBHOOK_URL")
+        # 4️⃣ Wyślij POST i sprawdź kod HTTP
+        HTTP=$(curl -sSL -o /dev/null -w '%{http_code}' \
+                 -H "Content-Type: application/json" \
+                 -d "$JSON" "$WEBHOOK_URL")
 
-        echo "Discord zwrócił HTTP $HTTP_CODE"
-
-        # --- 4. Jeśli nie 204 = błąd ---------------------------------------
-        if [ "$HTTP_CODE" -ne 204 ]; then
-          echo "::error::Discord zwrócił nieoczekiwany kod $HTTP_CODE"
+        echo "Discord zwrócił HTTP $HTTP"
+        if [ "$HTTP" -ne 204 ]; then
+          echo "::error::Discord zwrócił nieoczekiwany kod $HTTP"
           exit 1
         fi
+
