@@ -8,20 +8,25 @@ on:
 jobs:
   notify:
     runs-on: ubuntu-latest
-
     steps:
-      # 1️⃣ pobierz kod, żeby git diff działał
+      # 1️⃣ POBIERANIE KODU – z fetch-depth 2
       - uses: actions/checkout@v4
+        with:
+          fetch-depth: 2
 
-      # 2️⃣ policz i zbuduj listę zmienionych plików
+      # 2️⃣ LISTA ZMIAN (jak wcześniej, ale już zadziała)
       - name: Collect changed files
         id: diff
         run: |
-          ALL=$(git diff --name-only ${{ github.event.before }} ${{ github.event.after }})
-          LIST=$(echo "$ALL" | head -n 15 | paste -sd '\n' -)         # 15 pierwszych
+          ALL=$(git diff --name-only ${{ github.event.before }} ${{ github.event.after }} || true)
+          LIST=$(echo "$ALL" | head -n 15 | paste -sd '\n' -)
           COUNT=$(echo "$ALL" | wc -l)
-          echo "list=$LIST"   >> $GITHUB_OUTPUT
-          echo "count=$COUNT" >> $GITHUB_OUTPUT
+          {
+            echo 'list<<EOF'
+            echo "$LIST"
+            echo 'EOF'
+            echo "count=$COUNT"
+          } >> "$GITHUB_OUTPUT"
 
       # 3️⃣ wyślij embed do Discorda
       - name: Send Discord embed
