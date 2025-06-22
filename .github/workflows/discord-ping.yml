@@ -57,54 +57,67 @@ jobs:
       run: |
         set -e
 
+        # --- 0. Walidacja sekretu ------------------------------------------
         if [ -z "$WEBHOOK_URL" ]; then
-          echo "::error::Brak sekretu DISCORD_WEBHOOK"
+          echo "::error::Sekret DISCORD_WEBHOOK jest pusty"
           exit 1
         fi
 
-        # 1️⃣ Pierwsza linia commit-message do opisu (max 256 znaków)
+        # --- 1. Przygotuj pola w bashu -------------------------------------
         COMMIT_TITLE=$(echo "$COMMIT_MSG" | head -n1 | head -c256)
 
-        # 2️⃣ Przygotuj listę plików do code-blocka (limit 10 linijek)
         if [ -z "$FILE_LIST" ]; then
           FILES_BLOCK="(brak zmian)"
         else
           FILES_BLOCK=$(echo "$FILE_LIST" | head -n10)
-          [ "$FILE_COUNT" -gt 10 ] && FILES_BLOCK="$FILES_BLOCK\n…i $(($FILE_COUNT-10)) więcej"
+          if [ "$FILE_COUNT" -gt 10 ]; then
+            FILES_BLOCK="$FILES_BLOCK\n…i $(($FILE_COUNT-10)) więcej"
+          fi
         fi
 
-        # 3️⃣ JSON embeda
+        FILES_NAME="Pliki ($FILE_COUNT)"
+        FILES_BLOCK="```$FILES_BLOCK```"
+        AVATAR_URL="https://github.com/$ACTOR.png?size=40"
+        SHORT_SHA=${SHA:0:7}
+
+        # --- 2. Zbuduj JSON w jq (bez konkatenacji +) -----------------------
         JSON=$(jq -n \
           --arg content "@everyone" \
-          --arg repo   "$REPO" \
-          --arg branch "$BRANCH" \
-          --arg url    "$COMMIT_URL" \
-          --arg actor  "$ACTOR" \
-          --arg avatar "https://github.com/$ACTOR.png?size=40" \
-          --arg commit "$COMMIT_TITLE" \
-          --arg files  "$FILES_BLOCK" \
-          --arg sha    "${SHA:0:7}" \
+          --arg title   "Push → $REPO [$BRANCH]" \
+          --arg url     "$COMMIT_URL" \
+          --arg actor   "$ACTOR" \
+          --arg avatar  "$AVATAR_URL" \
+          --arg commit  "$COMMIT_TITLE" \
+          --arg filesNm "$FILES_NAME" \
+          --arg filesVl "$FILES_BLOCK" \
+          --arg sha     "$SHORT_SHA" \
           --argjson color 5814783 \
           '{
              content: $content,
              embeds: [{
-               title: ("Push → " + $repo + " [" + $branch + "]"),
+               title: $title,
                url:   $url,
                color: $color,
                author: { name: $actor, url: ("https://github.com/" + $actor), icon_url: $avatar },
                fields: [
-                 { name: "Commit", value: $commit, inline: false },
-                 { name: "Pliki (" + ($files|split("\n")|length|tostring) + ")", value: ("```" + $files + "```"), inline: false }
+                 { name: "Commit", value: $commit,   inline: false },
+                 { name: $filesNm,   value: $filesVl, inline: false }
                ],
                footer: { text: ("SHA " + $sha) },
                timestamp: (now|toiso8601)
              }]
            }')
 
-        # 4️⃣ Wyślij i waliduj
+        echo "== JSON wysyłany do Discorda =="
+        echo "$JSON"
+
+        # --- 3. Wyślij i sprawdź kod HTTP ----------------------------------
         CODE=$(curl -sSL -o /dev/null -w '%{http_code}' \
-               -H "Content-Type: application/json" -d "$JSON" "$WEBHOOK_URL")
+               -H "Content-Type: application/json" \
+               -d "$JSON" "$WEBHOOK_URL")
+
         echo "Discord HTTP $CODE"
         [ "$CODE" -ne 204 ] && exit 1
+
 
 
