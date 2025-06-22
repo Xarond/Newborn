@@ -1,0 +1,33 @@
+name: Discord ping
+
+on:
+  push:
+    branches: [ main ]          # zmień jeśli używasz innej gałęzi
+
+jobs:
+  notify:
+    runs-on: ubuntu-latest
+
+    steps:
+      # 1. Pobierz kod, żeby móc wykonać git diff
+      - uses: actions/checkout@v4
+
+      # 2. Zrób listę zmodyfikowanych plików (do 15 pierwszych)
+      - name: Build list of changed files
+        id: files
+        run: |
+          FILES=$(git diff --name-only ${{ github.event.before }} ${{ github.event.after }} | head -n 15 | paste -sd ', ' -)
+          echo "files=${FILES:-(brak zmian w plikach)}" >> $GITHUB_OUTPUT
+
+      # 3. Wyślij wiadomość do Discorda
+      - name: Send Discord message
+        env:
+          HOOK: ${{ secrets.DISCORD_WEBHOOK }}
+          ACTOR: ${{ github.actor }}
+          REPO:  ${{ github.repository }}
+          SHA:   ${{ github.sha }}
+          FILES: ${{ steps.files.outputs.files }}
+        run: |
+          jq -n --arg content "@everyone **$ACTOR** wypchnął commit \`$SHA\` do **$REPO**.\nZmodyfikowane pliki: $FILES" \
+               '{content:$content}' \
+            | curl -H "Content-Type: application/json" -d @- "$HOOK"
