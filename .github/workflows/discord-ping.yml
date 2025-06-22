@@ -1,74 +1,63 @@
 name: discord-embed-ping
-
 on:
   push:
-    branches: [ main ]        # ← zmień, jeśli używasz innej gałęzi
+    branches: [ main ]          # ← zmień, jeżeli trzeba
 
 jobs:
   notify:
     runs-on: ubuntu-latest
     steps:
-    # 1️⃣ checkout repo – dwie ostatnie rewizje wystarczą do diff-a
     - uses: actions/checkout@v4
-      with:
-        fetch-depth: 2
+      with: { fetch-depth: 2 }
 
-    # 2️⃣ mały skrypt, który przygotuje zmienne środowiskowe
-    - id: build-vars
+    # 1️⃣  Budujemy opis + blok plików
+    - id: vars
       shell: bash
       run: |
         set -euo pipefail
         before='${{ github.event.before }}'
         after='${{ github.event.after }}'
 
-        # lista zmodyfikowanych plików (do 10) i licznik
+        # lista zmienionych plików
         if [[ "$before" == 0000000000000000000000000000000000000000 ]]; then
           files=$(git diff --name-only "$after")
         else
           files=$(git diff --name-only "$before" "$after")
         fi
         count=$(printf '%s\n' "$files" | wc -l)
-        list=$(printf '%s\n' "$files" | head -n10)
+        short=$(printf '%s\n' "$files" | head -n10)
 
-        # blok code z plikami + ewentualny licznik
-        if [[ -z "$list" ]]; then
-          block="(brak zmian)"
-        else
-          block='```'"$list"'```'
-          (( count > 10 )) && block="${block}\n…i $((count-10)) więcej"
+        # blok code + ewentualny „…i X więcej”
+        block="(brak zmian)"
+        if [[ -n "$short" ]]; then
+          block='```'"$short"'```'
+          (( count > 10 )) && block+="\n…i $((count-10)) więcej"
         fi
 
-        first_line=$(printf '%s' "${{ github.event.head_commit.message }}" | head -n1 | head -c256)
+        first=$(printf '%s' "${{ github.event.head_commit.message }}" \
+                | head -n1 | head -c256)
 
-        echo "BLOCK<<EOF" >> "$GITHUB_OUTPUT"
-        echo "$block"    >> "$GITHUB_OUTPUT"
-        echo "EOF"       >> "$GITHUB_OUTPUT"
-        echo "COUNT=$count"              >> "$GITHUB_OUTPUT"
-        echo "TITLE=$first_line"         >> "$GITHUB_OUTPUT"
+        echo "TITLE=$first"         >> "$GITHUB_OUTPUT"
+        echo "FILES=$block"         >> "$GITHUB_OUTPUT"
+        echo "COUNT=$count"         >> "$GITHUB_OUTPUT"
 
-    # 3️⃣ wysyłka gotowego embeda przez marketplace-ową akcję
+    # 2️⃣  Wysyłka embedem (v7 to najnowsze stabilne wydanie)
     - name: Post to Discord
       uses: tsickert/discord-webhook@v7.0.0
       with:
-        webhook-url: ${{ secrets.DISCORD_WEBHOOK }}
-        username: GitHub Actions
-        avatar-url: https://github.githubassets.com/images/modules/logos_page/GitHub-Mark.png
-        content: "@everyone"
-        embeds: |
-          [
-            {
-              "title": "Push → ${{ github.repository }} [${{ github.ref_name }}]",
-              "url": "${{ github.event.head_commit.url }}",
-              "color": 5814783,
-              "author": {
-                "name": "${{ github.actor }}",
-                "url": "https://github.com/${{ github.actor }}",
-                "icon_url": "https://github.com/${{ github.actor }}.png?size=40"
-              },
-              "fields": [
-                { "name": "Commit", "value": "${{ steps.build-vars.outputs.TITLE }}", "inline": false },
-                { "name": "Pliki (${{ steps.build-vars.outputs.COUNT }})", "value": "${{ steps.build-vars.outputs.BLOCK }}", "inline": false }
-              ],
-              "footer": { "text": "SHA ${{ github.sha }}".substr(0,7) }
-            }
-          ]
+        webhook-url:   ${{ secrets.DISCORD_WEBHOOK }}
+        content:       "@everyone"                       # ping
+        username:      "GitHub Actions"
+        avatar-url:    "https://github.githubassets.com/images/modules/logos_page/GitHub-Mark.png"
+
+        # --- embed ---
+        embed-title:        "Push → ${{ github.repository }} [${{ github.ref_name }}]"
+        embed-url:          "${{ github.event.head_commit.url }}"
+        embed-color:        5814783                      # blurple
+        embed-author-name:  "${{ github.actor }}"
+        embed-author-url:   "https://github.com/${{ github.actor }}"
+        embed-author-icon-url: "https://github.com/${{ github.actor }}.png?size=40"
+        embed-description: |
+          **${{ steps.vars.outputs.TITLE }}**
+
+          ${{ steps.vars.outputs.FILES }}
