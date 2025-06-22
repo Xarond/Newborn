@@ -43,7 +43,7 @@ jobs:
         } >> "$GITHUB_OUTPUT"
 
     # 4️⃣  Wyślij embed do Discorda
-    - name: Send Discord embed
+    - name: Send neat Discord embed
       env:
         WEBHOOK_URL: ${{ secrets.DISCORD_WEBHOOK }}
         REPO:        ${{ github.repository }}
@@ -57,56 +57,54 @@ jobs:
       run: |
         set -e
 
-        # 0️⃣ Walidacja sekretu
         if [ -z "$WEBHOOK_URL" ]; then
-          echo "::error::Sekret DISCORD_WEBHOOK jest pusty – ustaw go w Settings → Secrets"
+          echo "::error::Brak sekretu DISCORD_WEBHOOK"
           exit 1
         fi
 
-        # 1️⃣ Przytnij commit-message do 1900 znaków
-        SHORT_MSG=$(echo "$COMMIT_MSG" | head -c 1900)
+        # 1️⃣ Pierwsza linia commit-message do opisu (max 256 znaków)
+        COMMIT_TITLE=$(echo "$COMMIT_MSG" | head -n1 | head -c256)
 
-        # 2️⃣ Wartość pola „Zmodyfikowane pliki”
+        # 2️⃣ Przygotuj listę plików do code-blocka (limit 10 linijek)
         if [ -z "$FILE_LIST" ]; then
-          FILES_VALUE="— brak zmian —"
+          FILES_BLOCK="(brak zmian)"
         else
-          FILES_VALUE="$FILE_LIST"
+          FILES_BLOCK=$(echo "$FILE_LIST" | head -n10)
+          [ "$FILE_COUNT" -gt 10 ] && FILES_BLOCK="$FILES_BLOCK\n…i $(($FILE_COUNT-10)) więcej"
         fi
 
-        # 3️⃣ Zbuduj JSON webhooka (bez żadnych ternary w jq)
+        # 3️⃣ JSON embeda
         JSON=$(jq -n \
           --arg content "@everyone" \
-          --arg title   "Push ➜ $REPO [$BRANCH]" \
-          --arg desc    "**$ACTOR** wypchnął commit [`${SHA:0:7}`]($COMMIT_URL)" \
-          --arg msg     "$SHORT_MSG" \
-          --arg files   "$FILES_VALUE" \
-          --arg count   "$FILE_COUNT" \
+          --arg repo   "$REPO" \
+          --arg branch "$BRANCH" \
+          --arg url    "$COMMIT_URL" \
+          --arg actor  "$ACTOR" \
+          --arg avatar "https://github.com/$ACTOR.png?size=40" \
+          --arg commit "$COMMIT_TITLE" \
+          --arg files  "$FILES_BLOCK" \
+          --arg sha    "${SHA:0:7}" \
           --argjson color 5814783 \
           '{
              content: $content,
              embeds: [{
-               title: $title,
-               description: ($desc + "\n\n" + $msg),
+               title: ("Push → " + $repo + " [" + $branch + "]"),
+               url:   $url,
                color: $color,
-               fields: [{
-                 name: ("Zmodyfikowane pliki (" + $count + ")"),
-                 value: $files,
-                 inline: false
-               }]
+               author: { name: $actor, url: ("https://github.com/" + $actor), icon_url: $avatar },
+               fields: [
+                 { name: "Commit", value: $commit, inline: false },
+                 { name: "Pliki (" + ($files|split("\n")|length|tostring) + ")", value: ("```" + $files + "```"), inline: false }
+               ],
+               footer: { text: ("SHA " + $sha) },
+               timestamp: (now|toiso8601)
              }]
            }')
 
-        echo "== JSON do Discorda =="
-        echo "$JSON"
+        # 4️⃣ Wyślij i waliduj
+        CODE=$(curl -sSL -o /dev/null -w '%{http_code}' \
+               -H "Content-Type: application/json" -d "$JSON" "$WEBHOOK_URL")
+        echo "Discord HTTP $CODE"
+        [ "$CODE" -ne 204 ] && exit 1
 
-        # 4️⃣ Wyślij POST i sprawdź kod HTTP
-        HTTP=$(curl -sSL -o /dev/null -w '%{http_code}' \
-                 -H "Content-Type: application/json" \
-                 -d "$JSON" "$WEBHOOK_URL")
-
-        echo "Discord zwrócił HTTP $HTTP"
-        if [ "$HTTP" -ne 204 ]; then
-          echo "::error::Discord zwrócił nieoczekiwany kod $HTTP"
-          exit 1
-        fi
 
