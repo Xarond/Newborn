@@ -1,118 +1,101 @@
-name: Discord embed ping
+name: discord-embed-ping
 
 on:
   push:
-    branches: [ main ]      # ← zmień, jeśli używasz innej gałęzi
+    branches: [ main ]        # ← zmień, jeśli potrzebujesz innej gałęzi
 
 jobs:
   notify:
     runs-on: ubuntu-latest
 
     steps:
-    # 1️⃣ pobierz kod (wystarczą 2 ostatnie commity, żeby działał git diff)
-    - uses: actions/checkout@v4
-      with:
-        fetch-depth: 2
+      # 1️⃣ pobranie kodu – dwa commity wystarczą do diff-a
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 2
 
-    # 2️⃣ zbierz listę zmienionych plików
-    - name: Collect changed files
-      id: diff
-      run: |
-        BEFORE="${{ github.event.before }}"
-        AFTER="${{ github.event.after }}"
+      # 2️⃣ lista zmienionych plików + licznik
+      - id: files
+        run: |
+          before='${{ github.event.before }}'
+          after='${{ github.event.after }}'
 
-        # pierwszy push w repo: BEFORE = zera
-        if [[ "$BEFORE" == "0000000000000000000000000000000000000000" ]]; then
-          ALL=$(git diff --name-only "$AFTER")
-        else
-          ALL=$(git diff --name-only "$BEFORE" "$AFTER")
-        fi
+          if [[ "$before" == 0000000000000000000000000000000000000000 ]]; then
+            all=$(git diff --name-only "$after")
+          else
+            all=$(git diff --name-only "$before" "$after")
+          fi
 
-        LIST=$(echo "$ALL" | head -n 15)
-        COUNT=$(echo "$ALL" | wc -l)
+          echo "count=$(echo "$all" | wc -l)" >>"$GITHUB_OUTPUT"
+          {
+            echo 'list<<EOF'
+            echo "$all" | head -n 15
+            echo EOF
+          } >>"$GITHUB_OUTPUT"
 
-        {
-          echo 'list<<EOF'
-          echo "$LIST"
-          echo 'EOF'
-          echo "count=$COUNT"
-        } >> "$GITHUB_OUTPUT"
+      # 3️⃣ wysyłka ładnego embeda
+      - name: Send Discord embed
+        env:
+          HOOK:  ${{ secrets.DISCORD_WEBHOOK }}
 
-    # 3️⃣ wyślij embed do Discorda
-    - name: Send Discord embed
-      env:
-        WEBHOOK_URL:  ${{ secrets.DISCORD_WEBHOOK }}
+          # ∙ kontekst Gita
+          REPO:   ${{ github.repository }}
+          BRANCH: ${{ github.ref_name }}
+          ACTOR:  ${{ github.actor }}
+          SHA:    ${{ github.sha }}
+          URL:    ${{ github.event.head_commit.url }}
+          MSG:    ${{ github.event.head_commit.message }}
 
-        # kontekst GitHuba
-        REPO:         ${{ github.repository }}
-        BRANCH:       ${{ github.ref_name }}
-        ACTOR:        ${{ github.actor }}
-        SHA:          ${{ github.sha }}
-        COMMIT_URL:   ${{ github.event.head_commit.url }}
-        COMMIT_MSG:   ${{ github.event.head_commit.message }}
+          # ∙ dane z kroku files
+          FILES:  ${{ steps.files.outputs.list }}
+          CNT:    ${{ steps.files.outputs.count }}
+        run: |
+          set -euo pipefail
+          [[ -z "$HOOK" ]] && { echo "::error::Sekret DISCORD_WEBHOOK nie ustawiony"; exit 1; }
 
-        # dane z kroku diff
-        FILE_LIST:    ${{ steps.diff.outputs.list }}
-        FILE_COUNT:   ${{ steps.diff.outputs.count }}
-      run: |
-        set -euo pipefail
+          first_line=$(printf '%s' "$MSG" | head -n1 | head -c256)
 
-        # --- 0. Walidacja sekretu ------------------------------------------
-        [[ -z "$WEBHOOK_URL" ]] && {
-          echo "::error::Sekret DISCORD_WEBHOOK nie jest ustawiony"; exit 1; }
+          if [[ -z "$FILES" ]]; then
+            block="(brak zmian)"
+          else
+            block=$(printf '%s\n' "$FILES" | head -n10)
+            (( CNT > 10 )) && block+="
+…i $((CNT-10)) więcej"
+          fi
+          block="\`\`\`
+${block}
+\`\`\`"
 
-        # --- 1. Tytuł commita (pierwsza linia, 256 znaków) -----------------
-        COMMIT_TITLE=$(echo "$COMMIT_MSG" | head -n1 | head -c256)
-
-        # --- 2. Blok plików -------------------------------------------------
-        if [[ -z "$FILE_LIST" ]]; then
-          FILES_BLOCK="(brak zmian)"
-        else
-          FILES_BLOCK=$(echo "$FILE_LIST" | head -n10)
-          (( FILE_COUNT > 10 )) && \
-            FILES_BLOCK+="\n…i $((FILE_COUNT-10)) więcej"
-        fi
-        FILES_BLOCK="\`\`\`\n${FILES_BLOCK}\n\`\`\`"
-
-        # --- 3. Funkcja JSON-escape (korzystamy z python3) ------------------
-        esc() { python3 -c 'import json,sys; print(json.dumps(sys.stdin.read())[1:-1])'; }
-        ESC_COMMIT=$(printf '%s' "$COMMIT_TITLE" | esc)
-        ESC_FILES=$(printf  '%s' "$FILES_BLOCK"  | esc)
-
-        AVATAR_URL="https://github.com/$ACTOR.png?size=40"
-        SHORT_SHA=${SHA:0:7}
-        TIMESTAMP=$(date -u +'%Y-%m-%dT%H:%M:%SZ')
-
-        # --- 4. Payload JSON (heredoc) --------------------------------------
-        read -r -d '' PAYLOAD <<EOF
-{
+          # konstruujemy JSON małym Pythoniem (żadnych heredoców w YAML!)
+          python3 - <<PY >payload.json
+import json, os, datetime, html
+print(json.dumps({
   "content": "@everyone",
   "embeds": [{
-    "title": "Push → $REPO [$BRANCH]",
-    "url": "$COMMIT_URL",
+    "title": f"Push → {os.environ['REPO']} [{os.environ['BRANCH']}]",
+    "url":   os.environ["URL"],
     "color": 5814783,
     "author": {
-      "name": "$ACTOR",
-      "url": "https://github.com/$ACTOR",
-      "icon_url": "$AVATAR_URL"
+      "name": os.environ["ACTOR"],
+      "url":  f"https://github.com/{os.environ['ACTOR']}",
+      "icon_url": f"https://github.com/{os.environ['ACTOR']}.png?size=40"
     },
     "fields": [
-      { "name": "Commit",          "value": "$ESC_COMMIT", "inline": false },
-      { "name": "Pliki ($FILE_COUNT)", "value": "$ESC_FILES", "inline": false }
+      {"name": "Commit",
+       "value": html.escape(os.environ["first_line"]),
+       "inline": False},
+      {"name": f"Pliki ({os.environ['CNT']})",
+       "value": os.environ["block"],
+       "inline": False}
     ],
-    "footer": { "text": "SHA $SHORT_SHA" },
-    "timestamp": "$TIMESTAMP"
+    "footer": {"text": f"SHA {os.environ['SHA'][:7]}"},
+    "timestamp": datetime.datetime.utcnow().isoformat(timespec='seconds')+"Z"
   }]
-}
-EOF
+}))
+PY
 
-        echo "== Payload wysyłany do Discorda =="
-        echo "$PAYLOAD"
-
-        # --- 5. POST do Discorda + walidacja kodu HTTP ----------------------
-        CODE=$(curl -sSL -o /dev/null -w '%{http_code}' \
+          code=$(curl -sSL -o /dev/null -w '%{http_code}' \
                  -H "Content-Type: application/json" \
-                 -d "$PAYLOAD" "$WEBHOOK_URL")
-
-        echo "Discord HTTP $CODE"
-        [[ "$CODE" -ne 204 ]] && exit 1   # 204 = sukces
+                 -d @payload.json "$HOOK")
+          echo "Discord HTTP $code"
+          [[ "$code" != 204 ]] && exit 1
