@@ -52,7 +52,8 @@ ClientCommandProcessor::ClientCommandProcessor(UniverseClientPtr universeClient,
     {"enabletech", bind(&ClientCommandProcessor::enableTech, this, _1)},
     {"upgradeship", bind(&ClientCommandProcessor::upgradeShip, this, _1)},
     {"swap", bind(&ClientCommandProcessor::swap, this, _1)},
-    {"respawnInWorld", bind(&ClientCommandProcessor::respawnInWorld, this, _1)}
+    {"respawnInWorld", bind(&ClientCommandProcessor::respawnInWorld, this, _1)},
+    {"render", bind(&ClientCommandProcessor::render, this, _1)}
   };
 }
 
@@ -438,6 +439,13 @@ String ClientCommandProcessor::respawnInWorld(String const& argumentsString) {
   bool respawnInWorld = Json::parse(arguments.at(0)).toBool();
   worldClient->setRespawnInWorld(respawnInWorld);
   return strf("Respawn in this world set to {} (This is client-side!)", respawnInWorld ? "true" : "false");
+}
+
+// Temporary hardcoded render command for debugging purposes, future version will write to the clipboard
+String ClientCommandProcessor::render(String const& imagePath) {
+  auto image = Root::singleton().assets()->image(imagePath);
+  image->writePng(File::open("render.png", IOMode::Write));
+  return strf("Saved {}x{} image to render.png", image->width(), image->height());
 }
 
 }
