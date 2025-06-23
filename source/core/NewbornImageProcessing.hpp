@@ -10,10 +10,6 @@ NEWBORN_CLASS(Image);
 
 NEWBORN_EXCEPTION(ImageOperationException, NewbornException);
 
-Image scaleNearest(Image const& srcImage, Vec2F const& scale);
-Image scaleBilinear(Image const& srcImage, Vec2F const& scale);
-Image scaleBicubic(Image const& srcImage, Vec2F const& scale);
-
 StringList colorDirectivesFromConfig(JsonArray const& directives);
 String paletteSwapDirectivesFromConfig(Json const& swaps);
 

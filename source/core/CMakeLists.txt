@@ -41,6 +41,7 @@ SET (newborn_core_HEADERS
     NewbornIdMap.hpp
     NewbornImage.hpp
     NewbornImageProcessing.hpp
+    NewbornImageScaling.hpp
     NewbornInputEvent.hpp
     NewbornInterpolation.hpp
     NewbornRefPtr.hpp
@@ -152,6 +153,7 @@ SET (newborn_core_SOURCES
     NewbornIODevice.cpp
     NewbornImage.cpp
     NewbornImageProcessing.cpp
+    NewbornImageScaling.cpp
     NewbornInputEvent.cpp
     NewbornJson.cpp
     NewbornJsonBuilder.cpp
@@ -228,7 +230,9 @@ ADD_LIBRARY (newborn_core OBJECT ${newborn_core_SOURCES} ${newborn_core_HEADERS}
 IF(NEWBORN_PRECOMPILED_HEADERS)
   TARGET_PRECOMPILE_HEADERS (newborn_core PUBLIC NewbornPch.hpp)
 ENDIF()
-
+IF(NEWBORN_COMPILER STREQUAL "gnu")
+  SET_SOURCE_FILES_PROPERTIES(NewbornImageScaling.cpp PROPERTIES COMPILE_FLAGS "-O2")
+ENDIF()
 IF(NEWBORN_USE_JEMALLOC AND JEMALLOC_IS_PREFIXED)
   SET_SOURCE_FILES_PROPERTIES(NewbornMemory.cpp PROPERTIES
           COMPILE_DEFINITIONS NEWBORN_JEMALLOC_IS_PREFIXED
