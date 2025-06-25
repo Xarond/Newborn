@@ -1,3 +1,5 @@
+#pragma once
+
 namespace Newborn {
 
 NEWBORN_CLASS(Image);
