@@ -1,6 +1,8 @@
 #include "NewbornRenderingLuaBindings.hpp"
+#include "NewbornJsonExtra.hpp"
 #include "NewbornLuaConverters.hpp"
 #include "NewbornClientApplication.hpp"
+#include "NewbornRenderer.hpp"
 
 namespace Newborn {
 
@@ -13,7 +15,26 @@ LuaCallbacks LuaBindings::makeRenderingCallbacks(ClientApplication* app) {
   
   // not entirely necessary (root.assetJson can achieve the same purpose) but may as well
   callbacks.registerCallbackWithSignature<Json>("postProcessGroups", bind(mem_fn(&ClientApplication::postProcessGroups), app));
-
+  // typedef Variant<float, int, Vec2F, Vec3F, Vec4F, bool> RenderEffectParameter;
+  // feel free to change this if there's a better way to do this
+  // specifically checks if the effect parameter is an int since Lua prefers converting the values to floats
+  callbacks.registerCallback("setEffectParameter", [app](String const& effectName, String const& effectParameter, RenderEffectParameter const& value) {
+    auto renderer = app->renderer();
+    auto mtype = renderer->getEffectScriptableParameterType(effectName, effectParameter);
+    if (mtype) {
+      auto type = mtype.value();
+      if (type == 1 && value.is<float>()) {
+        renderer->setEffectScriptableParameter(effectName, effectParameter, (int)value.get<float>());
+      } else {
+        renderer->setEffectScriptableParameter(effectName, effectParameter, value);
+      }
+    }
+  });
+  
+  callbacks.registerCallback("getEffectParameter", [app](String const& effectName, String const& effectParameter) {
+    auto renderer = app->renderer();
+    return renderer->getEffectScriptableParameter(effectName, effectParameter);
+  });
   return callbacks;
 }
 
