@@ -111,7 +111,7 @@ private:
 
   NetElementTopGroup m_netGroup;
   uint64_t m_netVersion = 0;
-  int64_t creationTime;
+  int64_t m_creationTime;
 
   NetElementData<Maybe<pair<WarpAction, WarpMode>>> m_orbitWarpActionNetState;
   NetElementData<WorldId> m_playerWorldIdNetState;
