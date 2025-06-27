@@ -390,7 +390,7 @@ void Humanoid::setHelmetMaskDirectives(Directives helmetMaskDirectives) {
   m_helmetMaskDirectives = std::move(helmetMaskDirectives);
 }
 
-Directives const& Humanoid::headArmorDirectives() const {Add commentMore actions
+Directives const& Humanoid::headArmorDirectives() const {
   return m_headArmorDirectives;
 };
 

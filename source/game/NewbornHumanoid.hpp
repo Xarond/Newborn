@@ -163,7 +163,7 @@ public:
   Directives const& chestArmorDirectives() const;
   String const& chestArmorFrameset() const;
   String const& backSleeveFrameset() const;
-  String const& frontSleeveFrameset() const;Add commentMore actions
+  String const& frontSleeveFrameset() const;
   Directives const& legsArmorDirectives() const;
   String const& legsArmorFrameset() const;
   Directives const& backArmorDirectives() const;
