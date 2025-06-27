@@ -53,7 +53,8 @@ public:
 
   List<WorldId> activeWorlds() const;
   bool isWorldActive(WorldId const& worldId) const;
-
+  
+  List<pair<ConnectionId, int64_t>> clientIdsAndCreationTime() const;
   List<ConnectionId> clientIds() const;
   size_t numberOfClients() const;
   uint32_t maxClients() const;
