@@ -157,6 +157,17 @@ public:
   void setBackArmorFrameset(String backFrameset);
 
   void setHelmetMaskDirectives(Directives helmetMaskDirectives);
+  // Getters for all of the above
+  Directives const& headArmorDirectives() const;
+  String const& headArmorFrameset() const;
+  Directives const& chestArmorDirectives() const;
+  String const& chestArmorFrameset() const;
+  String const& backSleeveFrameset() const;
+  String const& frontSleeveFrameset() const;Add commentMore actions
+  Directives const& legsArmorDirectives() const;
+  String const& legsArmorFrameset() const;
+  Directives const& backArmorDirectives() const;
+  String const& backArmorFrameset() const;
 
   void setBodyHidden(bool hidden);
 
@@ -248,6 +259,16 @@ public:
 
   Json const& defaultMovementParameters() const;
 
+  String getHeadFromIdentity() const;
+  String getBodyFromIdentity() const;
+  String getFacialEmotesFromIdentity() const;
+  String getHairFromIdentity() const;
+  String getFacialHairFromIdentity() const;
+  String getFacialMaskFromIdentity() const;
+  String getBackArmFromIdentity() const;
+  String getFrontArmFromIdentity() const;
+  String getVaporTrailFrameset() const;
+
   // Extracts scalenearest from directives and returns the combined scale and
   // a new Directives without those scalenearest directives.
   static pair<Vec2F, Directives> extractScaleFromDirectives(Directives const& directives);
@@ -268,16 +289,6 @@ private:
 
   String frameBase(State state) const;
   String emoteFrameBase(HumanoidEmote state) const;
-
-  String getHeadFromIdentity() const;
-  String getBodyFromIdentity() const;
-  String getFacialEmotesFromIdentity() const;
-  String getHairFromIdentity() const;
-  String getFacialHairFromIdentity() const;
-  String getFacialMaskFromIdentity() const;
-  String getBackArmFromIdentity() const;
-  String getFrontArmFromIdentity() const;
-  String getVaporTrailFrameset() const;
 
   Directives getBodyDirectives() const;
   Directives getHairDirectives() const;
