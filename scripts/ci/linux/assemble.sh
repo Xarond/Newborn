@@ -10,16 +10,10 @@ touch client_distribution/mods/mods_go_here
 mkdir client_distribution/linux
 cp \
   dist/newborn \
-  dist/btree_repacker \
-  dist/asset_packer \
-  dist/asset_unpacker \
-  dist/dump_versioned_json \
-  dist/make_versioned_json \
   lib/linux/libdiscord_game_sdk.so \
   lib/linux/libsteam_api.so \
   scripts/ci/linux/sbinit.config \
   scripts/ci/linux/run-client.sh \
-  scripts/steam_appid.txt \
   client_distribution/linux/
 
 mkdir server_distribution
@@ -41,10 +35,8 @@ nm --dynamic --undefined-only --with-symbol-versions dist/newborn_server | grep 
 
 cp \
   dist/newborn_server \
-  dist/btree_repacker \
   scripts/ci/linux/run-server.sh \
   scripts/ci/linux/sbinit.config \
-  scripts/steam_appid.txt \
   server_distribution/linux/
 
 tar -cvf client.tar client_distribution

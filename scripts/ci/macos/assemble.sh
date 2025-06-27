@@ -15,13 +15,7 @@ cp dist/newborn client_distribution/osx/Newborn.app/Contents/MacOS/
 cp dist/*.dylib client_distribution/osx/Newborn.app/Contents/MacOS/
 cp \
   dist/newborn_server \
-  dist/btree_repacker \
-  dist/asset_packer \
-  dist/asset_unpacker \
-  dist/dump_versioned_json \
-  dist/make_versioned_json \
   dist/planet_mapgen \
   scripts/ci/macos/sbinit.config \
   scripts/ci/macos/run-server.sh \
-  scripts/steam_appid.txt \
   client_distribution/osx/
