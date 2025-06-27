@@ -1084,7 +1084,7 @@ void Player::update(float dt, uint64_t) {
       } else
         calculateHeadRotation = true;
     }
-    if (calculateHeadRotation) { // master or not an OpenStarbound player
+    if (calculateHeadRotation) { // master or not an Newborn player
       float headRotation = 0.f;
       if (m_humanoid->primaryHandHoldingItem() || m_humanoid->altHandHoldingItem()) {
         auto primary = m_tools->primaryHandItem();

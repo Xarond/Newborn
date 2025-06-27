@@ -1,0 +1,8 @@
+dist\btree_repacker.exe
+dist\dump_versioned_json.exe
+dist\make_versioned_json.exe
+dist\newborn.exe
+dist\newborn.pdb
+dist\*.dll
+lib\windows\discord_game_sdk.dll
+scripts\ci\windows\sbinit.config
