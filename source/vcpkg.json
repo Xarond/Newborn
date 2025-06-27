@@ -3,7 +3,7 @@
   "dependencies": [
     "glew",
     { "name": "sdl2", "default-features": false, "features": ["wayland", "x11", "alsa"], "platform": "linux" },
-    { "name": "sdl2", "platform": "windows" },
+    { "name": "sdl2", "platform": "!linux" },
     "libvorbis",
     "zlib",
     "freetype",
