@@ -4,7 +4,6 @@ mkdir client_distribution
 mkdir client_distribution/assets
 mkdir client_distribution/assets/user
 
-
 mkdir client_distribution/mods
 touch client_distribution/mods/mods_go_here
 
@@ -20,6 +19,7 @@ cp \
   lib/linux/libsteam_api.so \
   scripts/ci/linux/sbinit.config \
   scripts/ci/linux/run-client.sh \
+  scripts/steam_appid.txt \
   client_distribution/linux/
 
 mkdir server_distribution
@@ -27,7 +27,6 @@ mkdir server_distribution/assets
 
 mkdir server_distribution/mods
 touch server_distribution/mods/mods_go_here
-
 
 mkdir server_distribution/linux
 
@@ -45,6 +44,7 @@ cp \
   dist/btree_repacker \
   scripts/ci/linux/run-server.sh \
   scripts/ci/linux/sbinit.config \
+  scripts/steam_appid.txt \
   server_distribution/linux/
 
 tar -cvf client.tar client_distribution
