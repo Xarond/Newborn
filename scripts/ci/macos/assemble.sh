@@ -16,6 +16,6 @@ cp dist/*.dylib client_distribution/osx/Newborn.app/Contents/MacOS/
 cp \
   dist/newborn_server \
   dist/planet_mapgen \
-  scripts/ci/macos/sbinit.config \
+  scripts/ci/macos/nbinit.config \
   scripts/ci/macos/run-server.sh \
   client_distribution/osx/

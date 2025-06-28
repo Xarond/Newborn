@@ -13,7 +13,7 @@ namespace Newborn {
 // in command line flags.  Besides -version, the accepted command line flags
 // are:
 //
-// -bootconfig <bootconfig> - sets path to the boot configuration file, defaults to sbinit.config
+// -bootconfig <bootconfig> - sets path to the boot configuration file, defaults to nbinit.config
 // -logfile <logfile> - sets path to logfile, if any, relative to root storage directory
 // -loglevel <level> - sets logging level
 // -quiet - turns off stdout logging

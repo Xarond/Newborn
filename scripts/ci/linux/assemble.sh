@@ -12,7 +12,7 @@ cp \
   dist/newborn \
   lib/linux/libdiscord_game_sdk.so \
   lib/linux/libsteam_api.so \
-  scripts/ci/linux/sbinit.config \
+  scripts/ci/linux/nbinit.config \
   scripts/ci/linux/run-client.sh \
   client_distribution/linux/
 
@@ -36,7 +36,7 @@ nm --dynamic --undefined-only --with-symbol-versions dist/newborn_server | grep 
 cp \
   dist/newborn_server \
   scripts/ci/linux/run-server.sh \
-  scripts/ci/linux/sbinit.config \
+  scripts/ci/linux/nbinit.config \
   server_distribution/linux/
 
 tar -cvf client.tar client_distribution

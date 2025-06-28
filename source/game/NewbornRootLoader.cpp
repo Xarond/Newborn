@@ -112,7 +112,7 @@ RootLoader::RootLoader(Defaults defaults) {
   Maybe<String> userConfigFile;
 
   addParameter("bootconfig", "bootconfig", Optional,
-      strf("Boot time configuration file, defaults to sbinit.config"));
+      strf("Boot time configuration file, defaults to nbinit.config"));
   addParameter("logfile", "logfile", Optional,
       strf("Log to the given logfile relative to the root directory, defaults to {}",
         defaults.logFile ? *defaults.logFile : "no log file"));
@@ -152,7 +152,7 @@ pair<RootUPtr, RootLoader::Options> RootLoader::commandInitOrDie(int argc, char*
 
 Root::Settings RootLoader::rootSettingsForOptions(Options const& options) const {
   try {
-    String bootConfigFile = options.parameters.value("bootconfig").maybeFirst().value("sbinit.config");
+    String bootConfigFile = options.parameters.value("bootconfig").maybeFirst().value("nbinit.config");
     Json bootConfig = Json::parseJson(File::readFileString(bootConfigFile));
 
     Json assetsSettings = jsonMerge(

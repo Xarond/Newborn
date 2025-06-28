@@ -4,7 +4,7 @@ cd ..\..
 mkdir dist
 del dist\*.dll
 copy lib\windows\*.dll dist\
-copy scripts\windows\sbinit.config dist\
+copy scripts\windows\nbinit.config dist\
 
 mkdir build
 cd build

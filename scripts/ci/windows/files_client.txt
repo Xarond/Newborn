@@ -2,4 +2,4 @@ dist\newborn.exe
 dist\newborn.pdb
 dist\*.dll
 lib\windows\discord_game_sdk.dll
-scripts\ci\windows\sbinit.config
+scripts\ci\windows\nbinit.config

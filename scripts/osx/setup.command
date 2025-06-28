@@ -3,7 +3,7 @@
 cd "$(dirname $0)/../.."
 
 mkdir -p dist
-cp scripts/osx/sbinit.config dist/
+cp scripts/osx/nbinit.config dist/
 
 mkdir -p build
 cd build

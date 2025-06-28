@@ -3,7 +3,7 @@
 cd "`dirname \"$0\"`/../.."
 
 mkdir -p dist
-cp scripts/linux/sbinit.config dist/
+cp scripts/linux/nbinit.config dist/
 
 mkdir -p build
 cd build

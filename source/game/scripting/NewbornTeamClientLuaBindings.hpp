@@ -1,5 +1,4 @@
 #pragma once
-
 #include "NewbornLua.hpp"
 
 namespace Newborn {

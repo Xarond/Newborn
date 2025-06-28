@@ -1,3 +1,3 @@
 dist\newborn_server.exe
 dist\newborn_server.pdb
-scripts\ci\windows\sbinit.config
+scripts\ci\windows\nbinit.config
