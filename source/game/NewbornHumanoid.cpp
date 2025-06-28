@@ -251,7 +251,8 @@ bool& Humanoid::globalHeadRotation() {
 };
 
 Humanoid::Humanoid(Json const& config) {
-  loadConfig(config);
+  m_baseConfig = config;
+  loadConfig(JsonObject());
 
   m_twoHanded = false;
   m_primaryHand.holdingItem = false;
@@ -293,7 +294,12 @@ HumanoidIdentity const& Humanoid::identity() const {
   return m_identity;
 }
 
-void Humanoid::loadConfig(Json const& config) {
+void Humanoid::loadConfig(Json merger) {
+  if (m_mergeConfig == merger)
+    return;
+
+  m_mergeConfig = merger;
+  auto config = jsonMerge(m_baseConfig, merger);
   m_timing = HumanoidTiming(config.getObject("humanoidTiming"));
 
   m_globalOffset = jsonToVec2F(config.get("globalOffset")) / TilePixels;
@@ -662,7 +668,7 @@ List<Drawable> Humanoid::render(bool withItems, bool withRotationAndScale) {
         image = strf("{}:{}{}", m_backArmFrameset, m_identity.personality.armIdle, prefix);
         position = m_identity.personality.armOffset / TilePixels;
       } else
-        image = strf("{}:{}.{}{}", m_backArmFrameset, frameBase(m_state), armStateSeq,prefix);
+        image = strf("{}:{}.{}{}", m_backArmFrameset, frameBase(m_state), armStateSeq, prefix);
       auto drawable = Drawable::makeImage(std::move(image), 1.0f / TilePixels, true, position);
       drawable.imagePart().addDirectives(bodyDirectives, true);
       if (dance.isValid())
@@ -705,7 +711,7 @@ List<Drawable> Humanoid::render(bool withItems, bool withRotationAndScale) {
   else if (m_state == Lay)
     headPosition += m_headLayOffset;
 
-auto addHeadDrawable = [&](Drawable drawable, bool forceFullbright = false) {
+  auto addHeadDrawable = [&](Drawable drawable, bool forceFullbright = false) {
     if (m_facingDirection == Direction::Left)
       drawable.scale(Vec2F(-1, 1));
     drawable.fullbright |= forceFullbright;
@@ -721,7 +727,6 @@ auto addHeadDrawable = [&](Drawable drawable, bool forceFullbright = false) {
     }
     drawables.append(std::move(drawable));
   };
-
 
   if (!m_headFrameset.empty() && !m_bodyHidden) {
     String image = strf("{}:normal", m_headFrameset);
@@ -789,7 +794,7 @@ auto addHeadDrawable = [&](Drawable drawable, bool forceFullbright = false) {
     else if ((m_state == Swim) || (m_state == SwimIdle))
       image = strf("{}:swim{}", m_chestArmorFrameset, prefix);
     else
-      image = strf("{}:chest.1", m_chestArmorFrameset, prefix);
+      image = strf("{}:chest.1{}", m_chestArmorFrameset, prefix);
     if (m_state != Duck)
       position[1] += bobYOffset;
     auto drawable = Drawable::makeImage(std::move(image), 1.0f / TilePixels, true, position);
@@ -812,7 +817,7 @@ auto addHeadDrawable = [&](Drawable drawable, bool forceFullbright = false) {
   }
 
   if (!m_headArmorFrameset.empty()) {
-    String image = strf("{}:normal", m_headArmorFrameset, m_headArmorDirectives.prefix());
+    String image = strf("{}:normal{}", m_headArmorFrameset, m_headArmorDirectives.prefix());
     auto drawable = Drawable::makeImage(std::move(image), 1.0f / TilePixels, true, headPosition);
     drawable.imagePart().addDirectives(getHeadDirectives(), true);
     addHeadDrawable(std::move(drawable));
@@ -857,7 +862,7 @@ auto addHeadDrawable = [&](Drawable drawable, bool forceFullbright = false) {
       } else
         image = strf("{}:{}.{}{}", m_frontArmFrameset, frameBase(m_state), armStateSeq, prefix);
       auto drawable = Drawable::makeImage(std::move(image), 1.0f / TilePixels, true, position);
-      drawable.imagePart().addDirectives(getBodyDirectives(), true);
+      drawable.imagePart().addDirectives(bodyDirectives, true);
       if (dance.isValid())
         drawable.rotate(danceStep->frontArmRotation);
       addDrawable(drawable, m_bodyFullbright);
@@ -1034,7 +1039,7 @@ List<Drawable> Humanoid::renderPortrait(PortraitMode mode) const {
 
   if (mode != PortraitMode::Head) {
     if (!m_frontArmFrameset.empty()) {
-       auto bodyDirectives = getBodyDirectives();
+      auto bodyDirectives = getBodyDirectives();
       String image = strf("{}:{}{}", m_frontArmFrameset, personality.armIdle, bodyDirectives.prefix());
       Drawable drawable = Drawable::makeImage(std::move(image), 1.0f, true, personality.armOffset);
       drawable.imagePart().addDirectives(bodyDirectives, true);

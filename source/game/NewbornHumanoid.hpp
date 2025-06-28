@@ -12,9 +12,7 @@ NEWBORN_CLASS(HeadArmor);
 NEWBORN_CLASS(ChestArmor);
 NEWBORN_CLASS(LegsArmor);
 NEWBORN_CLASS(BackArmor);
-
 NEWBORN_CLASS(Humanoid);
-
 NEWBORN_STRUCT(Dance);
 
 enum class HumanoidEmote {
@@ -99,7 +97,7 @@ public:
     STATESIZE
   };
   static EnumMap<State> const StateNames;
-  
+
   static bool& globalHeadRotation();
 
   Humanoid(Json const& config);
@@ -127,7 +125,7 @@ public:
   void setIdentity(HumanoidIdentity const& identity);
   HumanoidIdentity const& identity() const;
 
-  void loadConfig(Json const& config);
+  void loadConfig(Json merger = JsonObject());
 
   // All of the image identifiers here are meant to be image *base* names, with
   // a collection of frames specific to each piece.  If an image is set to
@@ -157,6 +155,7 @@ public:
   void setBackArmorFrameset(String backFrameset);
 
   void setHelmetMaskDirectives(Directives helmetMaskDirectives);
+
   // Getters for all of the above
   Directives const& headArmorDirectives() const;
   String const& headArmorFrameset() const;
@@ -258,7 +257,7 @@ public:
   List<Particle> particles(String const& name) const;
 
   Json const& defaultMovementParameters() const;
-
+  
   String getHeadFromIdentity() const;
   String getBodyFromIdentity() const;
   String getFacialEmotesFromIdentity() const;
@@ -306,6 +305,9 @@ private:
   int getBodyStateSequence() const;
 
   Maybe<DancePtr> getDance() const;
+
+  Json m_baseConfig;
+  Json m_mergeConfig;
 
   Vec2F m_globalOffset;
   Vec2F m_headRunOffset;
