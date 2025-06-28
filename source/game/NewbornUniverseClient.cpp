@@ -24,6 +24,7 @@
 #include "NewbornPlayerUniverseMap.hpp"
 #include "NewbornWorldTemplate.hpp"
 #include "NewbornCelestialLuaBindings.hpp"
+#include "NewbornTeamClientLuaBindings.hpp"
 
 namespace Newborn {
 
@@ -502,6 +503,7 @@ void UniverseClient::startLua() {
   m_luaRoot->restart();
 
   setLuaCallbacks("celestial", LuaBindings::makeCelestialCallbacks(this));
+  setLuaCallbacks("team", LuaBindings::makeTeamClientCallbacks(m_teamClient.get()));
   setLuaCallbacks("world", LuaBindings::makeWorldCallbacks(m_worldClient.get()));
 
   auto assets = Root::singleton().assets();

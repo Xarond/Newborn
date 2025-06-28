@@ -232,6 +232,7 @@ SET (newborn_game_HEADERS
     objects/NewbornPhysicsObject.hpp
     objects/NewbornTeleporterObject.hpp
 
+    scripting/NewbornTeamClientLuaBindings.hpp
     scripting/NewbornCameraLuaBindings.hpp
     scripting/NewbornCelestialLuaBindings.hpp
     scripting/NewbornBehaviorLuaBindings.hpp
@@ -473,6 +474,7 @@ SET (newborn_game_SOURCES
     objects/NewbornPhysicsObject.cpp
     objects/NewbornTeleporterObject.cpp
 
+    scripting/NewbornTeamClientLuaBindings.cpp
     scripting/NewbornCameraLuaBindings.cpp
     scripting/NewbornCelestialLuaBindings.cpp
     scripting/NewbornBehaviorLuaBindings.cpp
