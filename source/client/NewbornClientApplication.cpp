@@ -20,6 +20,8 @@
 #include "NewbornInterpolation.hpp"
 #include "NewbornCameraLuaBindings.hpp"
 
+#include "NewbornTeamClientLuaBindings.hpp"
+#include "NewbornCelestialLuaBindings.hpp"
 #include "NewbornInterfaceLuaBindings.hpp"
 #include "NewbornInputLuaBindings.hpp"
 #include "NewbornVoiceLuaBindings.hpp"
@@ -727,12 +729,15 @@ void ClientApplication::changeState(MainAppState newState) {
 
     m_titleScreen->stopMusic();
 
+    m_universeClient->restartLua();
     m_mainInterface = make_shared<MainInterface>(m_universeClient, m_worldPainter, m_cinematicOverlay);
     m_universeClient->setLuaCallbacks("interface", LuaBindings::makeInterfaceCallbacks(m_mainInterface.get()));
     m_universeClient->setLuaCallbacks("chat", LuaBindings::makeChatCallbacks(m_mainInterface.get(), m_universeClient.get()));
+    m_universeClient->setLuaCallbacks("celestial", LuaBindings::makeCelestialCallbacks(m_universeClient.get()));
+    m_universeClient->setLuaCallbacks("team", LuaBindings::makeTeamClientCallbacks(m_universeClient->teamClient().get()));
+    m_universeClient->setLuaCallbacks("world", LuaBindings::makeWorldCallbacks(m_universeClient->worldClient().get()));
     m_mainInterface->displayDefaultPanes();
-
-    m_universeClient->startLua();
+    m_universeClient->startLuaScripts();
 
     m_mainMixer->setWorldPainter(m_worldPainter);
 
