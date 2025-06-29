@@ -10,7 +10,7 @@ BEGIN
       VALUE "FileDescription", "Newborn"
       VALUE "FileVersion", "1.0"
       VALUE "InternalName", "newborn"
-      VALUE "LegalCopyright", "Xarond GAmes"
+      VALUE "LegalCopyright", "Xarond Games"
       VALUE "OriginalFilename", "newborn.exe"
       VALUE "ProductName", "Newborn"
       VALUE "ProductVersion", "1.0"
