@@ -11,7 +11,7 @@ mkdir client_distribution/osx
 cp -LR scripts/ci/macos/Newborn.app client_distribution/osx/
 mkdir client_distribution/osx/Newborn.app/Contents/MacOS
 cp dist/newborn client_distribution/osx/Newborn.app/Contents/MacOS/
-cp lib/osx/x64/*.dylib client_distribution/osx/Newborn.app/Contents/MacOS/
+cp dist/*.dylib client_distribution/osx/Newborn.app/Contents/MacOS/
 cp \
   dist/newborn_server \
   scripts/ci/macos/nbinit.config \

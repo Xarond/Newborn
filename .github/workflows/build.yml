@@ -181,11 +181,15 @@ jobs:
   build-mac-intel:
     name: Build Newborn macOS x86_64
     runs-on: macos-13
-    if: ${{ (github.event_name != 'workflow_dispatch') || (inputs.macOS == true) }}
+    if: ${{ (github.event_name != 'pull_request') && ((github.event_name != 'workflow_dispatch') || (inputs.macOS == true)) }}
     steps:
       - uses: actions/checkout@v4
         with:
           submodules: 'recursive'
+
+      - name: Install Packages
+        run: |
+          brew install autoconf automake libtool
 
       - name: Install CMake & Ninja
         uses: lukka/get-cmake@latest
@@ -206,32 +210,59 @@ jobs:
           vcpkgJsonGlob: '**/source/vcpkg.json'
           vcpkgConfigurationJsonGlob: '**/source/vcpkg-configuration.json'
 
+      - name: Restore vcpkg cache
+        id: vcpkg-cache
+        uses: TAServers/vcpkg-cache@v3
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+
       - name: Run CMake
         uses: lukka/run-cmake@v10
+        env:
+          VCPKG_FEATURE_FLAGS: "binarycaching"
+          VCPKG_BINARY_SOURCES: "clear;files,${{ steps.vcpkg-cache.outputs.path }},readwrite"
         with:
           cmakeListsTxtPath: '${{ github.workspace }}/source/CMakeLists.txt'
           configurePreset: 'macos-release'
           buildPreset: 'macos-release'
           testPreset: 'macos-release'
 
+      - name: Copy Libraries
+        working-directory: ${{ github.workspace }}
+        run: |
+          cp \
+            lib/osx/x64/*.dylib \
+            lib/osx/libsteam_api.dylib \
+            dist/
+
       - name: Upload Artifacts
         uses: actions/upload-artifact@v4
         with:
           name: Newborn-macOS-Intel
           path: dist/*
-          
+
       - name: Assemble Files
         working-directory: ${{ github.workspace }}
         run: scripts/ci/macos/assemble.sh
 
+      - name: Upload Client Files
+        uses: actions/upload-artifact@v4
+        with:
+          name: Newborn-macOS-Intel-Client
+          path: client.tar
+
   build-mac-arm:
     name: Build Newborn macOS arm64
     runs-on: macos-14
-    if: ${{ (github.event_name != 'workflow_dispatch') || (inputs.macOS == true) }}
+    if: ${{ (github.event_name != 'pull_request') && ((github.event_name != 'workflow_dispatch') || (inputs.macOS == true)) }}
     steps:
       - uses: actions/checkout@v4
         with:
           submodules: 'recursive'
+
+      - name: Install Packages
+        run: |
+          brew install autoconf automake libtool
 
       - name: Install CMake & Ninja
         uses: lukka/get-cmake@latest
@@ -245,6 +276,12 @@ jobs:
           key: ${{ github.job }}-ARM-${{ runner.os }}
           max-size: 250M
 
+      - name: Restore vcpkg cache
+        id: vcpkg-cache
+        uses: TAServers/vcpkg-cache@v3
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+
       - name: vcpkg
         uses: lukka/run-vcpkg@v11
         id: runvcpkg
@@ -254,14 +291,35 @@ jobs:
 
       - name: Run CMake
         uses: lukka/run-cmake@v10
+        env:
+          VCPKG_FEATURE_FLAGS: "binarycaching"
+          VCPKG_BINARY_SOURCES: "clear;files,${{ steps.vcpkg-cache.outputs.path }},readwrite"
         with:
           cmakeListsTxtPath: '${{ github.workspace }}/source/CMakeLists.txt'
           configurePreset: 'macos-arm-release'
           buildPreset: 'macos-arm-release'
           testPreset: 'macos-arm-release'
 
+      - name: Copy Libraries
+        working-directory: ${{ github.workspace }}
+        run: |
+          cp \
+            lib/osx/arm64/*.dylib \
+            lib/osx/libsteam_api.dylib \
+            dist/
+
       - name: Upload Artifacts
         uses: actions/upload-artifact@v4
         with:
           name: Newborn-macOS-Silicon
           path: dist/*
+
+      - name: Assemble Files
+        working-directory: ${{ github.workspace }}
+        run: scripts/ci/macos/assemble.sh
+
+      - name: Upload Client Files
+        uses: actions/upload-artifact@v4
+        with:
+          name: Newborn-macOS-Silicon-Client
+          path: client.tar
