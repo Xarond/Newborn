@@ -219,6 +219,10 @@ jobs:
         with:
           name: Newborn-macOS-Intel
           path: dist/*
+          
+      - name: Assemble Files
+        working-directory: ${{ github.workspace }}
+        run: scripts/ci/macos/assemble.sh
 
   build-mac-arm:
     name: Build Newborn macOS arm64
