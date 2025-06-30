@@ -18,7 +18,7 @@
         "CMAKE_VERBOSE_MAKEFILE": true,
         "BUILD_TESTING": true,
         "NEWBORN_ENABLE_STEAM_INTEGRATION": false,
-        "NEWBORN_ENABLE_DISCORD_INTEGRATION": true
+        "NEWBORN_ENABLE_DISCORD_INTEGRATION": false
       }
     },
     {
