@@ -526,7 +526,6 @@ private:
     void setTargetUpdateRate(float targetUpdateRate) override {
       parent->m_updateTicker.setTargetTickRate(targetUpdateRate);
     }
-
     void setUpdateTrackWindow(float updateTrackWindow) override {
       parent->m_updateTicker.setWindow(updateTrackWindow);
     }

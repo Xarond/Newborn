@@ -120,6 +120,7 @@ LuaCallbacks LuaBindings::makeRootCallbacks() {
       auto materialId = root->materialDatabase()->materialId(materialName);
       if (auto path = root->materialDatabase()->materialPath(materialId))
         return JsonObject{{"path", *path}, {"config", root->materialDatabase()->materialConfig(materialId).get()}};
+        
       return {};
     });
 
