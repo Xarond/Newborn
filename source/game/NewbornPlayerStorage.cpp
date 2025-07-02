@@ -41,9 +41,12 @@ PlayerStorage::PlayerStorage(String const& storageDir) {
         try {
           auto json = VersionedJson::readFile(filename);
           Uuid uuid(json.content.getString("uuid"));
-          auto& playerCacheData = m_savedPlayersCache[uuid];
-          playerCacheData = entityFactory->loadVersionedJson(json, EntityType::Player);
-          m_playerFileNames.insert(uuid, file.first.rsplit('.', 1).at(0));
+          if (m_playerFileNames.insert(uuid, file.first.rsplit('.', 1).at(0))) {
+            auto& playerCacheData = m_savedPlayersCache[uuid];
+            playerCacheData = entityFactory->loadVersionedJson(json, EntityType::Player);
+          } else {
+            Logger::warn("Duplicate player? Skipping player file {} because it has the same UUID as {}.player ({})", file.first, m_playerFileNames.getRight(uuid), uuid.hex());
+          }
         } catch (std::exception const& e) {
           Logger::error("Error loading player file, ignoring! {} : {}", filename, outputException(e, false));
         }
@@ -132,6 +135,27 @@ Maybe<Uuid> PlayerStorage::playerUuidByName(String const& name, Maybe<Uuid> exce
   return uuid;
 }
 
+List<Uuid> PlayerStorage::playerUuidListByName(String const& name, Maybe<Uuid> except) {
+  String cleanMatch = Text::stripEscapeCodes(name).toLower();
+  List<Uuid> list = {};
+
+  RecursiveMutexLocker locker(m_mutex);
+
+  for (auto& cache : m_savedPlayersCache) {
+    if (except && *except == cache.first)
+      continue;
+    else if (auto name = cache.second.optQueryString("identity.name")) {
+      auto cleanName = Text::stripEscapeCodes(*name).toLower();
+      if (cleanMatch == "" || cleanName.utf8().rfind(cleanMatch.utf8()) != NPos) {
+        list.append(cache.first);
+      }
+    }
+  }
+
+  return list;
+}
+
+
 Json PlayerStorage::savePlayer(PlayerPtr const& player) {
   auto entityFactory = Root::singleton().entityFactory();
   auto versioningDatabase = Root::singleton().versioningDatabase();
@@ -147,7 +171,9 @@ Json PlayerStorage::savePlayer(PlayerPtr const& player) {
   if (playerCacheData != newPlayerData) {
     playerCacheData = newPlayerData;
     VersionedJson versionedJson = entityFactory->storeVersionedJson(EntityType::Player, playerCacheData);
-    VersionedJson::writeFile(versionedJson, File::relativeTo(m_storageDirectory, strf("{}.player", uuidFileName(uuid))));
+    auto fileName = strf("{}.player", uuidFileName(uuid));
+    VersionedJson::writeFile(versionedJson, File::relativeTo(m_storageDirectory, fileName));
+    Logger::debug("Saved player {} to {}", Text::stripEscapeCodes(player->name()), fileName);
   }
   return newPlayerData;
 }
