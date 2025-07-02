@@ -380,6 +380,9 @@ void TitleScreen::initMultiPlayerMenu() {
       setMultiPlayerPort(data.getString("port", ""));
       setMultiPlayerAccount(data.getString("account", ""));
       setMultiPlayerPassword(data.getString("password", ""));
+
+      if (auto passwordWidget = m_multiPlayerMenu->fetchChild("password"))
+      passwordWidget->focus();
     }
   });
 
