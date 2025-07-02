@@ -5,6 +5,7 @@
 #include "NewbornRegisteredPaneManager.hpp"
 #include "NewbornInterfaceCursor.hpp"
 #include "NewbornUniverseClient.hpp"
+#include "NewbornListWidget.hpp"
 
 namespace Newborn {
 
@@ -89,6 +90,8 @@ private:
   void switchState(TitleState titleState);
   void back();
 
+  void populateServerList(ListWidgetPtr list);
+
   float interfaceScale() const;
   unsigned windowHeight() const;
   unsigned windowWidth() const;
@@ -98,6 +101,8 @@ private:
   RendererPtr m_renderer;
   EnvironmentPainterPtr m_environmentPainter;
   PanePtr m_multiPlayerMenu;
+  PanePtr m_serverSelectPane;
+  Json m_serverList;
 
   RegisteredPaneManager<String> m_paneManager;
 
