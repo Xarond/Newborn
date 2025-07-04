@@ -254,6 +254,7 @@ SET (newborn_game_HEADERS
     scripting/NewbornStatusControllerLuaBindings.hpp
     scripting/NewbornWorldLuaBindings.hpp
     scripting/NewbornUniverseServerLuaBindings.hpp
+    scripting/NewbornScriptableThread.hpp
 
     terrain/NewbornCacheSelector.hpp
     terrain/NewbornConstantSelector.hpp
@@ -494,6 +495,7 @@ SET (newborn_game_SOURCES
     scripting/NewbornStatusControllerLuaBindings.cpp
     scripting/NewbornWorldLuaBindings.cpp
     scripting/NewbornUniverseServerLuaBindings.cpp
+    scripting/NewbornScriptableThread.cpp
 
     terrain/NewbornCacheSelector.cpp
     terrain/NewbornConstantSelector.cpp

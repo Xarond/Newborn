@@ -10,6 +10,8 @@ namespace Newborn {
 
 NEWBORN_EXCEPTION(LuaComponentException, LuaException);
 
+NEWBORN_CLASS(ScriptableThread);
+
 // Basic lua component that can be initialized (takes and then owns a script
 // context, calls the script context's init function) and uninitialized
 // (releases the context, calls the context 'uninit' function).
@@ -94,12 +96,17 @@ protected:
   bool checkInitialization();
 
 private:
+  LuaCallbacks makeThreadsCallbacks();
+
   StringList m_scripts;
   StringMap<LuaCallbacks> m_callbacks;
   LuaRootPtr m_luaRoot;
   TrackerListenerPtr m_reloadTracker;
   Maybe<LuaContext> m_context;
   Maybe<String> m_error;
+
+  StringMap<shared_ptr<ScriptableThread>> m_threads;
+  mutable RecursiveMutex m_threadLock;
 };
 
 // Wraps a basic lua component to add a persistent storage table translated

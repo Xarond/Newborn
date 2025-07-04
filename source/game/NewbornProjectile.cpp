@@ -779,7 +779,7 @@ void Projectile::processAction(Json const& action) {
             sourceEntity());
       });
 
-  } else if (command == "spawnmonster") {
+  } else if (command == "spawnmob") {
     if (isMaster()) {
       String const type = parameters.getString("type");
 

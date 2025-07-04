@@ -332,7 +332,7 @@ String CommandProcessor::spawnItem(ConnectionId connectionId, String const& argu
   auto arguments = m_parser.tokenizeToStringList(argumentString);
 
   if (arguments.empty())
-    return "Not enough arguments to /spawnitem";
+    return "Not enough arguments to /spawn <itemname>";
 
   try {
     String kind = arguments.at(0);
@@ -360,16 +360,16 @@ String CommandProcessor::spawnItem(ConnectionId connectionId, String const& argu
 
     return done ? "" : "Invalid client state";
   } catch (JsonParsingException const& exception) {
-    Logger::warn("Error while processing /spawnitem '{}' command. Json parse problem: {}", arguments.at(0), outputException(exception, false));
+    Logger::warn("Error while processing /spawn '{}' command. Json parse problem: {}", arguments.at(0), outputException(exception, false));
     return "Could not parse item parameters";
   } catch (ItemException const& exception) {
-    Logger::warn("Error while processing /spawnitem '{}' command. Item instantiation problem: {}", arguments.at(0), outputException(exception, false));
+    Logger::warn("Error while processing /spawn '{}' command. Item instantiation problem: {}", arguments.at(0), outputException(exception, false));
     return strf("Could not load item '{}'", arguments.at(0));
   } catch (BadLexicalCast const& exception) {
-    Logger::warn("Error while processing /spawnitem command. Number expected. Got something else: {}", outputException(exception, false));
+    Logger::warn("Error while processing /spawn command. Number expected. Got something else: {}", outputException(exception, false));
     return strf("Could not load item '{}'", arguments.at(0));
   } catch (NewbornException const& exception) {
-    Logger::warn("Error while processing /spawnitem command '{}', exception caught: {}", argumentString, outputException(exception, false));
+    Logger::warn("Error while processing /spawn command '{}', exception caught: {}", argumentString, outputException(exception, false));
     return strf("Could not load item '{}'", arguments.at(0));
   }
 }
@@ -943,11 +943,11 @@ String CommandProcessor::handleCommand(ConnectionId connectionId, String const& 
     return setDungeonId(connectionId, argumentString);
   } else if (command == "setspawnpoint") {
     return setPlayerStart(connectionId, argumentString);
-  } else if (command == "spawnitem") {
+  } else if (command == "spawn") {
     return spawnItem(connectionId, argumentString);
   } else if (command == "spawntreasure") {
     return spawnTreasure(connectionId, argumentString);
-  } else if (command == "spawnmonster") {
+  } else if (command == "spawnmob") {
     return spawnMonster(connectionId, argumentString);
   } else if (command == "spawnnpc") {
     return spawnNpc(connectionId, argumentString);

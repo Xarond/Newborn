@@ -11,7 +11,7 @@
 namespace Newborn {
 
 #ifdef NEWBORN_ENABLE_DISCORD_INTEGRATION
-uint64_t const DiscordClientId = 1252240308385878117;
+uint64_t const DiscordClientId = 1390371680576082042;
 #endif
 
 PcPlatformServicesState::PcPlatformServicesState()
