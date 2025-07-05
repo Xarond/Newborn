@@ -10,6 +10,7 @@ SET (newborn_core_HEADERS
     NewbornAssetPath.hpp
     NewbornAtomicSharedPtr.hpp
     NewbornAudio.hpp
+    NewbornIODeviceCallbacks.hpp
     NewbornBTree.hpp
     NewbornBTreeDatabase.hpp
     NewbornBiMap.hpp
@@ -136,6 +137,7 @@ SET (newborn_core_HEADERS
 
 SET (newborn_core_SOURCES
     NewbornAudio.cpp
+    NewbornIODeviceCallbacks.cpp
     NewbornAssetPath.cpp
     NewbornBTreeDatabase.cpp
     NewbornBuffer.cpp
