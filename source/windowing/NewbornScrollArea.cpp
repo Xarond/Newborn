@@ -385,7 +385,8 @@ bool ScrollArea::sendEvent(InputEvent const& event) {
 }
 
 void ScrollArea::update(float dt) {
-  Widget::update(dt);
+  if (m_updatesChildren)
+    Widget::update(dt);
   if (!m_visible)
     return;
   
@@ -441,6 +442,10 @@ int ScrollArea::advanceFactorHelper() {
   if ((t > ScrollAdvanceTimer) || (t < 0))
     t = ScrollAdvanceTimer;
   return (int)std::ceil((m_buttonAdvance * t) / (float)ScrollAdvanceTimer);
+}
+
+void ScrollArea::setUpdatesChildren(bool slop) {
+  m_updatesChildren = slop;
 }
 
 }

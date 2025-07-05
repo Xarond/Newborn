@@ -98,6 +98,7 @@ public:
   bool verticalScroll() const;
   void setVerticalScroll(bool vertical);
 
+  void setUpdatesChildren(bool slop);
   virtual bool sendEvent(InputEvent const& event) override;
   virtual void update(float dt) override;
 
@@ -124,6 +125,8 @@ private:
 
   bool m_horizontalScroll;
   bool m_verticalScroll;
+
+  bool m_updatesChildren;
 };
 typedef shared_ptr<ScrollArea> ScrollAreaPtr;
 }
