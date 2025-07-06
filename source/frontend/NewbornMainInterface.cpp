@@ -22,6 +22,7 @@
 #include "NewbornOptionsMenu.hpp"
 #include "NewbornActionBar.hpp"
 #include "NewbornWireInterface.hpp"
+#include "NewbornButtonWidget.hpp"
 #include "NewbornTeamBar.hpp"
 #include "NewbornStatusPane.hpp"
 #include "NewbornCanvasWidget.hpp"
@@ -178,16 +179,19 @@ MainInterface::MainInterface(UniverseClientPtr client, WorldPainterPtr painter, 
       if (configuration->get("characterSwapDismisses", false).toBool())
         m_paneManager.dismissRegisteredPane(MainInterfacePanes::CharacterSwap);
     }, [=](Uuid) {});
-  {
-    charSelectionMenu->setReadOnly(true);
-    charSelectionMenu->setAnchor(PaneAnchor::Center);
-    charSelectionMenu->unlockPosition();
-    auto backgrounds = charSelectionMenu->getBG();
-    backgrounds.header = std::move(backgrounds.body);
-    charSelectionMenu->setBG(backgrounds);
-  }
+  charSelectionMenu->setReadOnly(true);
+  charSelectionMenu->setAnchor(PaneAnchor::Center);
+  charSelectionMenu->unlockPosition();
+  auto backgrounds = charSelectionMenu->getBG();
+  backgrounds.header = std::move(backgrounds.body);
+  charSelectionMenu->setBG(backgrounds);
+  charSelectionMenu->findChild("toggleDismissLabel")->setVisibility(true);
+  auto toggleDismiss = charSelectionMenu->findChild<ButtonWidget>("toggleDismissCheckbox");
+  auto configuration = Root::singleton().configuration();
+  toggleDismiss->setChecked(configuration->get("characterSwapDismisses", false).toBool());
+  toggleDismiss->setVisibility(true);
 
-  m_paneManager.registerPane(MainInterfacePanes::CharacterSwap, PaneLayer::ModalWindow, charSelectionMenu);
+  m_paneManager.registerPane(MainInterfacePanes::CharacterSwap, PaneLayer::Window, charSelectionMenu);
 
   m_nameplatePainter = make_shared<NameplatePainter>();
   m_questIndicatorPainter = make_shared<QuestIndicatorPainter>(m_client);

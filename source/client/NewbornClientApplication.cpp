@@ -11,6 +11,7 @@
 #include "NewbornPlayerStorage.hpp"
 #include "NewbornPlayerLog.hpp"
 #include "NewbornAssets.hpp"
+
 #include "NewbornWorldTemplate.hpp"
 #include "NewbornWorldClient.hpp"
 #include "NewbornRootLoader.hpp"
@@ -18,13 +19,12 @@
 #include "NewbornVoice.hpp"
 #include "NewbornCurve25519.hpp"
 #include "NewbornInterpolation.hpp"
-#include "NewbornCameraLuaBindings.hpp"
-
 #include "NewbornTeamClientLuaBindings.hpp"
 #include "NewbornCelestialLuaBindings.hpp"
 #include "NewbornInterfaceLuaBindings.hpp"
 #include "NewbornInputLuaBindings.hpp"
 #include "NewbornVoiceLuaBindings.hpp"
+#include "NewbornCameraLuaBindings.hpp"
 #include "NewbornClipboardLuaBindings.hpp"
 #include "NewbornRenderingLuaBindings.hpp"
 
@@ -188,7 +188,7 @@ void ClientApplication::applicationInit(ApplicationControllerPtr appController) 
   bool borderless = configuration->get("borderless").toBool();
   bool maximized = configuration->get("maximized").toBool();
   m_controllerInput = configuration->get("controllerInput").optBool().value();
-
+  
   if (fullscreen)
     appController->setFullscreenWindow(fullscreenSize);
   else if (borderless)
@@ -226,10 +226,9 @@ void ClientApplication::applicationInit(ApplicationControllerPtr appController) 
   m_crossoverRes = jsonToVec2F(assets->json("/interface.config:interfaceCrossoverRes"));
   
   appController->setApplicationTitle(assets->json("/client.config:windowTitle").toString());
-
   appController->setMaxFrameSkip(assets->json("/client.config:maxFrameSkip").toUInt());
   appController->setUpdateTrackWindow(assets->json("/client.config:updateTrackWindow").toFloat());
-
+  
   if (auto jVoice = configuration->get("voice"))
     m_voice->loadJson(jVoice.toObject(), true);
 
@@ -473,8 +472,8 @@ void ClientApplication::renderReload() {
   
   loadEffectConfig("world");
   
-  // define post process groups and set them to be enabled/disabled based on the config
-
+  // define post process groups and set them to be enabled/disabled based on config
+  
   auto config = m_root->configuration();
   if (!config->get(postProcessGroupsRoot).isType(Json::Type::Object))
     config->set(postProcessGroupsRoot, JsonObject());
@@ -492,7 +491,6 @@ void ClientApplication::renderReload() {
   }
   
   // define post process layers and optionally assign them to groups
-
   m_postProcessLayers.clear();
   auto postProcessLayers = assets->json("/client.config:postProcessLayers").toArray();
   for (auto& layer : postProcessLayers) {
