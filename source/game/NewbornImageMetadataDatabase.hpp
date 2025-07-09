@@ -22,7 +22,6 @@ public:
   RectU nonEmptyRegion(AssetPath const& path) const;
   void cleanup() const;
 
-
 private:
   // Removes image processing directives that don't affect image spaces /
   // non-empty regions.

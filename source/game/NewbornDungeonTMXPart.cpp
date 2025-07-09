@@ -62,7 +62,7 @@ namespace Dungeon {
     }
 
     if (m_kind == ObjectKind::Tile) {
-
+      // Used for placing Newborn-Tiles and Newborn-Objects
       Vec2I position(pos().x(), map->height() - pos().y());
       return callback(position, tile());
     }

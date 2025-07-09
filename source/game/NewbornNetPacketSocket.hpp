@@ -78,6 +78,7 @@ public:
 
   virtual void setNetRules(NetCompatibilityRules netRules);
   virtual NetCompatibilityRules netRules() const;
+
 private:
   NetCompatibilityRules m_netRules;
 };
@@ -143,7 +144,6 @@ public:
 
   Maybe<PacketStats> incomingStats() const override;
   Maybe<PacketStats> outgoingStats() const override;
-
 private:
   TcpPacketSocket(TcpSocketPtr socket);
 

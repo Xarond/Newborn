@@ -62,9 +62,8 @@ Maybe<PacketStats> PacketSocket::incomingStats() const {
 Maybe<PacketStats> PacketSocket::outgoingStats() const {
   return {};
 }
-
-void PacketSocket::setNetRules(NetCompatibilityRules netRules) { m_netRules = netRules; };
-NetCompatibilityRules PacketSocket::netRules() const { return m_netRules; };
+void PacketSocket::setNetRules(NetCompatibilityRules netRules) { m_netRules = netRules; }
+NetCompatibilityRules PacketSocket::netRules() const { return m_netRules; }
 
 void CompressedPacketSocket::setCompressionStreamEnabled(bool enabled) { m_useCompressionStream = enabled; }
 bool CompressedPacketSocket::compressionStreamEnabled() const { return m_useCompressionStream; }
@@ -173,7 +172,7 @@ void TcpPacketSocket::sendPackets(List<PacketPtr> packets) {
       while (it.hasNext()
              && it.peekNext()->type() == currentType
              && it.peekNext()->compressionMode() == currentCompressionMode) {
-            it.next()->write(packetBuffer, netRules());
+          it.next()->write(packetBuffer, netRules());
       }
 
       // Packets must read and write actual data, because this is used to
@@ -385,7 +384,7 @@ void P2PPacketSocket::sendPackets(List<PacketPtr> packets) {
       while (it.hasNext()
              && it.peekNext()->type() == currentType
              && it.peekNext()->compressionMode() == currentCompressionMode) {
-        it.next()->write(packetBuffer, netRules());
+          it.next()->write(packetBuffer, netRules());
       }
 
       // Packets must read and write actual data, because this is used to

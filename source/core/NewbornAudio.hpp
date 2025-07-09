@@ -2,6 +2,7 @@
 
 #include "NewbornIODevice.hpp"
 //#define NEWBORN_STREAM_AUDIO
+
 namespace Newborn {
 
 extern float const DefaultPerceptualRangeDb;

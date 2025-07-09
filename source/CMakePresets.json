@@ -19,6 +19,7 @@
         "BUILD_TESTING": true,
         "NEWBORN_ENABLE_STEAM_INTEGRATION": true,
         "NEWBORN_ENABLE_DISCORD_INTEGRATION": true
+
       }
     },
     {

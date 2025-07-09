@@ -28,10 +28,11 @@ public:
   // Show a dialog offering the player a quest, and later start it if they
   // accept it.
   void offer(QuestPtr const& quest);
-  QuestPtr getQuest(String const& questId) const;
   StringMap<QuestPtr> quests() const;
   // Only returns quests that are exclusive to the current server.
   StringMap<QuestPtr> serverQuests() const;
+  QuestPtr getQuest(String const& questId) const;
+
   bool hasQuest(String const& questId) const;
   bool hasAcceptedQuest(String const& questId) const;
   bool isActive(String const& questId) const;
@@ -51,11 +52,12 @@ public:
   List<QuestPtr> listCompletedQuests() const;
   List<QuestPtr> listFailedQuests() const;
 
+  Maybe<String> currentQuestId() const;
   Maybe<QuestPtr> currentQuest() const;
+  Maybe<String> trackedQuestId() const;
   Maybe<QuestPtr> trackedQuest() const;
   Maybe<QuestIndicator> getQuestIndicator(EntityPtr const& entity) const;
-  Maybe<String> currentQuestId() const;
-  Maybe<String> trackedQuestId() const;
+
   // Handled at this level to allow multiple active quests to specify interestingObjects
   StringSet interestingObjects();
 
@@ -63,9 +65,9 @@ public:
   void update(float dt);
 
 private:
-  bool questValidOnServer(QuestPtr quest) const;
   void startInitialQuests();
   void setMostRecentQuestCurrent();
+  bool questValidOnServer(QuestPtr quest) const;
 
   Player* m_player;
   World* m_world;

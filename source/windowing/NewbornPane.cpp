@@ -410,6 +410,7 @@ LuaCallbacks Pane::makePaneCallbacks() {
   callbacks.registerCallback("isDisplayed", [this]() {
     return isDisplayed();
   });
+
   callbacks.registerCallback("hasFocus", [this]() {
     hasFocus();
   });
@@ -421,6 +422,7 @@ LuaCallbacks Pane::makePaneCallbacks() {
   callbacks.registerCallback("hide", [this]() {
     hide();
   });
+
   return callbacks;
 }
 

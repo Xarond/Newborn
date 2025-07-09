@@ -55,7 +55,7 @@ private:
   static const uint16_t A2S_PACKET_SIZE = (uint16_t)0x4e0;
   static const uint32_t A2S_HEAD_INT = 0xffffffff;
   static constexpr const char* GAME_DIR = "newborn";
-  static constexpr const char* GAME_DESC = "newborn";
+  static constexpr const char* GAME_DESC = "Newborn";
   static constexpr const char* GAME_TYPE = "SMP";
   static const int32_t challengeCheckInterval = 30000;
   static const int32_t responseCacheTime = 5000;

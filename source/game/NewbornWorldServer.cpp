@@ -2206,11 +2206,9 @@ void WorldServer::setProperty(String const& propertyName, Json const& property) 
     for (auto const& pair : m_clientInfo)
       pair.second->outgoingPackets.append(make_shared<UpdateWorldPropertiesPacket>(JsonObject{ {propertyName, property} }));
   }
-
   auto listener = m_worldPropertyListeners.find(propertyName);
   if (listener != m_worldPropertyListeners.end())
     listener->second(property);
-
 }
 
 void WorldServer::timer(float delay, WorldAction worldAction) {

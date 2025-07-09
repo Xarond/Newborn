@@ -203,8 +203,8 @@ NewbornException::NewbornException(char const* type, std::string message, std::e
   };
 
   std::function<void(std::ostream&, bool)> printCause;
-  if (auto starException = as<NewbornException>(&cause)) {
-    printCause = bind(starException->m_printException, _1, _2);
+  if (auto newbornException = as<NewbornException>(&cause)) {
+    printCause = bind(newbornException->m_printException, _1, _2);
   } else {
     printCause = bind([](std::ostream& os, bool, std::string causeWhat) {
       os << "std::exception: " << causeWhat;
@@ -221,15 +221,15 @@ std::string printException(std::exception const& e, bool fullStacktrace) {
 }
 
 void printException(std::ostream& os, std::exception const& e, bool fullStacktrace) {
-  if (auto starException = as<NewbornException>(&e))
-    starException->m_printException(os, fullStacktrace);
+  if (auto newbornException = as<NewbornException>(&e))
+    newbornException->m_printException(os, fullStacktrace);
   else
     os << "std::exception: " << e.what();
 }
 
 OutputProxy outputException(std::exception const& e, bool fullStacktrace) {
-  if (auto starException = as<NewbornException>(&e))
-    return OutputProxy(bind(starException->m_printException, _1, fullStacktrace));
+  if (auto newbornException = as<NewbornException>(&e))
+    return OutputProxy(bind(newbornException->m_printException, _1, fullStacktrace));
   else
     return OutputProxy(
         bind([](std::ostream& os, std::string what) { os << "std::exception: " << what; }, _1, std::string(e.what())));

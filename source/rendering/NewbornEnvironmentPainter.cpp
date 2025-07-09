@@ -39,7 +39,6 @@ void EnvironmentPainter::update(float dt) {
 }
 
 void EnvironmentPainter::renderStars(float pixelRatio, Vec2F const& screenSize, SkyRenderData const& sky) {
-
   float nightSkyAlpha = 1.0f - min(sky.dayLevel, sky.skyAlpha);
   if (nightSkyAlpha <= 0.0f)
     return;

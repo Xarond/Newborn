@@ -7,6 +7,8 @@
 #include "NewbornGuiContext.hpp"
 #include "NewbornPaneManager.hpp"
 #include "NewbornButtonWidget.hpp"
+#include "NewbornListWidget.hpp"
+#include "NewbornLabelWidget.hpp"
 #include "NewbornCharSelection.hpp"
 #include "NewbornCharCreation.hpp"
 #include "NewbornTextBoxWidget.hpp"
@@ -15,8 +17,6 @@
 #include "NewbornAssets.hpp"
 #include "NewbornCelestialDatabase.hpp"
 #include "NewbornEnvironmentPainter.hpp"
-#include "NewbornListWidget.hpp"
-#include "NewbornLabelWidget.hpp"
 
 namespace Newborn {
 
@@ -316,6 +316,7 @@ void TitleScreen::initCharCreationMenu() {
   m_paneManager.registerPane("charCreationMenu", PaneLayer::Hud, charCreationMenu);
 }
 
+
 void TitleScreen::populateServerList(ListWidgetPtr list){
   if (!m_serverList.isNull()) {
     list->clear();
@@ -338,6 +339,7 @@ void TitleScreen::initMultiPlayerMenu() {
   m_serverList = Root::singleton().configuration()->get("serverList");
   if (!m_serverList.isType(Json::Type::Array))
     m_serverList = JsonArray();
+
   auto assets = Root::singleton().assets();
 
   readerServer.registerCallback("saveServer", [=](Widget*) {
@@ -361,7 +363,9 @@ void TitleScreen::initMultiPlayerMenu() {
 
   readerServer.construct(assets->json("/interface/windowconfig/serverselect.config"), m_serverSelectPane.get());
 
- auto serverList = m_serverSelectPane->fetchChild<ListWidget>("serverSelectArea.serverList");
+
+
+  auto serverList = m_serverSelectPane->fetchChild<ListWidget>("serverSelectArea.serverList");
   
   serverList->registerMemberCallback("delete", [=](Widget* widget) {
     if (auto const pos = serverList->selectedItem(); pos != NPos) {
@@ -381,13 +385,14 @@ void TitleScreen::initMultiPlayerMenu() {
       setMultiPlayerAccount(data.getString("account", ""));
       setMultiPlayerPassword(data.getString("password", ""));
 
-      if (auto passwordWidget = m_multiPlayerMenu->fetchChild("password"))
+    if (auto passwordWidget = m_multiPlayerMenu->fetchChild("password"))
       passwordWidget->focus();
     }
   });
 
   readerConnect.registerCallback("address", [=](Widget* obj) {
       m_connectionAddress = convert<TextBoxWidget>(obj)->getText().trim();
+      m_serverSelectPane->fetchChild<ButtonWidget>("save")->setVisibility(multiPlayerAddress().length() > 0);
     });
 
   readerConnect.registerCallback("port", [=](Widget* obj) {
@@ -403,8 +408,9 @@ void TitleScreen::initMultiPlayerMenu() {
     });
 
   readerConnect.registerCallback("connect", [=](Widget*) {
-      switchState(TitleState::StartMultiPlayer);
+    switchState(TitleState::StartMultiPlayer);
     });
+
 
   readerConnect.construct(assets->json("/interface/windowconfig/multiplayer.config"), m_multiPlayerMenu.get());
 
@@ -417,7 +423,7 @@ void TitleScreen::initMultiPlayerMenu() {
 }
 
 void TitleScreen::initOptionsMenu(UniverseClientPtr client) {
-  auto optionsMenu = make_shared<OptionsMenu>(&m_paneManager, client);
+  auto optionsMenu = make_shared<OptionsMenu>(&m_paneManager,client);
   optionsMenu->setAnchor(PaneAnchor::Center);
   optionsMenu->lockPosition();
 

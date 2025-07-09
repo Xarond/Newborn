@@ -115,7 +115,6 @@ void LuaBaseComponent::uninit() {
     contextShutdown();
     m_context.reset();
   }
-
   for (auto p : m_threads) {
     p.second->stop();
   }
@@ -161,6 +160,7 @@ bool LuaBaseComponent::checkInitialization() {
     init();
   return initialized();
 }
+
 LuaCallbacks LuaBaseComponent::makeThreadsCallbacks() {
   LuaCallbacks callbacks;
   
@@ -192,4 +192,5 @@ LuaCallbacks LuaBaseComponent::makeThreadsCallbacks() {
   
   return callbacks;
 }
+
 }

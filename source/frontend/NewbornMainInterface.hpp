@@ -75,8 +75,6 @@ public:
   void openCraftingWindow(Json const& config, EntityId sourceEntityId = NullEntityId);
   void openMerchantWindow(Json const& config, EntityId sourceEntityId = NullEntityId);
   void togglePlainCraftingWindow();
-  void displayDefaultPanes();
-
 
   bool windowsOpen() const;
 
@@ -134,6 +132,7 @@ public:
 
   void takeScriptPanes(List<ScriptPaneInfo>& out);
   void reviveScriptPanes(List<ScriptPaneInfo>& panes);
+  void displayDefaultPanes();
 private:
   PanePtr createEscapeDialog();
 

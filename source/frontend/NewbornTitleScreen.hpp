@@ -100,6 +100,7 @@ private:
 
   RendererPtr m_renderer;
   EnvironmentPainterPtr m_environmentPainter;
+
   PanePtr m_multiPlayerMenu;
   PanePtr m_serverSelectPane;
   Json m_serverList;

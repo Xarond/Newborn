@@ -5,9 +5,8 @@
 
 namespace Newborn {
 
-extern unsigned const CurrentStreamVersion;
-
 NEWBORN_EXCEPTION(DataStreamException, IOException);
+extern unsigned const CurrentStreamVersion;
 
 // Writes complex types to bytes in a portable big-endian fashion.
 class DataStream {

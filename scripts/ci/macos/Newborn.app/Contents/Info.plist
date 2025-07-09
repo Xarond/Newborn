@@ -17,6 +17,10 @@
   <key>CFBundlePackageType</key>
   <string>APPL</string>
   <key>LSEnvironment</key>
+  <dict>
+    <key>MinimumSystemVersion</key>
+    <string>10.9.0</string>
+  </dict>
   <key>SDL_FILESYSTEM_BASE_DIR_TYPE</key>
   <string>parent</string>
 </dict>

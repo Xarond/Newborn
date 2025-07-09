@@ -80,6 +80,8 @@ if(NOT DEFINED NEWBORN_SYSTEM)
     set(NEWBORN_SYSTEM "linux")
   elseif(${CMAKE_SYSTEM_NAME} STREQUAL "FreeBSD")
     set(NEWBORN_SYSTEM "freebsd")
+  elseif(${CMAKE_SYSTEM_NAME} STREQUAL "NetBSD")
+    set(NEWBORN_SYSTEM "netbsd")
   elseif(UNIX)
     set(NEWBORN_SYSTEM "unix")
   else()
@@ -208,6 +210,8 @@ elseif(NEWBORN_SYSTEM STREQUAL "linux")
   set_flag(NEWBORN_SYSTEM_LINUX)
 elseif(NEWBORN_SYSTEM STREQUAL "freebsd")
   set_flag(NEWBORN_SYSTEM_FREEBSD)
+elseif(NEWBORN_SYSTEM STREQUAL "netbsd")
+  set_flag(NEWBORN_SYSTEM_NETBSD)
 endif()
 
 if(NEWBORN_SYSTEM_FAMILY STREQUAL "windows")
@@ -445,6 +449,10 @@ elseif(NEWBORN_SYSTEM_FREEBSD)
   set(CMAKE_C_STANDARD_LIBRARIES "${CMAKE_C_STANDARD_LIBRARIES} -lpthread -lrt")
   set(CMAKE_CXX_STANDARD_LIBRARIES "${CMAKE_CXX_STANDARD_LIBRARIES} -lpthread -lrt")
 
+elseif(NEWBORN_SYSTEM_NETBSD)
+  set(CMAKE_C_STANDARD_LIBRARIES "${CMAKE_C_STANDARD_LIBRARIES} -lpthread -lrt -lexecinfo")
+  set(CMAKE_CXX_STANDARD_LIBRARIES "${CMAKE_CXX_STANDARD_LIBRARIES} -lpthread -lrt -lexecinfo")
+
 endif()
 
 # Find all required external libraries, based on build settings...
@@ -600,12 +608,4 @@ if(NEWBORN_BUILD_GUI)
   # Newborn game / client
   add_subdirectory(client)
 
-  # Qt GUI tools
-  if(NEWBORN_BUILD_QT_TOOLS)
-    add_subdirectory(json_tool)
-
-    if(NEWBORN_ENABLE_STEAM_INTEGRATION)
-      add_subdirectory(mod_uploader)
-    endif()
-  endif()
 endif()

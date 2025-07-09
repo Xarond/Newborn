@@ -1,4 +1,5 @@
 #include "NewbornImageProcessing.hpp"
+#include "NewbornImageScaling.hpp"
 #include "NewbornMatrix3.hpp"
 #include "NewbornInterpolation.hpp"
 #include "NewbornLexicalCast.hpp"
@@ -7,7 +8,6 @@
 #include "NewbornStringView.hpp"
 #include "NewbornEncode.hpp"
 #include "NewbornLogging.hpp"
-#include "NewbornImageScaling.hpp"
 
 namespace Newborn {
 

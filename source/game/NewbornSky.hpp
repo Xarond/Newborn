@@ -116,8 +116,9 @@ private:
   float getWorldRotation() const;
   float speedupTime() const;
   float slowdownTime() const;
-  
+
   void skyParametersUpdated();
+ 
   Json m_settings;
   SkyParameters m_skyParameters;
   bool m_skyParametersUpdated;

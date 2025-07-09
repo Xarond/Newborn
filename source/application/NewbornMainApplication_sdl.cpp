@@ -314,10 +314,12 @@ public:
     int height;
     SDL_GetWindowSize(m_sdlWindow, &width, &height);
     m_windowSize = Vec2U(width, height);
-    
+
+#ifdef __APPLE__
     SDL_GL_SetAttribute(SDL_GL_CONTEXT_MAJOR_VERSION, 4);
     SDL_GL_SetAttribute(SDL_GL_CONTEXT_MINOR_VERSION, 1);
     SDL_GL_SetAttribute(SDL_GL_CONTEXT_PROFILE_MASK, SDL_GL_CONTEXT_PROFILE_CORE);
+#endif
 
     m_sdlGlContext = SDL_GL_CreateContext(m_sdlWindow);
     if (!m_sdlGlContext)
@@ -520,12 +522,13 @@ private:
     }
 
     bool isFocused() const override {
-      return (SDL_GetWindowFlags(parent->m_sdlWindow) & (SDL_WINDOW_INPUT_FOCUS)) != 0;
+      return (SDL_GetWindowFlags(parent->m_sdlWindow) & SDL_WINDOW_INPUT_FOCUS) != 0;
     }
 
     void setTargetUpdateRate(float targetUpdateRate) override {
       parent->m_updateTicker.setTargetTickRate(targetUpdateRate);
     }
+
     void setUpdateTrackWindow(float updateTrackWindow) override {
       parent->m_updateTicker.setWindow(updateTrackWindow);
     }

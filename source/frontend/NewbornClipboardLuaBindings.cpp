@@ -1,6 +1,7 @@
 #include "NewbornClipboardLuaBindings.hpp"
 #include "NewbornLuaConverters.hpp"
 #include "NewbornInput.hpp"
+
 namespace Newborn {
 
 LuaCallbacks LuaBindings::makeClipboardCallbacks(ApplicationControllerPtr appController, bool alwaysAllow) {

@@ -50,7 +50,6 @@ WorldClient::WorldClient(PlayerPtr mainPlayer, LuaRootPtr luaRoot) {
 
   m_luaRoot = luaRoot;
 
-
   m_mainPlayer = mainPlayer;
 
   centerClientWindowOnPlayer(Vec2U(100, 100));
@@ -1077,7 +1076,6 @@ List<PacketPtr> WorldClient::getOutgoingPackets() {
   return std::move(m_outgoingPackets);
 }
 
-
 void WorldClient::update(float dt) {
   if (!inWorld())
     return;
@@ -1105,7 +1103,6 @@ void WorldClient::update(float dt) {
   auto& publicKey = Curve25519::publicKey();
   String publicKeyString((const char*)publicKey.data(), publicKey.size());
   m_mainPlayer->setSecretProperty(SECRET_BROADCAST_PUBLIC_KEY, publicKeyString);
-  // Temporary: Backwards compatibility with StarExtensions
   m_mainPlayer->effectsAnimator()->setGlobalTag("\0SE_VOICE_SIGNING_KEY"s, publicKeyString);
 
   ++m_currentStep;
@@ -1791,14 +1788,14 @@ void WorldClient::initWorld(WorldStartPacket const& startPacket) {
   m_lightIntensityCalculator.setParameters(assets->json("/lighting.config:intensity"));
 
   m_inWorld = true;
-
+  
   if (!m_mainPlayer->isDead()) {
     m_mainPlayer->init(this, m_entityMap->reserveEntityId(), EntityMode::Master);
     m_entityMap->addEntity(m_mainPlayer);
   }
   m_mainPlayer->moveTo(startPacket.playerStart);
-  if (m_worldTemplate->worldParameters())
-    m_mainPlayer->overrideTech(m_worldTemplate->worldParameters()->overrideTech);
+  if (const auto& parameters = m_worldTemplate->worldParameters())
+    m_mainPlayer->overrideTech(parameters->overrideTech);
   else
     m_mainPlayer->overrideTech({});
 
@@ -1806,8 +1803,6 @@ void WorldClient::initWorld(WorldStartPacket const& startPacket) {
   // changes position.
   centerClientWindowOnPlayer();
 }
-
-
 
 void WorldClient::clearWorld() {
   if (m_entityMap) {
@@ -2240,8 +2235,9 @@ LuaRootPtr WorldClient::luaRoot() {
 }
 
 RpcPromise<Vec2F> WorldClient::findUniqueEntity(String const& uniqueId) {
-    if (!inWorld())
+  if (!inWorld())
     return RpcPromise<Vec2F>::createFailed("Not currently in a world");
+
   if (auto entity = m_entityMap->uniqueEntity(uniqueId))
     return RpcPromise<Vec2F>::createFulfilled(entity->position());
 
@@ -2257,6 +2253,7 @@ RpcPromise<Vec2F> WorldClient::findUniqueEntity(String const& uniqueId) {
 RpcPromise<Json> WorldClient::sendEntityMessage(Variant<EntityId, String> const& entityId, String const& message, JsonArray const& args) {
   if (!inWorld())
     return RpcPromise<Json>::createFailed("Not currently in a world");
+
   EntityPtr entity;
   if (entityId.is<EntityId>())
     entity = m_entityMap->entity(entityId.get<EntityId>());

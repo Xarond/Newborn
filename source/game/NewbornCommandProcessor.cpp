@@ -332,7 +332,7 @@ String CommandProcessor::spawnItem(ConnectionId connectionId, String const& argu
   auto arguments = m_parser.tokenizeToStringList(argumentString);
 
   if (arguments.empty())
-    return "Not enough arguments to /spawn <itemname>";
+    return "Not enough arguments to /spawn";
 
   try {
     String kind = arguments.at(0);

@@ -137,10 +137,10 @@ IODevicePtr PackedAssetSource::open(String const& path) {
     }
 
     IODevicePtr clone() override {
-        auto cloned = make_shared<AssetReader>(file, path, fileOffset, assetSize);
-        cloned->assetPos = assetPos;
-        return cloned;
-      }
+      auto cloned = make_shared<AssetReader>(file, path, fileOffset, assetSize);
+      cloned->assetPos = assetPos;
+      return cloned;
+    }
 
     FilePtr file;
     String path;

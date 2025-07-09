@@ -12,7 +12,9 @@ NEWBORN_CLASS(HeadArmor);
 NEWBORN_CLASS(ChestArmor);
 NEWBORN_CLASS(LegsArmor);
 NEWBORN_CLASS(BackArmor);
+
 NEWBORN_CLASS(Humanoid);
+
 NEWBORN_STRUCT(Dance);
 
 enum class HumanoidEmote {

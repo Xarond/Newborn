@@ -35,6 +35,7 @@ public:
 protected:
   virtual GuiReaderPtr reader() override;
   void construct(Json config);
+
   Json m_config;
   Json m_rawConfig;
 

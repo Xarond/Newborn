@@ -27,6 +27,7 @@
 #include "NewbornCanvasWidget.hpp"
 #include "NewbornLabelWidget.hpp"
 #include "NewbornItemSlotWidget.hpp"
+#include "NewbornButtonWidget.hpp"
 #include "NewbornPlayer.hpp"
 #include "NewbornPlayerLog.hpp"
 #include "NewbornMonster.hpp"
@@ -118,7 +119,7 @@ MainInterface::MainInterface(UniverseClientPtr client, WorldPainterPtr painter, 
   m_codexInterface = make_shared<CodexInterface>(m_client->mainPlayer());
   m_paneManager.registerPane(MainInterfacePanes::Codex, PaneLayer::Window, m_codexInterface);
 
-  m_optionsMenu = make_shared<OptionsMenu>(&m_paneManager, m_client);
+  m_optionsMenu = make_shared<OptionsMenu>(&m_paneManager,m_client);
   m_paneManager.registerPane(MainInterfacePanes::Options, PaneLayer::ModalWindow, m_optionsMenu);
 
   m_popupInterface = make_shared<PopupInterface>();
@@ -178,22 +179,23 @@ MainInterface::MainInterface(UniverseClientPtr client, WorldPainterPtr painter, 
       if (configuration->get("characterSwapDismisses", false).toBool())
         m_paneManager.dismissRegisteredPane(MainInterfacePanes::CharacterSwap);
     }, [=](Uuid) {});
-  {
-    charSelectionMenu->setReadOnly(true);
-    charSelectionMenu->setAnchor(PaneAnchor::Center);
-    charSelectionMenu->unlockPosition();
-    auto backgrounds = charSelectionMenu->getBG();
-    backgrounds.header = std::move(backgrounds.body);
-    charSelectionMenu->setBG(backgrounds);
-  }
+  charSelectionMenu->setReadOnly(true);
+  charSelectionMenu->setAnchor(PaneAnchor::Center);
+  charSelectionMenu->unlockPosition();
+  auto backgrounds = charSelectionMenu->getBG();
+  backgrounds.header = std::move(backgrounds.body);
+  charSelectionMenu->setBG(backgrounds);
+  charSelectionMenu->findChild("toggleDismissLabel")->setVisibility(true);
+  auto toggleDismiss = charSelectionMenu->findChild<ButtonWidget>("toggleDismissCheckbox");
+  auto configuration = Root::singleton().configuration();
+  toggleDismiss->setChecked(configuration->get("characterSwapDismisses", false).toBool());
+  toggleDismiss->setVisibility(true);
 
-  m_paneManager.registerPane(MainInterfacePanes::CharacterSwap, PaneLayer::ModalWindow, charSelectionMenu);
+  m_paneManager.registerPane(MainInterfacePanes::CharacterSwap, PaneLayer::Window, charSelectionMenu);
 
   m_nameplatePainter = make_shared<NameplatePainter>();
   m_questIndicatorPainter = make_shared<QuestIndicatorPainter>(m_client);
   m_chatBubbleManager = make_shared<ChatBubbleManager>();
-
-
 }
 
 MainInterface::~MainInterface() {
@@ -1014,12 +1016,14 @@ void MainInterface::reviveScriptPanes(List<ScriptPaneInfo>& panes) {
     info.scriptPane->setPosition(info.position);
   }
 }
+
 void MainInterface::displayDefaultPanes() {
   m_paneManager.displayRegisteredPane(MainInterfacePanes::ActionBar);
   m_paneManager.displayRegisteredPane(MainInterfacePanes::Chat);
   m_paneManager.displayRegisteredPane(MainInterfacePanes::TeamBar);
   m_paneManager.displayRegisteredPane(MainInterfacePanes::StatusPane);
 }
+
 PanePtr MainInterface::createEscapeDialog() {
   auto assets = Root::singleton().assets();
 

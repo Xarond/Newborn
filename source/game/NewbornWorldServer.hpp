@@ -51,7 +51,7 @@ public:
   typedef LuaMessageHandlingComponent<LuaUpdatableComponent<LuaWorldComponent<LuaBaseComponent>>> ScriptComponent;
   typedef shared_ptr<ScriptComponent> ScriptComponentPtr;
   typedef function<void(Json const&)> WorldPropertyListener;
-  
+
   // Create a new world with the given template, writing new storage file.
   WorldServer(WorldTemplatePtr const& worldTemplate, IODevicePtr storage);
   // Synonym for WorldServer(make_shared<WorldTemplate>(size), storage);

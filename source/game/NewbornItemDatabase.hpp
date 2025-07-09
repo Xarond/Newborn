@@ -109,8 +109,10 @@ public:
   // Level and seed are used by generation in some item types, and may be stored as part
   // of the unique item data or may be ignored.
   ItemConfig itemConfig(String const& itemName, Json parameters, Maybe<float> level = {}, Maybe<uint64_t> seed = {}) const;
-  // Returns the path to the item's json file in the assets.Add commentMore actions
+
+  // Returns the path to the item's json file in the assets.
   Maybe<String> itemFile(String const& itemName) const;
+
   // Generates the config for the given item descriptor and then loads the item
   // from the appropriate factory.  If there is a problem instantiating the
   // item, will return a default item instead.  If item is passed a null

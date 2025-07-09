@@ -252,7 +252,7 @@ String ClientCommandProcessor::startQuest(String const& argumentsString) {
   if (!adminCommandAllowed())
     return "You must be an admin to use this command.";
 
-  auto questArc = QuestArcDescriptor::fromJson(Json::parseSequence(arguments.at(0)));
+  auto questArc = QuestArcDescriptor::fromJson(Json::parseSequence(arguments.at(0)).get(0));
   m_universeClient->questManager()->offer(make_shared<Quest>(questArc, 0, m_universeClient->mainPlayer().get()));
   return "Quest started";
 }
@@ -330,7 +330,7 @@ String ClientCommandProcessor::cinema(String const& argumentsString) {
   m_cinematicOverlay->load(Root::singleton().assets()->json(arguments.at(0)));
   if (arguments.size() > 1)
     m_cinematicOverlay->setTime(lexicalCast<float>(arguments.at(1)));
-  return strf("Newbornted cinematic {} at {}", arguments.at(0), arguments.size() > 1 ? arguments.at(1) : "beginning");
+  return strf("Started cinematic {} at {}", arguments.at(0), arguments.size() > 1 ? arguments.at(1) : "beginning");
 }
 
 String ClientCommandProcessor::suicide() {
@@ -449,7 +449,7 @@ String ClientCommandProcessor::respawnInWorld(String const& argumentsString) {
   return strf("Respawn in this world set to {} (This is client-side!)", respawnInWorld ? "true" : "false");
 }
 
-// Hardcoded render command, future version will write to the clipboard and possibly be implemented in LuaAdd commentMore actions
+// Hardcoded render command, future version will write to the clipboard and possibly be implemented in Lua
 String ClientCommandProcessor::render(String const& path) {
   if (path.empty()) {
     return "Specify a path to render an image, or for worn armor: "
@@ -597,5 +597,6 @@ String ClientCommandProcessor::render(String const& path) {
   image->writePng(File::open(outputPath, IOMode::Write | IOMode::Truncate));
   return strf("Saved {}x{} image to {}.png", image->width(), image->height(), outputName);
 }
+
 
 }

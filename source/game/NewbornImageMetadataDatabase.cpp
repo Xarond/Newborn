@@ -32,7 +32,6 @@ Vec2U ImageMetadataDatabase::imageSize(AssetPath const& path) const {
 
   locker.lock();
   m_sizeCache.set(path, size);
-
   return size;
 }
 
@@ -99,6 +98,7 @@ List<Vec2I> ImageMetadataDatabase::imageSpaces(AssetPath const& path, Vec2F posi
 
 RectU ImageMetadataDatabase::nonEmptyRegion(AssetPath const& path) const {
   MutexLocker locker(m_mutex);
+  
   if (auto cached = m_regionCache.ptr(path)) {
     return *cached;
   }
@@ -126,6 +126,7 @@ RectU ImageMetadataDatabase::nonEmptyRegion(AssetPath const& path) const {
 
 void ImageMetadataDatabase::cleanup() const {
   MutexLocker locker(m_mutex);
+
   m_sizeCache.cleanup();
   m_spacesCache.cleanup();
   m_regionCache.cleanup();
@@ -185,7 +186,6 @@ Vec2U ImageMetadataDatabase::calculateImageSize(AssetPath const& path) const {
     // than once.
     MutexLocker locker(m_mutex);
     if (auto size = m_sizeCache.ptr(path.basePath)) {
-
       imageSize = *size;
     } else {
       locker.unlock();
@@ -196,7 +196,6 @@ Vec2U ImageMetadataDatabase::calculateImageSize(AssetPath const& path) const {
         imageSize = fallback();
       locker.lock();
       m_sizeCache.set(path.basePath, imageSize);
-
     }
   }
 

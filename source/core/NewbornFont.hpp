@@ -43,8 +43,8 @@ private:
   ByteArrayConstPtr m_fontBuffer;
   unsigned m_pixelSize;
   uint8_t m_alphaThreshold;
-  void loadFontImpl();
 
+  void loadFontImpl();
   HashMap<pair<String::Char, unsigned>, unsigned> m_widthCache;
 };
 

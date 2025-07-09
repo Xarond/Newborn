@@ -536,6 +536,7 @@ LuaContext LuaEngine::createContext() {
   lua_rawgeti(m_state, LUA_REGISTRYINDEX, m_scriptDefaultEnvRegistryId);
   LuaDetail::shallowCopy(m_state, -1, -2);
   lua_pop(m_state, 1);
+
   auto context = LuaContext(LuaDetail::LuaHandle(RefPtr<LuaEngine>(this), popHandle(m_state)));
   // Add loadstring
   auto handleIndex = context.handleIndex();
@@ -543,6 +544,7 @@ LuaContext LuaEngine::createContext() {
     String functionName = name ? strf("loadstring: {}", *name) : "loadstring";
     return createFunctionFromSource(env ? env->handleIndex() : handleIndex, source.utf8Ptr(), source.utf8Size(), functionName.utf8Ptr());
   }));
+
   // Then set that environment as the new context environment in the registry.
   return context;
 }

@@ -1022,12 +1022,12 @@ void Player::update(float dt, uint64_t) {
     m_humanoid->setDance({});
 
   bool isClient = world()->isClient();
-    if (isClient)
-      m_armor->setupHumanoidClothingDrawables(*m_humanoid, forceNude());
+  if (isClient)
+    m_armor->setupHumanoidClothingDrawables(*m_humanoid, forceNude());
 
   m_tools->suppressItems(suppressedItems);
   m_tools->tick(dt, m_shifting, m_pendingMoves);
-
+  
   if (auto overrideFacingDirection = m_tools->setupHumanoidHandItems(*m_humanoid, position(), aimPosition()))
     m_movementController->controlFace(*overrideFacingDirection);
 
@@ -2639,6 +2639,7 @@ Maybe<StringView> Player::getSecretPropertyView(String const& name) const {
 
   return {};
 }
+
 
 Json Player::getSecretProperty(String const& name, Json defaultValue) const {
   if (auto tag = m_effectsAnimator->globalTagPtr(secretProprefix + name)) {

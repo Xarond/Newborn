@@ -137,7 +137,6 @@ Root::Root(Settings settings) : RootBase() {
             tenantDb->cleanup();
           }
         }
-
         {
           MutexLocker locker(m_imageMetadataDatabaseMutex);
           if (ImageMetadataDatabasePtr imgMetaDb = m_imageMetadataDatabase) {
@@ -698,7 +697,7 @@ StringList Root::scanForAssetSources(StringList const& directories, StringList c
         dependencySortVisit(*requirement);
       else
         throw NewbornException(strf("Asset source '{}' is missing dependency '{}'{}", *source->name, requirementName,
-          requirementName != "base" ? "" : "\n\nThe base Newborn asset package could not be found, please copy it from another Newborn install!\n(Locate 'packed.pak' in vanilla Newborn's assets folder, then copy it to OpenNewborn's assets folder.)\n"));
+          requirementName != "base" ? "" : "\n\nThe base Newborn asset package could not be found, please copy it from another Newborn install!\n(Locate 'packed.pak' in vanilla Newborn's assets folder, then copy it to Newborn's assets folder.)\n"));
     }
 
     workingSet.remove(source);

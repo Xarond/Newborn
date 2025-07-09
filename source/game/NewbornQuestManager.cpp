@@ -131,6 +131,7 @@ void QuestManager::offer(QuestPtr const& quest) {
 StringMap<QuestPtr> QuestManager::quests() const {
   return m_quests;
 }
+
 StringMap<QuestPtr> QuestManager::serverQuests() const {
   StringMap<QuestPtr> filtered;
   for (auto& pair : m_quests) {

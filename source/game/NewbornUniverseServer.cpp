@@ -309,7 +309,7 @@ void UniverseServer::clientFlyShip(ConnectionId clientId, Vec3I const& system, S
     return;
 
   if (system == Vec3I()) {
-   m_pendingFlights.set(clientId, make_tuple(Vec3I(), SystemLocation(), settings)); // find starter world
+    m_pendingFlights.set(clientId, make_tuple(Vec3I(), SystemLocation(), settings)); // find starter world
     return;
   }
 
@@ -681,7 +681,6 @@ void UniverseServer::updateShips() {
         auto const& speciesShips = m_speciesShips.get(species);
         Json jOldShipLevel = shipWorld->getProperty("ship.level");
         unsigned newShipLevel = min<unsigned>(speciesShips.size() - 1, newShipUpgrades.shipLevel);
-
 
         if (jOldShipLevel.isType(Json::Type::Int)) {
           auto oldShipLevel = jOldShipLevel.toUInt();
@@ -1569,7 +1568,7 @@ void UniverseServer::acceptConnection(UniverseConnection connection, Maybe<HostA
     connection.packetSocket().setNetRules(LegacyVersion);
 
   auto protocolResponse = make_shared<ProtocolResponsePacket>();
-  protocolResponse->setCompressionMode(PacketCompressionMode::Enabled); // Signal that we're OpenNewborn
+  protocolResponse->setCompressionMode(PacketCompressionMode::Enabled); // Signal that we're Newborn
   if (protocolRequest->requestProtocolVersion != NewbornProtocolVersion) {
     Logger::warn("UniverseServer: client connection aborted, unsupported protocol version {}, supported version {}",
         protocolRequest->requestProtocolVersion, NewbornProtocolVersion);
@@ -2050,6 +2049,7 @@ Maybe<WorkerPoolPromise<WorldServerThreadPtr>> UniverseServer::shipWorldPromise(
         shipWorld->setProperty("ship.fuelEfficiency", currentUpgrades.fuelEfficiency);
         shipWorld->setProperty("ship.epoch", Time::timeSinceEpoch());
       }
+
       auto shipClock = make_shared<Clock>();
       auto shipTime = shipWorld->getProperty("ship.epoch");
       if (!shipTime.canConvert(Json::Type::Float)) {

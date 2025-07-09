@@ -36,7 +36,7 @@ UniverseClient::UniverseClient(PlayerStoragePtr playerStorage, StatisticsPtr sta
   m_pause = false;
   m_luaRoot = make_shared<LuaRoot>();
 
-    auto clientConfig = assets->json("/client.config");
+  auto clientConfig = assets->json("/client.config");
   m_luaRoot->tuneAutoGarbageCollection(clientConfig.getFloat("luaGcPause"), clientConfig.getFloat("luaGcStepMultiplier"));
   reset();
 }
@@ -86,7 +86,7 @@ Maybe<String> UniverseClient::connect(UniverseConnection connection, bool allowA
   {
     auto protocolRequest = make_shared<ProtocolRequestPacket>(NewbornProtocolVersion);
     protocolRequest->setCompressionMode(PacketCompressionMode::Enabled);
-    // Signal that we're OpenNewborn. Vanilla Newborn only compresses
+    // Signal that we're Newborn. Vanilla Newborn only compresses
     // packets above 64 bytes - by forcing it, we can communicate this.
     connection.pushSingle(protocolRequest);
   }
@@ -116,7 +116,7 @@ Maybe<String> UniverseClient::connect(UniverseConnection connection, bool allowA
         compressedSocket->setCompressionStreamEnabled(compressionMode == NetCompressionMode::Zstd);
       }
     } else {
-      compatibilityRules.setVersion(1); // A version of 1 is OpenNewborn prior to the NetElement compatibility stuff
+      compatibilityRules.setVersion(1); // A version of 1 is Newborn prior to the NetElement compatibility stuff
       if (compressedSocket) {
         Logger::info("UniverseClient: Defaulting to Zstd network stream compression (older server version)");
         compressedSocket->setCompressionStreamEnabled(true);
@@ -159,7 +159,6 @@ Maybe<String> UniverseClient::connect(UniverseConnection connection, bool allowA
     m_worldClient = make_shared<WorldClient>(m_mainPlayer, m_luaRoot);
     m_worldClient->clientState().setNetCompatibilityRules(compatibilityRules);
     m_worldClient->setAsyncLighting(true);
-
 
     m_connection = std::move(connection);
     m_celestialDatabase = make_shared<CelestialSlaveDatabase>(std::move(success->celestialInformation));
@@ -418,7 +417,7 @@ void UniverseClient::warpPlayer(WarpAction const& warpAction, bool animate, Stri
 
   m_mainPlayer->stopLounging();
 
-    // Check if the warp target is within the same world
+  // Check if the warp target is within the same world
   if (auto warpToWorld = warpAction.ptr<WarpToWorld>()) {
     if (warpToWorld->world.empty() || warpToWorld->world == playerWorld()) {
       if (auto pos = warpToWorld->target.ptr<SpawnTargetPosition>()) {
@@ -505,20 +504,18 @@ uint16_t UniverseClient::maxPlayers() {
 
 void UniverseClient::setLuaCallbacks(String const& groupName, LuaCallbacks const& callbacks) {
   m_luaRoot->addCallbacks(groupName, callbacks);
-
 }
 
 void UniverseClient::restartLua() {
   m_luaRoot->restart();
 }
+
 void UniverseClient::startLuaScripts() {
   auto assets = Root::singleton().assets();
   for (auto& p : assets->json("/client.config:universeScriptContexts").toObject()) {
     auto scriptComponent = make_shared<ScriptComponent>();
     scriptComponent->setLuaRoot(m_luaRoot);
     scriptComponent->setScripts(jsonToStringList(p.second.toArray()));
-
-
 
     m_scriptContexts.set(p.first, scriptComponent);
     scriptComponent->init();
@@ -531,9 +528,11 @@ void UniverseClient::stopLua() {
 
   m_scriptContexts.clear();
 }
+
 LuaRootPtr UniverseClient::luaRoot() {
   return m_luaRoot;
 }
+
 bool UniverseClient::reloadPlayer(Json const& data, Uuid const&, bool resetInterfaces, bool showIndicator) {
   auto player = mainPlayer();
   bool playerInWorld = player->inWorld();
@@ -694,6 +693,7 @@ void UniverseClient::handlePackets(List<PacketPtr> const& packets) {
       }
       if (skip)
         continue;
+
       if (auto clientContextUpdate = as<ClientContextUpdatePacket>(packet)) {
         m_clientContext->readUpdate(clientContextUpdate->updateData, m_clientContext->netCompatibilityRules());
         m_playerStorage->applyShipUpdates(m_clientContext->playerUuid(), m_clientContext->newShipUpdates());

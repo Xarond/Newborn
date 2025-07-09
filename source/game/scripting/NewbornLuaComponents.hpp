@@ -97,14 +97,14 @@ protected:
 
 private:
   LuaCallbacks makeThreadsCallbacks();
-
+  
   StringList m_scripts;
   StringMap<LuaCallbacks> m_callbacks;
   LuaRootPtr m_luaRoot;
   TrackerListenerPtr m_reloadTracker;
   Maybe<LuaContext> m_context;
   Maybe<String> m_error;
-
+  
   StringMap<shared_ptr<ScriptableThread>> m_threads;
   mutable RecursiveMutex m_threadLock;
 };

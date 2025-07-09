@@ -223,7 +223,6 @@ Input::BindEntry::BindEntry(String entryId, Json const& config, BindCategory con
   category = &parentCategory;
   id = entryId;
   name = config.getString("name", id);
-
   tags = jsonToStringList(config.get("tags", JsonArray()));
   for (Json const& jBind : config.getArray("default", {})) {
     try
@@ -342,6 +341,7 @@ Input::InputState* Input::bindStatePtr(String const& categoryId, String const& b
   else
     return nullptr;
 }
+
 Input::InputState& Input::addBindState(BindEntry const* bindEntry) {
   auto insertion = m_bindStates.insert(bindEntry, InputState());
   if (insertion.second) {
@@ -350,6 +350,7 @@ Input::InputState& Input::addBindState(BindEntry const* bindEntry) {
   }
   return insertion.first->second;
 }
+
 Input* Input::s_singleton;
 
 Input* Input::singletonPtr() {
@@ -392,7 +393,7 @@ List<std::pair<InputEvent, bool>> const& Input::inputEventsThisFrame() const {
 
 void Input::reset(bool clear) {
   m_inputEvents.clear();
-if (clear) {
+  if (clear) {
     m_keyStates.clear();
     m_mouseStates.clear();
     m_controllerStates.clear();

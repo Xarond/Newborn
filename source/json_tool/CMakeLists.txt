@@ -12,7 +12,6 @@ SET (CMAKE_AUTOMOC ON)
 ADD_EXECUTABLE (json_tool WIN32
   $<TARGET_OBJECTS:newborn_extern> $<TARGET_OBJECTS:newborn_core>
   json_tool.cpp editor_gui.cpp)
-QT5_USE_MODULES (json_tool Widgets Gui Core)
 TARGET_LINK_LIBRARIES (json_tool ${NEWBORN_EXT_LIBS})
 
 SET (CMAKE_AUTOMOC OFF)

@@ -572,6 +572,7 @@ void ItemDatabase::addItemSet(ItemType type, String const& extension) {
       data.agingScripts = config.opt("itemAgingScripts").apply(jsonToStringList).value();
       data.directory = AssetPath::directory(file);
       data.filename = AssetPath::filename(file);
+
       data.agingScripts = data.agingScripts.transformed(bind(&AssetPath::relativeTo, data.directory, _1));
     } catch (std::exception const& e) {
       throw ItemException(strf("Could not load item asset {}", file), e);
@@ -750,7 +751,6 @@ void ItemDatabase::addCodexes() {
       codexItemData.name = codexItemName;
       codexItemData.friendlyName = codexPair.second->title();
       codexItemData.directory = codexPair.second->directory();
-
       codexItemData.filename = codexPair.second->filename();
       auto customConfig = jsonMerge(codexConfig.get("defaultItemConfig"), codexPair.second->itemConfig()).toObject();
       customConfig["itemName"] = codexItemName;

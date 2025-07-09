@@ -472,9 +472,11 @@ LuaCallbacks LuaBindings::makePlayerCallbacks(Player* player) {
   callbacks.registerCallback("questIds", [player]() {
     return player->questManager()->quests().keys();
   });
+
   callbacks.registerCallback("serverQuestIds", [player]() {
     return player->questManager()->serverQuests().keys();
   });
+
   callbacks.registerCallback("quest", [player](String const& questId) -> Json {
     if (!player->questManager()->hasQuest(questId))
       return {};
@@ -487,12 +489,13 @@ LuaCallbacks LuaBindings::makePlayerCallbacks(Player* player) {
     return player->questManager()->getQuest(questId)->portrait(portraitName);
   });
 
+
   callbacks.registerCallback("questState", [player](String const& questId) -> Maybe<String> {
     if (!player->questManager()->hasQuest(questId))
       return {};
     return QuestStateNames.getRight(player->questManager()->getQuest(questId)->state());
   });
-  
+
   callbacks.registerCallback("callQuest", [player](String const& questId, String const& func, LuaVariadic<LuaValue> const& args) -> Maybe<LuaValue> {
     if (!player->questManager()->hasQuest(questId))
       return {};
@@ -522,12 +525,15 @@ LuaCallbacks LuaBindings::makePlayerCallbacks(Player* player) {
   callbacks.registerCallback("setTrackedQuest", [player](Maybe<String> const& questId) {
     return player->questManager()->setAsTracked(questId);
   });
+
   callbacks.registerCallback("canTurnInQuest", [player](String const& questId) {
     return player->questManager()->canTurnIn(questId);
   });
+
   callbacks.registerCallback("currentQuestId", [player]() {
     return player->questManager()->currentQuestId();
   });
+
   callbacks.registerCallback("currentQuest", [player]() -> Json {
     auto maybeQuest = player->questManager()->currentQuest();
     if (maybeQuest) {
@@ -539,11 +545,11 @@ LuaCallbacks LuaBindings::makePlayerCallbacks(Player* player) {
   callbacks.registerCallback("currentQuestWorld", [player]() -> Maybe<String> {
       auto maybeQuest = player->questManager()->currentQuest();
       if (maybeQuest) {
-      if (auto worldId = (*maybeQuest)->worldId())
+        if (auto worldId = (*maybeQuest)->worldId())
           return printWorldId(*worldId);
       }
       return {};
-  });
+    });
 
   callbacks.registerCallback("questWorlds", [player]() -> List<pair<String, bool>> {
       List<pair<String, bool>> res;

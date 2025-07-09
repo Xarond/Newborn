@@ -35,7 +35,7 @@ Json const AdditionalDefaultConfiguration = Json::parseJson(R"JSON(
 
 int main(int argc, char** argv) {
   try {
-    RootLoader rootLoader({{}, AdditionalDefaultConfiguration, String("Newborn_server.log"), LogLevel::Info, false, String("Newborn_server.config")});
+    RootLoader rootLoader({{}, AdditionalDefaultConfiguration, String("newborn_server.log"), LogLevel::Info, false, String("newborn_server.config")});
     RootUPtr root = rootLoader.commandInitOrDie(argc, argv).first;
     root->fullyLoad();
 

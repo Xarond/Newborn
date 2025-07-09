@@ -134,7 +134,7 @@ public:
 
   void handleIncomingPackets(List<PacketPtr> const& packets);
   List<PacketPtr> getOutgoingPackets();
-  
+
   // Set the rendering window for this client.
   void setClientWindow(RectI window);
   // Sets the client window around the position of the main player.

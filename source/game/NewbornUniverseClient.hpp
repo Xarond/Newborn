@@ -61,7 +61,7 @@ public:
   bool canTeleport() const;
 
   void warpPlayer(WarpAction const& warpAction, bool animate = true, String const& animationType = "default", bool deploy = false);
-  void flyShip(Vec3I const& system, SystemLocation const& destination, Json const& settings);
+  void flyShip(Vec3I const& system, SystemLocation const& destination, Json const& settings = {});
 
   CelestialDatabasePtr celestialDatabase() const;
 
@@ -134,7 +134,6 @@ private:
   SystemWorldClientPtr m_systemWorldClient;
   Maybe<UniverseConnection> m_connection;
   Maybe<ServerInfo> m_serverInfo;
-  
 
   CelestialSlaveDatabasePtr m_celestialDatabase;
   ClientContextPtr m_clientContext;

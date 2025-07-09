@@ -95,7 +95,7 @@ OptionsMenu::OptionsMenu(PaneManager* manager, UniverseClientPtr client)
   m_voiceSettingsMenu = make_shared<VoiceSettingsMenu>(assets->json(config.getString("voiceSettingsPanePath", "/interface/opensb/voicechat/voicechat.config")));
   m_modBindingsMenu = make_shared<BindingsMenu>(assets->json(config.getString("bindingsPanePath", "/interface/opensb/bindings/bindings.config")));
   m_keybindingsMenu = make_shared<KeybindingsMenu>();
-  m_graphicsMenu = make_shared<GraphicsMenu>(manager, client);
+  m_graphicsMenu = make_shared<GraphicsMenu>(manager,client);
 
   initConfig();
 }

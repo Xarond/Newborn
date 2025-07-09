@@ -3,17 +3,8 @@
 #include "NewbornJsonExtra.hpp"
 #include "NewbornFile.hpp"
 #include "NewbornVersionOptionParser.hpp"
-#include <iostream>
-#include <string>
 
 using namespace Newborn;
-
-// XOR encryption/decryption function
-void xorEncryptDecrypt(Newborn::ByteArray& data, const std::string& key) {
-    for (size_t i = 0; i < data.size(); ++i) {
-        data[i] ^= key[i % key.size()];
-    }
-}
 
 int main(int argc, char** argv) {
   try {

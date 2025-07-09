@@ -107,7 +107,8 @@ GraphicsMenu::GraphicsMenu(PaneManager* manager,UniverseClientPtr client)
   });
   reader.registerCallback("showShadersMenu", [=](Widget*) {
       displayShaders();
-  });
+    });
+
   auto assets = Root::singleton().assets();
 
   auto config = assets->json("/interface/windowconfig/graphicsmenu.config");
@@ -127,6 +128,7 @@ GraphicsMenu::GraphicsMenu(PaneManager* manager,UniverseClientPtr client)
 
   initConfig();
   syncGui();
+  
   m_shadersMenu = make_shared<ShadersMenu>(assets->json(config.getString("shadersPanePath", "/interface/opensb/shaders/shaders.config")), client);
 }
 
@@ -135,9 +137,7 @@ void GraphicsMenu::show() {
   initConfig();
   syncGui();
 }
-void GraphicsMenu::displayShaders() {
-  m_paneManager->displayPane(PaneLayer::ModalWindow, m_shadersMenu);
-}
+
 void GraphicsMenu::dismissed() {
   Pane::dismissed();
 }
@@ -246,6 +246,10 @@ void GraphicsMenu::apply() {
   for (auto p : m_localChanges) {
     configuration->set(p.first, p.second);
   }
+}
+
+void GraphicsMenu::displayShaders() {
+  m_paneManager->displayPane(PaneLayer::ModalWindow, m_shadersMenu);
 }
 
 void GraphicsMenu::applyWindowSettings() {

@@ -944,6 +944,7 @@ void PlayerInventory::cleanup() {
 
 bool PlayerInventory::checkInventoryFilter(ItemPtr const& items, String const& filterName) {
   Json filterConfig;
+
   auto itemFilters = items->instanceValue("inventoryFilters");
   if (itemFilters.isType(Json::Type::Object)) {
     filterConfig = itemFilters.opt(filterName).value();

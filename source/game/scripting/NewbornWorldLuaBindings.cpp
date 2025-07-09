@@ -1772,7 +1772,7 @@ namespace LuaBindings {
       return world->sendEntityMessage(engine.luaTo<EntityId>(entityId), message, JsonArray::from(std::move(args)));
   }
 
-    Maybe<List<EntityId>> WorldEntityCallbacks::loungingEntities(World* world, EntityId entityId, Maybe<size_t> anchorIndex) {
+  Maybe<List<EntityId>> WorldEntityCallbacks::loungingEntities(World* world, EntityId entityId, Maybe<size_t> anchorIndex) {
     if (auto entity = world->get<LoungeableEntity>(entityId))
       return entity->entitiesLoungingIn(anchorIndex.value()).values();
     return {};

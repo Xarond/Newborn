@@ -7,7 +7,6 @@ namespace Newborn {
 NEWBORN_CLASS(WorldCamera);
 
 namespace LuaBindings {
-    LuaCallbacks makeCameraCallbacks(WorldCamera* camera);
+  LuaCallbacks makeCameraCallbacks(WorldCamera* camera);
 }
-
 }

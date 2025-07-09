@@ -107,8 +107,10 @@ OpenGlRenderer::OpenGlRenderer() {
   glEnable(GL_BLEND);
   glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
   glDisable(GL_DEPTH_TEST);
-  //glEnable(GL_DEBUG_OUTPUT);
-  //glDebugMessageCallback(GlMessageCallback, this);
+  if (GLEW_VERSION_4_3) {
+    //glEnable(GL_DEBUG_OUTPUT);
+    //glDebugMessageCallback(GlMessageCallback, this);
+  }
 
   m_whiteTexture = createGlTexture(Image::filled({1, 1}, Vec4B(255, 255, 255, 255), PixelFormat::RGBA32),
       TextureAddressing::Clamp,
@@ -1123,7 +1125,7 @@ void OpenGlRenderer::setupGlUniforms(Effect& effect, Vec2U screenSize) {
   }
 
   glUniform2f(m_screenSizeUniform, screenSize[0], screenSize[1]);
-
+  
   for (auto& param : effect.scriptables) {
     auto ptr = &param.second;
     auto mvalue = ptr->parameterValue;
@@ -1143,7 +1145,6 @@ void OpenGlRenderer::setupGlUniforms(Effect& effect, Vec2U screenSize) {
         glUniform4f(ptr->parameterUniform, (*v)[0], (*v)[1], (*v)[2], (*v)[3]);
     }
   }
-
 }
 
 RefPtr<OpenGlRenderer::GlFrameBuffer> OpenGlRenderer::getGlFrameBuffer(String const& id) {

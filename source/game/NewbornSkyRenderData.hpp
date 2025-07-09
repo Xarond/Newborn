@@ -7,6 +7,7 @@ namespace Newborn {
 struct SkyRenderData {
   Json settings;
   SkyParameters skyParameters;
+
   SkyType type;
   float dayLevel;
   float skyAlpha;

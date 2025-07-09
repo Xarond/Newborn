@@ -23,7 +23,7 @@ String Configuration::printConfiguration() const {
 
 Json Configuration::get(String const& key, Json def) const {
   MutexLocker locker(m_mutex);
-  return m_currentConfig.get(key, {});
+  return m_currentConfig.get(key, def);
 }
 
 Json Configuration::getPath(String const& path, Json def) const {

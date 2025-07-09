@@ -107,7 +107,7 @@ bool ServerQueryThread::processPacket(HostAddressWithPort const& address, char c
                         << A2S_TYPE_DEDICATED // dedicated
 #ifdef NEWBORN_SYSTEM_FAMILY_WINDOWS
                         << A2S_ENV_WINDOWS // os
-#elif defined(STAR_SYSTEM_MACOS)
+#elif defined(NEWBORN_SYSTEM_MACOS)
                         << A2S_ENV_MAC // os
 #else
                         << A2S_ENV_LINUX // os

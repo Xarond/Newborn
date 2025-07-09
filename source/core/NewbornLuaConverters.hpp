@@ -169,7 +169,7 @@ template <typename FirstType, typename... RestTypes>
 struct LuaConverter<Variant<FirstType, RestTypes...>> {
   static LuaValue from(LuaEngine& engine, Variant<FirstType, RestTypes...> const& variant) {
     return variant.call([&engine](auto const& a) { return engine.luaFrom(a); });
-    }
+  }
 
   static LuaValue from(LuaEngine& engine, Variant<FirstType, RestTypes...>&& variant) {
     return variant.call([&engine](auto& a) { return engine.luaFrom(std::move(a)); });

@@ -22,6 +22,7 @@ public:
   void setPostProcessGroupEnabled(String group, bool enabled, Maybe<bool> save);
   bool postProcessGroupEnabled(String group);
   Json postProcessGroups();
+  
 protected:
   virtual void startup(StringList const& cmdLineArgs) override;
   virtual void shutdown() override;
@@ -56,7 +57,7 @@ private:
     String account;
     String password;
   };
-
+  
   struct PostProcessGroup {
     bool enabled;
   };
