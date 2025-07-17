@@ -30,7 +30,6 @@ CommandProcessor::CommandProcessor(UniverseServer* universe, LuaRootPtr luaRoot)
   m_scriptComponent.addCallbacks("universe", LuaBindings::makeUniverseServerCallbacks(m_universe));
   m_scriptComponent.addCallbacks("CommandProcessor", makeCommandCallbacks());
   m_scriptComponent.setScripts(jsonToStringList(assets->json("/universe_server.config:commandProcessorScripts")));
-  auto luaRoot = make_shared<LuaRoot>();
   m_scriptComponent.setLuaRoot(luaRoot);
   m_scriptComponent.init();
 }
