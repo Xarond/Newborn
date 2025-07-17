@@ -12,7 +12,7 @@ NEWBORN_CLASS(CommandProcessor);
 
 class CommandProcessor {
 public:
-  CommandProcessor(UniverseServer* universe);
+  CommandProcessor(UniverseServer* universe, LuaRootPtr luaRoot);
 
   String adminCommand(String const& command, String const& argumentString);
   String userCommand(ConnectionId clientId, String const& command, String const& argumentString);
