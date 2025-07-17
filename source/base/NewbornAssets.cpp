@@ -23,15 +23,7 @@
 #include "NewbornUtilityLuaBindings.hpp"
 
 namespace Newborn {
-
-EnumMap<AssetType> const AssetTypeNames{
-    {AssetType::Json, "json"},
-    {AssetType::Image, "image"},
-    {AssetType::Audio, "audio"},
-    {AssetType::Font, "font"},
-    {AssetType::Bytes, "bytes"}
-};
-
+    
 static void validateBasePath(std::string_view const& basePath) {
   if (basePath.empty() || basePath[0] != '/')
     throw AssetException(strf("Path '{}' must be absolute", basePath));
@@ -142,6 +134,27 @@ Assets::Assets(Settings settings, StringList assetSources) {
     callbacks.registerCallbackWithSignature<Json, String>("json", bind(&Assets::json, this, _1));
     callbacks.registerCallbackWithSignature<bool, String>("exists", bind(&Assets::assetExists, this, _1));
 
+    callbacks.registerCallback("sourcePaths", [this](LuaEngine& engine, Maybe<bool> withMetaData) -> LuaTable {
+      auto assetSources = this->assetSources();
+      auto table = engine.createTable(assetSources.size(), 0);
+      if (withMetaData.value()) {
+        for (auto& assetSource : assetSources)
+          table.set(assetSource, this->assetSourceMetadata(assetSource));
+      }
+      else {
+        size_t i = 0;
+        for (auto& assetSource : assetSources)
+          table.set(++i, assetSource);
+      }
+      return table;
+    });
+    
+    callbacks.registerCallback("origin", [this](String const& path) -> Maybe<String> {
+      if (auto descriptor = this->assetDescriptor(path))
+        return this->assetSourcePath(descriptor->source);
+      return {};
+    });
+    
     callbacks.registerCallback("bytes", [this](String const& path) -> String {
       auto assetBytes = bytes(path);
       return String(assetBytes->ptr(), assetBytes->size());
@@ -340,14 +353,15 @@ Assets::Assets(Settings settings, StringList assetSources) {
   int workerPoolSize = m_settings.workerPoolSize;
   for (int i = 0; i < workerPoolSize; i++)
     m_workerThreads.append(Thread::invoke("Assets::workerMain", mem_fn(&Assets::workerMain), this));
-
+  
+  // preload.config contains an array of files which will be loaded and then told to persist
   Json preload = json("/preload.config");
   Logger::info("Preloading assets");
   for (auto script : preload.iterateArray()) {
     auto type = AssetTypeNames.getLeft(script.getString("type"));
     auto path = script.getString("path");
     auto components = AssetPath::split(path);
-    validatePath(components, type == AssetType::Json, type == AssetType::Image);
+    validatePath(components, type == AssetType::Json || type == AssetType::Image, type == AssetType::Image);
 
     auto asset = getAsset(AssetId{type, std::move(components)});
     // make this asset never unload
