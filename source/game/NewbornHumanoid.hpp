@@ -269,6 +269,8 @@ public:
   String getBackArmFromIdentity() const;
   String getFrontArmFromIdentity() const;
   String getVaporTrailFrameset() const;
+  String getBodyMaskFromIdentity() const;
+  String getBodyHeadMaskFromIdentity() const;
 
   // Extracts scalenearest from directives and returns the combined scale and
   // a new Directives without those scalenearest directives.
@@ -330,6 +332,9 @@ private:
   Vec2F m_legsArmorOffset;
   Vec2F m_backArmorOffset;
 
+  bool m_useBodyMask;
+  bool m_useBodyHeadMask;
+
   bool m_bodyHidden;
 
   List<int> m_armWalkSeq;
@@ -351,6 +356,8 @@ private:
   String m_hairFrameset;
   String m_facialHairFrameset;
   String m_facialMaskFrameset;
+  String m_bodyMaskFrameset;
+  String m_bodyHeadMaskFrameset;
 
   bool m_bodyFullbright;
 
